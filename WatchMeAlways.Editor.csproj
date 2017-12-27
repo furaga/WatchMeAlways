@@ -122,6 +122,7 @@
   <ItemGroup>
     <Compile Include="Assets\RockVR\Video\Editor\VideoCaptureEditor.cs" />
     <Compile Include="Assets\RockVR\Video\Editor\VideoCaptureMenuEditor.cs" />
+    <Compile Include="Assets\WatchMeAlways\Editor\WatchMeAlwaysMenuEditor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\RockVR\Video\Shaders\CopyReverse.shader" />
