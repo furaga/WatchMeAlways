@@ -1,14 +1,19 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Runtime.InteropServices;
 
 public class HighResScreenshot : MonoBehaviour
 {
+    [DllImport("WatchMeAlwaysLib")]
+    static extern float FooPluginFunction();
+    [DllImport("WatchMeAlwaysLib")]
+    static extern int TestFFMPEG(int frameCounter);
 
     void Start()
     {
-
-
-
+        Debug.Log("On Start()");
+        var res = TestFFMPEG(250);
+        Debug.Log("TestFFMPEG() = " + res);
     }
 
     bool takeHiResShot = false;
