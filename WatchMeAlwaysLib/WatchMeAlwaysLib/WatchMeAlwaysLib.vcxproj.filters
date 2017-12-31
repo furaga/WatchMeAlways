@@ -29,7 +29,7 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="WatchMeAlways_Lib.cpp">
+    <ClCompile Include="WatchMeAlwaysLib.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="dllmain.cpp">
