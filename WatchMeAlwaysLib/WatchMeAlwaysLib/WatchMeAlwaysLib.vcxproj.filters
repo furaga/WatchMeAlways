@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Recorder">
+      <UniqueIdentifier>{2b1b5375-0e6c-4878-99c2-c086937f142a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unity">
+      <UniqueIdentifier>{422e456e-60a3-4b74-a587-7c5bb1887bc2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="WatchMeAlwaysLib.cpp" />
+    <ClCompile Include="Recorder\Recorder.cpp">
+      <Filter>Recorder</Filter>
+    </ClCompile>
+    <ClCompile Include="Recorder\Frame.cpp">
+      <Filter>Recorder</Filter>
+    </ClCompile>
+    <ClCompile Include="Unity\UnityDebugCpp.cpp">
+      <Filter>Unity</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="Recorder\Recorder.h">
+      <Filter>Recorder</Filter>
+    </ClInclude>
+    <ClInclude Include="Recorder\Frame.h">
+      <Filter>Recorder</Filter>
+    </ClInclude>
+    <ClInclude Include="Unity\UnityDebugCpp.h">
+      <Filter>Unity</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

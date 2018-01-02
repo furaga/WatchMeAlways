@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2017
+# Visual Studio 2015
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WatchMeAlways", "WatchMeAlways.csproj", "{87D02EC8-BA5E-1FEA-8689-313861A588E9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WatchMeAlways.Editor", "WatchMeAlways.Editor.csproj", "{E69BF959-9444-B535-0809-6E031CCF393B}"
