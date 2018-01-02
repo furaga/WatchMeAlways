@@ -22,7 +22,7 @@ Recorder::Recorder() :
 	}
 }
 
-bool Recorder::StartRecording() {
+bool Recorder::StartRecording(int width, int height) {
 
 	// Find H264 codec (libx264)
 	avcodec_register_all();
@@ -47,8 +47,8 @@ bool Recorder::StartRecording() {
 
 	// Setting of encoding
 	c->bit_rate = 400000;
-	c->width = 352; // not free resolution (what restriction?)
-	c->height = 288;// not free resolution (what restriction?)
+	c->width = width; 
+	c->height = height;
 	c->time_base = { 1, FPS };
 	c->framerate = { FPS, 1 };
 	c->gop_size = 10;

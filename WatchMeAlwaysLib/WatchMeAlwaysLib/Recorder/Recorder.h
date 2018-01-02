@@ -25,7 +25,7 @@ class Recorder {
 
 public:
 	Recorder();
-	bool StartRecording();
+	bool StartRecording(int width, int height);
 	bool AddFrame(uint8_t* pixels, float timeStamp, int linesize);
 	bool FinishRecording(const std::string& filename);
 

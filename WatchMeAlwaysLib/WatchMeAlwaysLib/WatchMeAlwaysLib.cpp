@@ -16,7 +16,7 @@ int StartRecording(int width, int height)
 {
 	SAFE_DELETE(recorder);
 	recorder = new Recorder();
-	bool succeeded = recorder->StartRecording();
+	bool succeeded = recorder->StartRecording(width, height);
 	if (!succeeded) {
 		UnityDebugCpp::Error("failed: recorder->StartRecording()\n");
 		return 1;

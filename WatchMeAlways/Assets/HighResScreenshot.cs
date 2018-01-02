@@ -27,11 +27,16 @@ public class HighResScreenshot : MonoBehaviour
         count = 0;
     }
 
+    int frameWidth_ = 0;
+    int frameHeight_ = 0;
+
     void LateUpdate()
     {
         if (state == State.NotStarted)
         {
-            int res = StartRecording(Screen.width, Screen.height);
+            frameWidth_ = Screen.width / 2 * 2;
+            frameHeight_ = Screen.height / 2 * 2;
+            int res = StartRecording(frameWidth_, frameHeight_);
             Debug.Log("StartRecording: " + res);
             state = State.Running;
             myScreenShot();
@@ -75,21 +80,19 @@ public class HighResScreenshot : MonoBehaviour
         {
             yield return new WaitForEndOfFrame();
 
+            if (frameWidth_ > 0 && frameHeight_ > 0)
+            {
+                var tex = new Texture2D(frameWidth_, frameHeight_, TextureFormat.RGB24, false);
 
-            //c->width = 352;
-            //c->height = 288;
-            var width = 352;
-            var height = 288;
-            var tex = new Texture2D(width, height, TextureFormat.RGB24, false);
+                tex.ReadPixels(new Rect(0, 0, frameWidth_, frameHeight_), 0, 0);
+                tex.Apply();
 
-            tex.ReadPixels(new Rect(0, 0, width, height), 0, 0);
-            tex.Apply();
-
-            var bytes = tex.GetRawTextureData();
-            Debug.Log("# of bytes: " + bytes.Length);
-            int res = AddFrame(bytes, count++, width * 3 /* REALLY? */);
-            Debug.Log("AddFrame: " + res);
-            count++;
+                var bytes = tex.GetRawTextureData();
+                Debug.Log("# of bytes: " + bytes.Length);
+                int res = AddFrame(bytes, count++, frameWidth_ * 3 /* REALLY? */);
+                Debug.Log("AddFrame: " + res);
+                count++;
+            }
         }
     }
 }
