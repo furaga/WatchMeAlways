@@ -18,7 +18,7 @@ int StartRecording(int width, int height)
 	recorder = new Recorder();
 	bool succeeded = recorder->StartRecording();
 	if (!succeeded) {
-		printf("failed: recorder->StartRecording()\n");
+		UnityDebugCpp::Error("failed: recorder->StartRecording()\n");
 		return 1;
 	}
 	return 0;
@@ -31,7 +31,7 @@ int AddFrame(uint8_t* pixels, float timeStamp, int linesize)
 	}
 	bool succeeded = recorder->AddFrame(pixels, timeStamp, linesize);
 	if (!succeeded) {
-		printf("failed: recorder->AddFrame()\n");
+		UnityDebugCpp::Error("failed: recorder->AddFrame()\n");
 		return 1;
 	}
 	return 0;
@@ -45,7 +45,7 @@ int FinishRecording()
 	std::string filename = "C:\\Users\\furaga\\Documents\\tmpdata\\sample-unity.h264";
 	bool succeeded = recorder->FinishRecording(filename);
 	if (!succeeded) {
-		printf("failed: recorder->FinishRecording()\n");
+		UnityDebugCpp::Error("failed: recorder->FinishRecording()\n");
 		return 1;
 	}
 	return 0;

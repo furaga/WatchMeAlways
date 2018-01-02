@@ -28,14 +28,14 @@ bool Recorder::StartRecording() {
 	avcodec_register_all();
 	codec = avcodec_find_encoder(AV_CODEC_ID_H264);
 	if (!codec) {
-		fprintf(stderr, "Codec '%s' not found\n", "AV_CODEC_ID_H264");
+		UnityDebugCpp::Error("Codec 'AV_CODEC_ID_H264' not found\n");
 		return false;
 	}
 
 	// Create codec context
 	c = avcodec_alloc_context3(codec);
 	if (!c) {
-		fprintf(stderr, "Could not allocate video codec context\n");
+		UnityDebugCpp::Error("Could not allocate video codec context\n");
 		return false;
 	}
 
@@ -62,14 +62,14 @@ bool Recorder::StartRecording() {
 	// Initialize codec context
 	int ret = avcodec_open2(c, codec, NULL);
 	if (ret < 0) {
-		fprintf(stderr, "Could not open codec: H264\n");
+		UnityDebugCpp::Error("Could not open codec: H264\n");
 		return false;
 	}
 
 	// Create avframe
 	frame = av_frame_alloc();
 	if (!frame) {
-		fprintf(stderr, "Could not allocate video frame\n");
+		UnityDebugCpp::Error("Could not allocate video frame\n");
 		return false;
 	}
 	frame->format = c->pix_fmt;
@@ -77,7 +77,7 @@ bool Recorder::StartRecording() {
 	frame->height = c->height;
 	ret = av_frame_get_buffer(frame, 32);
 	if (ret < 0) {
-		fprintf(stderr, "Could not allocate the video frame data\n");
+		UnityDebugCpp::Error("Could not allocate the video frame data\n");
 		return false;
 	}
 
@@ -117,19 +117,26 @@ bool Recorder::AddFrame(uint8_t* pixels, float timeStamp, int linesize)
 
 	frame->pts = (int)timeStamp; // todo
 
-	encode(c, frame, pkt);
+	bool succeeded = encode(c, frame, pkt);
+	if (!succeeded) {
+		return false;
+	}
+
 	return true;
 }
 
 bool Recorder::FinishRecording(const std::string& filename)
 {
 	// second arg is NULL => flush
-	encode(c, NULL, pkt);
+	bool succeeded = encode(c, NULL, pkt);
+	if (!succeeded) {
+		return false;
+	}
 
 	FILE *f;
 	errno_t err = fopen_s(&f, filename.c_str(), "wb");
 	if (err) {
-		fprintf(stderr, "Could not open %s\n", filename.c_str());
+		UnityDebugCpp::Error("Could not open " + filename + "\n");
 		return false;
 	}
 
@@ -151,26 +158,29 @@ bool Recorder::FinishRecording(const std::string& filename)
 }
 
 
-void Recorder::encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt)
+bool Recorder::encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt)
 {
 	int ret;
 
 	ret = avcodec_send_frame(enc_ctx, frame);
 	if (ret < 0) {
-		fprintf(stderr, "Error sending a frame for encoding\n");
-		exit(100);
+		UnityDebugCpp::Error("Error sending a frame for encoding\n");
+		return false;
 	}
 
 	while (ret >= 0) {
 		ret = avcodec_receive_packet(enc_ctx, pkt);
-		if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
-			return;
+		if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
+			return true;
+		}
 		else if (ret < 0) {
-			fprintf(stderr, "Error during encoding\n");
-			exit(101);
+			UnityDebugCpp::Error("Error during encoding\n");
+			return false;
 		}
 
-		printf("Write packet %3" PRId64 " (size=%5d)\n", pkt->pts, pkt->size);
+		char str[128] = { 0 };
+		sprintf_s(str, 128, "Write packet %3" PRId64 " (size=%5d)\n", pkt->pts, pkt->size);
+		UnityDebugCpp::Info(str);
 
 		assert(frames[currentFrame] == nullptr);
 		frames[currentFrame] = new Frame(pkt->data, pkt->size);
@@ -182,4 +192,6 @@ void Recorder::encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt)
 
 		av_packet_unref(pkt);
 	}
+
+	return true;
 }

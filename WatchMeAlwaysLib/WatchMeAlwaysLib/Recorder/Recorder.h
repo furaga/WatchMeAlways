@@ -30,7 +30,7 @@ public:
 	bool FinishRecording(const std::string& filename);
 
 private:
-	void encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt);
+	bool encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt);
 };
 
 #endif

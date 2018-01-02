@@ -9,3 +9,5 @@
 
 #define DllExport   __declspec( dllexport )  
 #define SAFE_DELETE(x) if (x != nullptr) { delete x; x = nullptr; }
+
+#include "Unity/UnityDebugCpp.h"
