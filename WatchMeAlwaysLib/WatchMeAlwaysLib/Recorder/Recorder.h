@@ -10,7 +10,8 @@ struct AVFrame;
 struct AVPacket;
 class Frame;
 
-const int MaxFrameNum = 25 * 60 * 2;
+const int FPS = 25;
+const int MaxFrameNum = 25 * 60 * 2; // 2 minutes
 
 class Recorder {
 

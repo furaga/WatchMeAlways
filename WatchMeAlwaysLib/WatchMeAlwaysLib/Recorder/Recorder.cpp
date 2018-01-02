@@ -9,8 +9,6 @@ extern "C" {
 #include <libavutil/imgutils.h>
 }
 
-const int FPS = 25;
-
 Recorder::Recorder() :
 	codec(nullptr),
 	c(nullptr),
