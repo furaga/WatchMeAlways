@@ -120,7 +120,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\WatchMeAlways\Editor\NativePlugin.cs" />
     <Compile Include="Assets\WatchMeAlways\Editor\WatchMeAlwaysMenuEditor.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
