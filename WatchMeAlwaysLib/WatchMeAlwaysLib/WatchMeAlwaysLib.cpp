@@ -11,6 +11,8 @@ extern "C" {
 	DllExport int FinishRecording();
 }
 
+
+
 const AVCodec *codec;
 AVCodecContext *c = NULL;
 int i, ret, x, y;
@@ -24,7 +26,7 @@ int currentFrame = 0;
 int recordCount = 0;
 
 
-static void encodeNonWrite(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt)
+static void encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt)
 {
 	int ret;
 
@@ -151,14 +153,14 @@ int AddFrame(uint8_t* pixels, float timeStamp, int linesize)
 
 	frame->pts = (int)timeStamp; // todo
 
-	encodeNonWrite(c, frame, pkt);
+	encode(c, frame, pkt);
 	return 0;
 }
 
 int FinishRecording()
 {
 	// second arg is NULL => flush
-	encodeNonWrite(c, NULL, pkt);
+	encode(c, NULL, pkt);
 
 	const char *filename;
 	FILE *f;
@@ -185,35 +187,4 @@ int FinishRecording()
 	av_packet_free(&pkt);
 
 	return 0;
-}
-
-
-static void encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt,
-	FILE *outfile)
-{
-	int ret;
-
-	/* send the frame to the encoder */
-//	if (frame)
-//		printf("Send frame %3"PRId64"\n", frame->pts);
-
-	ret = avcodec_send_frame(enc_ctx, frame);
-	if (ret < 0) {
-		fprintf(stderr, "Error sending a frame for encoding\n");
-		exit(100);
-	}
-
-	while (ret >= 0) {
-		ret = avcodec_receive_packet(enc_ctx, pkt);
-		if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
-			return;
-		else if (ret < 0) {
-			fprintf(stderr, "Error during encoding\n");
-			exit(101);
-		}
-
-		printf("Write packet %3" PRId64 " (size=%5d)\n", pkt->pts, pkt->size);
-		fwrite(pkt->data, 1, pkt->size, outfile);
-		av_packet_unref(pkt);
-	}
 }
