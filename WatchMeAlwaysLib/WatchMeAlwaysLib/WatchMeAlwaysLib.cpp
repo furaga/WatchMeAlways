@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "Recorder.h"
+#include "Recorder/Recorder.h"
 
 extern "C" {
 	DllExport int StartRecording(int width, int height);
