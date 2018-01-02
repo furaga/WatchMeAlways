@@ -5,11 +5,6 @@ using System.Runtime.InteropServices;
 public class HighResScreenshot : MonoBehaviour
 {
     [DllImport("WatchMeAlwaysLib")]
-    static extern float FooPluginFunction();
-    [DllImport("WatchMeAlwaysLib")]
-    static extern int TestFFMPEG(int frameCounter);
-
-    [DllImport("WatchMeAlwaysLib")]
     static extern int StartRecording(int width, int height);
     [DllImport("WatchMeAlwaysLib")]
     static extern int AddFrame(byte[] pixels, float timeStamp, int lineSize);
@@ -30,8 +25,6 @@ public class HighResScreenshot : MonoBehaviour
     {
         state = State.NotStarted;
         count = 0;
-
-        TestFFMPEG(30);
     }
 
     void LateUpdate()
