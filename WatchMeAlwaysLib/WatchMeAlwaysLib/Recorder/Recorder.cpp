@@ -7,6 +7,7 @@ extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavutil/opt.h>
 #include <libavutil/imgutils.h>
+#include <libswscale/swscale.h>
 }
 
 Recorder::Recorder() :
@@ -22,7 +23,7 @@ Recorder::Recorder() :
 	}
 }
 
-bool Recorder::StartRecording() {
+bool Recorder::StartRecording(int width, int height) {
 
 	// Find H264 codec (libx264)
 	avcodec_register_all();
@@ -47,8 +48,8 @@ bool Recorder::StartRecording() {
 
 	// Setting of encoding
 	c->bit_rate = 400000;
-	c->width = 352; // not free resolution (what restriction?)
-	c->height = 288;// not free resolution (what restriction?)
+	c->width = width; 
+	c->height = height;
 	c->time_base = { 1, FPS };
 	c->framerate = { FPS, 1 };
 	c->gop_size = 10;
@@ -93,27 +94,36 @@ bool Recorder::StartRecording() {
 	return true;
 }
 
-bool Recorder::AddFrame(uint8_t* pixels, float timeStamp, int linesize)
+void FlipFrameJ420(AVFrame* pFrame) {
+	for (int i = 0; i < 4; i++) {
+		if (i) {
+			pFrame->data[i] += pFrame->linesize[i] * ((pFrame->height >> 1) - 1);
+		}
+		else {
+			pFrame->data[i] += pFrame->linesize[i] * (pFrame->height - 1);
+		}
+		pFrame->linesize[i] = -pFrame->linesize[i];
+	}
+}
+bool Recorder::AddFrame(uint8_t* pixels, float timeStamp, int imgWidth, int imgHeight)
 {
 	int ret = av_frame_make_writable(frame);
 	if (ret < 0) {
 		return false;
 	}
 
-	// TODO: convert rgb -> yuv;
+	// convert rgb -> yuv420
+	// cf. https://stackoverflow.com/questions/16667687/how-to-convert-rgb-from-yuv420p-for-ffmpeg-encoder
+	SwsContext * ctx = sws_getContext(
+		imgWidth, imgHeight,		AV_PIX_FMT_RGB24, 
+		imgWidth, imgHeight,		AV_PIX_FMT_YUV420P, 
+		0, 0, 0, 0);
+	int inLinesize[1] = { 3 * imgWidth };
+	//pixels[0] += inLinesize[0] * (imgHeight - 1);
+	//inLinesize[0] = -inLinesize[0];
 
-	for (int y = 0; y < c->height; y++) {
-		for (int x = 0; x < c->width; x++) {
-			frame->data[0][y * frame->linesize[0] + x] = pixels[3 * x + y * linesize + 0];
-		}
-	}
-
-	for (int y = 0; y < c->height / 2; y++) {
-		for (int x = 0; x < c->width / 2; x++) {
-			frame->data[1][y * frame->linesize[1] + x] = pixels[3 * x * 2 + y * 2 * linesize + 1];
-			frame->data[2][y * frame->linesize[2] + x] = pixels[3 * x * 2 + y * 2 * linesize + 2];
-		}
-	}
+	sws_scale(ctx, &pixels, inLinesize, 0, imgHeight, frame->data, frame->linesize);
+	FlipFrameJ420(frame);
 
 	frame->pts = (int)timeStamp; // todo
 
