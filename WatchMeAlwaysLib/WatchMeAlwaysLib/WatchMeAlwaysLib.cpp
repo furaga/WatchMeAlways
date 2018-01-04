@@ -6,7 +6,7 @@
 
 extern "C" {
 	DllExport int StartRecording(int width, int height);
-	DllExport int AddFrame(uint8_t* pixels, float timeStamp, int lineSize);
+	DllExport int AddFrame(uint8_t* pixels, float timeStamp, int imgWidth, int imgHeight);
 	DllExport int FinishRecording();
 }
 
@@ -24,12 +24,12 @@ int StartRecording(int width, int height)
 	return 0;
 }
 
-int AddFrame(uint8_t* pixels, float timeStamp, int linesize)
+int AddFrame(uint8_t* pixels, float timeStamp, int imgWidth, int imgHeight)
 {
 	if (recorder == nullptr) {
 		return 1;
 	}
-	bool succeeded = recorder->AddFrame(pixels, timeStamp, linesize);
+	bool succeeded = recorder->AddFrame(pixels, timeStamp, imgWidth, imgHeight);
 	if (!succeeded) {
 		UnityDebugCpp::Error("failed: recorder->AddFrame()\n");
 		return 1;

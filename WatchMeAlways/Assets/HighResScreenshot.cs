@@ -7,7 +7,7 @@ public class HighResScreenshot : MonoBehaviour
     [DllImport("WatchMeAlwaysLib")]
     static extern int StartRecording(int width, int height);
     [DllImport("WatchMeAlwaysLib")]
-    static extern int AddFrame(byte[] pixels, float timeStamp, int lineSize);
+    static extern int AddFrame(byte[] pixels, float timeStamp, int imgWidth, int imgHeight);
     [DllImport("WatchMeAlwaysLib")]
     static extern int FinishRecording();
 
@@ -89,7 +89,7 @@ public class HighResScreenshot : MonoBehaviour
 
                 var bytes = tex.GetRawTextureData();
                 Debug.Log("# of bytes: " + bytes.Length);
-                int res = AddFrame(bytes, count++, frameWidth_ * 3 /* REALLY? */);
+                int res = AddFrame(bytes, count++, frameWidth_, frameHeight_);
                 Debug.Log("AddFrame: " + res);
                 count++;
             }
