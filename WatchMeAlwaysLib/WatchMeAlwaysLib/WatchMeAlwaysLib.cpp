@@ -7,8 +7,13 @@
 extern "C" {
 	DllExport int StartRecording(int width, int height);
 	DllExport int AddFrame(uint8_t* pixels, float timeStamp, int imgWidth, int imgHeight);
-	DllExport int FinishRecording();
+	DllExport int FinishRecording(char* saveFilePath);
 }
+
+enum APIResult {
+	API_RESULT_OK = 0,
+	API_RESULT_NG = 1,
+};
 
 Recorder* recorder = nullptr;
 
@@ -19,34 +24,35 @@ int StartRecording(int width, int height)
 	bool succeeded = recorder->StartRecording(width, height);
 	if (!succeeded) {
 		UnityDebugCpp::Error("failed: recorder->StartRecording()\n");
-		return 1;
+		return API_RESULT_NG;
 	}
-	return 0;
+	return API_RESULT_OK;
 }
 
 int AddFrame(uint8_t* pixels, float timeStamp, int imgWidth, int imgHeight)
 {
 	if (recorder == nullptr) {
-		return 1;
+		return API_RESULT_NG;
 	}
 	bool succeeded = recorder->AddFrame(pixels, timeStamp, imgWidth, imgHeight);
 	if (!succeeded) {
 		UnityDebugCpp::Error("failed: recorder->AddFrame()\n");
-		return 1;
+		return API_RESULT_NG;
 	}
-	return 0;
+	return API_RESULT_OK;
 }
 
-int FinishRecording()
+int FinishRecording(char* saveFilePath)
 {
 	if (recorder == nullptr) {
-		return 1;
+		return API_RESULT_NG;
 	}
-	std::string filename = "C:\\Users\\furaga\\Documents\\tmpdata\\sample-unity.h264";
+	std::string filename(saveFilePath);
+	UnityDebugCpp::Info(filename.c_str());
 	bool succeeded = recorder->FinishRecording(filename);
 	if (!succeeded) {
 		UnityDebugCpp::Error("failed: recorder->FinishRecording()\n");
-		return 1;
+		return API_RESULT_NG;
 	}
-	return 0;
+	return API_RESULT_OK;
 }

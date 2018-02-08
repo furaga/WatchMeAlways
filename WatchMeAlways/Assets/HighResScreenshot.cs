@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Runtime.InteropServices;
+using System.Collections.Generic;
 
 public class HighResScreenshot : MonoBehaviour
 {
@@ -8,8 +9,8 @@ public class HighResScreenshot : MonoBehaviour
     static extern int StartRecording(int width, int height);
     [DllImport("WatchMeAlwaysLib")]
     static extern int AddFrame(byte[] pixels, float timeStamp, int imgWidth, int imgHeight);
-    [DllImport("WatchMeAlwaysLib")]
-    static extern int FinishRecording();
+    [DllImport("WatchMeAlwaysLib", CharSet = CharSet.Ansi)]
+    static extern int FinishRecording(string filepath);
 
     enum State
     {
@@ -18,17 +19,26 @@ public class HighResScreenshot : MonoBehaviour
         Stopped,
     }
 
+    class Frame
+    {
+        public byte[] Pixels { get; private set; }
+        public Frame(byte[] pixels)
+        {
+            this.Pixels = pixels;
+        }
+    }
+
+    Queue<Frame> framesToEncode = new Queue<Frame>();
     State state = State.NotStarted;
-    int count = 0;
+    int frameCount = 0;
+    int frameWidth_ = 0;
+    int frameHeight_ = 0;
 
     void Start()
     {
         state = State.NotStarted;
-        count = 0;
+        frameCount = 0;
     }
-
-    int frameWidth_ = 0;
-    int frameHeight_ = 0;
 
     void LateUpdate()
     {
@@ -36,63 +46,110 @@ public class HighResScreenshot : MonoBehaviour
         {
             frameWidth_ = Screen.width / 2 * 2;
             frameHeight_ = Screen.height / 2 * 2;
-            int res = StartRecording(frameWidth_, frameHeight_);
-            Debug.Log("StartRecording: " + res);
-            state = State.Running;
-            myScreenShot();
-            count = 0;
-        }
 
-        //if (state == State.Running && count >= 25)
-        //{
-        //    state = State.Stopped;
-        //    if (takeScreenshotCoroutine != null)
-        //    {
-        //        StopCoroutine(takeScreenshotCoroutine);
-        //    }
-        //    int res = FinishRecording();
-        //    Debug.Log("FinishRecording: " + res);
-        //}
+            int res = StartRecording(frameWidth_, frameHeight_);
+            state = State.Running;
+            startScreenshotCoroutine();
+            startFrameEncodeThread();
+            frameCount = 0;
+
+            Debug.Log("StartRecording: " + res);
+        }
     }
+    // SaveDir is fullpath
+    static string SavePath
+    {
+        get
+        {
+            string documentRoot = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);
+            string path = System.IO.Path.Combine(documentRoot, "WatchMeAlways");
+            path = System.IO.Path.Combine(path, "Gallery");
+            return System.IO.Path.Combine(path, "instant_capture.h264");
+        }
+    }
+
     void OnApplicationQuit()
     {
         if (state == State.Running)
         {
             state = State.Stopped;
-            if (takeScreenshotCoroutine != null)
-            {
-                StopCoroutine(takeScreenshotCoroutine);
-            }
-            int res = FinishRecording();
+            stopFrameEncodeThread();
+            stopScreenshotCoroutine();
+            int res = FinishRecording(SavePath);
             Debug.Log("FinishRecording: " + res);
         }
     }
 
-    Coroutine takeScreenshotCoroutine = null;
-    public void myScreenShot()
+    // thread for encoding
+    System.Threading.Thread frameEncodeThread = null;
+    public void startFrameEncodeThread()
     {
-        takeScreenshotCoroutine = StartCoroutine(TakeScreenShot());
+        frameEncodeThread = new System.Threading.Thread(new System.Threading.ThreadStart(EncodeFrames));
+        frameEncodeThread.Start();
     }
 
-    IEnumerator TakeScreenShot()
+    public void stopFrameEncodeThread()
+    {
+        if (frameEncodeThread != null)
+        {
+            frameEncodeThread.Abort(); // how to stop thread?
+        }
+    }
+
+    void EncodeFrames()
     {
         while (true)
         {
+            if (framesToEncode.Count >= 1)
+            {
+                var frame = framesToEncode.Dequeue();
+                int res = AddFrame(frame.Pixels, frameCount++, frameWidth_, frameHeight_);
+                frameCount++;
+                Debug.Log("AddFrame: " + res);
+            }
+            else
+            {
+                System.Threading.Thread.Sleep(100); // sleep 100ms if there is no frame to encode.
+            }
+        }
+    }
+
+    // coroutine for taking screenshot
+    Coroutine takeScreenshotCoroutine = null;
+    public void startScreenshotCoroutine()
+    {
+        takeScreenshotCoroutine = StartCoroutine(TakeScreenShots());
+    }
+
+    public void stopScreenshotCoroutine()
+    {
+        if (takeScreenshotCoroutine != null)
+        {
+            StopCoroutine(takeScreenshotCoroutine);
+        }
+    }
+
+    IEnumerator TakeScreenShots()
+    {
+        while (true)
+        {
+            // TODO: FPS control
             yield return new WaitForEndOfFrame();
 
             if (frameWidth_ > 0 && frameHeight_ > 0)
             {
                 var tex = new Texture2D(frameWidth_, frameHeight_, TextureFormat.RGB24, false);
 
+                // bottle-nec!: down fps 90fps -> 65fps
                 tex.ReadPixels(new Rect(0, 0, frameWidth_, frameHeight_), 0, 0);
                 tex.Apply();
 
                 var bytes = tex.GetRawTextureData();
+                framesToEncode.Enqueue(new Frame(bytes));
                 Debug.Log("# of bytes: " + bytes.Length);
-                int res = AddFrame(bytes, count++, frameWidth_, frameHeight_);
-                Debug.Log("AddFrame: " + res);
-                count++;
             }
         }
     }
+
+
 }

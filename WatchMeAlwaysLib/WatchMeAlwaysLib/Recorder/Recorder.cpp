@@ -137,7 +137,7 @@ bool Recorder::AddFrame(uint8_t* pixels, float timeStamp, int imgWidth, int imgH
 
 bool Recorder::FinishRecording(const std::string& filename)
 {
-	// second arg is NULL => flush
+	// flush
 	bool succeeded = encode(c, NULL, pkt);
 	if (!succeeded) {
 		return false;
@@ -155,7 +155,7 @@ bool Recorder::FinishRecording(const std::string& filename)
 		fwrite(frames[index]->GetData(), 1, frames[index]->GetDataSize(), f);
 	}
 
-	/* add sequence end code to have a real MPEG file */
+	// add sequence end code to have a real MPEG file
 	const uint8_t endcode[] = { 0, 0, 1, 0xb7 };
 	fwrite(endcode, 1, sizeof(endcode), f);
 	fclose(f);
@@ -188,9 +188,10 @@ bool Recorder::encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt)
 			return false;
 		}
 
-		char str[128] = { 0 };
-		sprintf_s(str, 128, "Write packet %3" PRId64 " (size=%5d)\n", pkt->pts, pkt->size);
-		UnityDebugCpp::Info(str);
+		printf("Write packet %3" PRId64 " (size=%5d)\n", pkt->pts, pkt->size);
+		//char str[128] = { 0 };
+		//sprintf_s(str, 128, "Write packet %3" PRId64 " (size=%5d)\n", pkt->pts, pkt->size);
+		//UnityDebugCpp::Info(str);
 
 		assert(frames[currentFrame] == nullptr);
 		frames[currentFrame] = new Frame(pkt->data, pkt->size);
