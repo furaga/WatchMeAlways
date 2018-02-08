@@ -129,6 +129,7 @@ namespace WatchMeAlways
         [MenuItem("WatchMeAlways/Config", false, 110)]
         private static void Config()
         {
+            EditorWindow.GetWindow(typeof(WatchMeAlwaysConfigWindow));
         }
     }
 }
