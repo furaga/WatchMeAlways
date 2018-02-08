@@ -43,6 +43,7 @@ namespace WatchMeAlways
         int frameHeight_ = 0;
         System.Threading.Thread frameEncodeThread_ = null;
         Coroutine takeScreenshotCoroutine_ = null;
+        Coroutine singleScreenshotCoroutine_ = null;
         bool quitEncodeFramesIfQueueIsEmpty_ = false;
 
         void Start()
@@ -68,10 +69,8 @@ namespace WatchMeAlways
                 state_ = State.Running;
 
                 startScreenshotCoroutine();
-
                 startFrameEncodeThread();
                 frameCount_ = 0;
-
                 Debug.Log("StartRecording: " + res);
             }
         }
@@ -81,6 +80,7 @@ namespace WatchMeAlways
             if (state_ == State.Running)
             {
                 state_ = State.Stopped;
+                stopSingleScreenshotCoroutine();
                 stopScreenshotCoroutine();
                 stopFrameEncodeThread();
                 int res = CppRecorder.FinishRecording(saveVideoPath);
@@ -131,7 +131,7 @@ namespace WatchMeAlways
         // coroutine for taking screenshot
         void startScreenshotCoroutine()
         {
-            takeScreenshotCoroutine_ = StartCoroutine(PeriodicalScreenshot());
+            takeScreenshotCoroutine_ = StartCoroutine(periodicalScreenshot());
         }
 
         void stopScreenshotCoroutine()
@@ -142,7 +142,7 @@ namespace WatchMeAlways
             }
         }
 
-        IEnumerator PeriodicalScreenshot()
+        IEnumerator periodicalScreenshot()
         {
             while (true)
             {
@@ -164,5 +164,35 @@ namespace WatchMeAlways
             }
         }
 
+        public void TakeScreenshot(string filepath)
+        {
+            startSingleScreenshotCoroutine(filepath);
+        }
+
+        // coroutine for taking screenshot
+        void startSingleScreenshotCoroutine(string filepath)
+        {
+            singleScreenshotCoroutine_ = StartCoroutine(singleScreenshot(filepath));
+        }
+
+        void stopSingleScreenshotCoroutine()
+        {
+            if (singleScreenshotCoroutine_ != null)
+            {
+                StopCoroutine(singleScreenshotCoroutine_);
+            }
+        }
+
+        IEnumerator singleScreenshot(string filepath)
+        {
+            yield return new WaitForEndOfFrame();
+            int w = Screen.width / 2 * 2;
+            int h = Screen.height / 2 * 2;
+            var tex = new Texture2D(w, h, TextureFormat.RGB24, false);
+            tex.ReadPixels(new Rect(0, 0, w, h), 0, 0);
+            tex.Apply();
+            System.IO.File.WriteAllBytes(filepath, tex.EncodeToPNG());
+            Debug.Log("Saved screenshot in " + filepath);
+        }
     }
 }
