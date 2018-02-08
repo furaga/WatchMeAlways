@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Ratate : MonoBehaviour {
+public class Rotate : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {

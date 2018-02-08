@@ -5,6 +5,8 @@ using UnityEditor;
 using System.Runtime.InteropServices;
 using System.IO;
 using System;
+using System.Linq;
+using System.Text;
 
 namespace WatchMeAlways
 {
@@ -83,15 +85,46 @@ namespace WatchMeAlways
         //
 
         [MenuItem("WatchMeAlways/Start Recording %F9", false, 50)]
-        private static void StartRecording()
+        private static void StartRecording(MenuCommand menuCommand)
         {
             recording_ = true;
+            var instantReplay = findOrCreateVideoRecorder(menuCommand.context as GameObject);
+            if (instantReplay != null)
+            {
+                instantReplay.StartRecording();
+            }
             Debug.Log("Recording: STARTED");
         }
 
-        [MenuItem("WatchMeAlways/Start Recording %F9", true)]
-        private static bool ValidateStartRecording()
+        static InstantReplay findOrCreateVideoRecorder(GameObject owner)
         {
+            var instantReplays = GameObject.FindObjectsOfType(typeof(InstantReplay));
+            if (instantReplays.Length <= 0)
+            {
+                // create new instance
+                GameObject videoCapturePrefab = PrefabUtility.InstantiatePrefab(Resources.Load("Prefabs/VideoRecorder")) as GameObject;
+                videoCapturePrefab.name = "VideoRecorder";
+                PrefabUtility.DisconnectPrefabInstance(videoCapturePrefab);
+                GameObjectUtility.SetParentAndAlign(videoCapturePrefab, owner);
+                Undo.RegisterCreatedObjectUndo(videoCapturePrefab, "Create " + videoCapturePrefab.name);
+                instantReplays = GameObject.FindObjectsOfType(typeof(InstantReplay));
+                if (instantReplays.Length <= 0)
+                {
+                    Debug.LogError("Could not get InstantReplay object");
+                }
+            }
+            return instantReplays[0] as InstantReplay;
+        }
+
+
+        [MenuItem("WatchMeAlways/Start Recording %F9", true)]
+        private static bool ValidateStartRecording(MenuCommand menuCommand)
+        {
+            var instantReplay = findOrCreateVideoRecorder(menuCommand.context as GameObject);
+            if (instantReplay != null)
+            {
+                instantReplay.FinishRecording(System.IO.Path.Combine(SaveDir, "video.h264"));
+            }
             return !recording_;
         }
 
