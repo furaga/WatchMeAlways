@@ -133,12 +133,14 @@ public class HighResScreenshot : MonoBehaviour
     {
         while (true)
         {
+            // TODO: FPS control
             yield return new WaitForEndOfFrame();
 
             if (frameWidth_ > 0 && frameHeight_ > 0)
             {
                 var tex = new Texture2D(frameWidth_, frameHeight_, TextureFormat.RGB24, false);
 
+                // bottle-nec!: down fps 90fps -> 65fps
                 tex.ReadPixels(new Rect(0, 0, frameWidth_, frameHeight_), 0, 0);
                 tex.Apply();
 
