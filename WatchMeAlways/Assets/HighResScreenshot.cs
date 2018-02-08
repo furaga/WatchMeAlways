@@ -9,8 +9,8 @@ public class HighResScreenshot : MonoBehaviour
     static extern int StartRecording(int width, int height);
     [DllImport("WatchMeAlwaysLib")]
     static extern int AddFrame(byte[] pixels, float timeStamp, int imgWidth, int imgHeight);
-    [DllImport("WatchMeAlwaysLib")]
-    static extern int FinishRecording();
+    [DllImport("WatchMeAlwaysLib", CharSet = CharSet.Ansi)]
+    static extern int FinishRecording(string filepath);
 
     enum State
     {
@@ -56,6 +56,17 @@ public class HighResScreenshot : MonoBehaviour
             Debug.Log("StartRecording: " + res);
         }
     }
+    // SaveDir is fullpath
+    static string SavePath
+    {
+        get
+        {
+            string documentRoot = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);
+            string path = System.IO.Path.Combine(documentRoot, "WatchMeAlways");
+            path = System.IO.Path.Combine(path, "Gallery");
+            return System.IO.Path.Combine(path, "instant_capture.h264");
+        }
+    }
 
     void OnApplicationQuit()
     {
@@ -64,7 +75,7 @@ public class HighResScreenshot : MonoBehaviour
             state = State.Stopped;
             stopFrameEncodeThread();
             stopScreenshotCoroutine();
-            int res = FinishRecording();
+            int res = FinishRecording(SavePath);
             Debug.Log("FinishRecording: " + res);
         }
     }
