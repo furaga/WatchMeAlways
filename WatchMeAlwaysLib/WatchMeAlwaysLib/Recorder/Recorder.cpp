@@ -137,7 +137,7 @@ bool Recorder::AddFrame(uint8_t* pixels, float timeStamp, int imgWidth, int imgH
 
 bool Recorder::FinishRecording(const std::string& filename)
 {
-	// second arg is NULL => flush
+	// flush
 	bool succeeded = encode(c, NULL, pkt);
 	if (!succeeded) {
 		return false;
@@ -155,7 +155,7 @@ bool Recorder::FinishRecording(const std::string& filename)
 		fwrite(frames[index]->GetData(), 1, frames[index]->GetDataSize(), f);
 	}
 
-	/* add sequence end code to have a real MPEG file */
+	// add sequence end code to have a real MPEG file
 	const uint8_t endcode[] = { 0, 0, 1, 0xb7 };
 	fwrite(endcode, 1, sizeof(endcode), f);
 	fclose(f);
