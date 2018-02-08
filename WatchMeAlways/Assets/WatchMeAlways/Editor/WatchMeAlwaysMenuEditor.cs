@@ -126,9 +126,10 @@ namespace WatchMeAlways
             Debug.Log("Open gallery folder " + SaveDir + " in Explorer");
         }
 
-        [MenuItem("WatchMeAlways/Config", false, 110)]
-        private static void Config()
+        [MenuItem("WatchMeAlways/Settings", false, 110)]
+        private static void Settings()
         {
+            EditorWindow.GetWindow(typeof(WatchMeAlwaysSettingsWindow));
         }
     }
 }
