@@ -147,8 +147,7 @@ namespace WatchMeAlways
             while (true)
             {
                 // TODO: FPS control
-//                yield return new WaitForEndOfFrame();
-                yield return new WaitForSeconds(0.1f);
+                yield return new WaitForEndOfFrame();
 
                 if (frameWidth_ > 0 && frameHeight_ > 0)
                 {

@@ -89,7 +89,10 @@ namespace WatchMeAlways
         {
             recording_ = true;
             var instantReplay = findOrCreateVideoRecorder(menuCommand.context as GameObject);
-            instantReplay.StartRecording();
+            if (instantReplay != null)
+            {
+                instantReplay.StartRecording();
+            }
             Debug.Log("Recording: STARTED");
         }
 
@@ -118,7 +121,10 @@ namespace WatchMeAlways
         private static bool ValidateStartRecording(MenuCommand menuCommand)
         {
             var instantReplay = findOrCreateVideoRecorder(menuCommand.context as GameObject);
-            instantReplay.FinishRecording(System.IO.Path.Combine(SaveDir, "video.h264")); 
+            if (instantReplay != null)
+            {
+                instantReplay.FinishRecording(System.IO.Path.Combine(SaveDir, "video.h264"));
+            }
             return !recording_;
         }
 
