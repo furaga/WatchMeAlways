@@ -95,28 +95,7 @@ namespace WatchMeAlways
             }
             Debug.Log("Recording: STARTED");
         }
-
-        static InstantReplay findOrCreateVideoRecorder(GameObject owner)
-        {
-            var instantReplays = GameObject.FindObjectsOfType(typeof(InstantReplay));
-            if (instantReplays.Length <= 0)
-            {
-                // create new instance
-                GameObject videoCapturePrefab = PrefabUtility.InstantiatePrefab(Resources.Load("Prefabs/VideoRecorder")) as GameObject;
-                videoCapturePrefab.name = "VideoRecorder";
-                PrefabUtility.DisconnectPrefabInstance(videoCapturePrefab);
-                GameObjectUtility.SetParentAndAlign(videoCapturePrefab, owner);
-                Undo.RegisterCreatedObjectUndo(videoCapturePrefab, "Create " + videoCapturePrefab.name);
-                instantReplays = GameObject.FindObjectsOfType(typeof(InstantReplay));
-                if (instantReplays.Length <= 0)
-                {
-                    Debug.LogError("Could not get InstantReplay object");
-                }
-            }
-            return instantReplays[0] as InstantReplay;
-        }
-
-
+        
         [MenuItem("WatchMeAlways/Start Recording %F9", true)]
         private static bool ValidateStartRecording(MenuCommand menuCommand)
         {
@@ -146,11 +125,19 @@ namespace WatchMeAlways
         //
 
         [MenuItem("WatchMeAlways/Take Screenshot %F1", false, 70)]
-        private static void TakeScreenshot()
+        private static void TakeScreenshot(MenuCommand menuCommand)
         {
+            var instantReplay = findOrCreateVideoRecorder(menuCommand.context as GameObject);
+            if (instantReplay != null)
+            {
+                instantReplay.TakeScreenshot(System.IO.Path.Combine(SaveDir, "screenshot.png"));
+            }
             Debug.Log("Screenshot: a new screenshot was saved in " + SaveDir);
         }
 
+        //
+        // Explorer
+        // 
         [MenuItem("WatchMeAlways/Open Gallery in Explorer", false, 90)]
         private static void OpenGalleryInExplorer()
         {
@@ -159,10 +146,39 @@ namespace WatchMeAlways
             Debug.Log("Open gallery folder " + SaveDir + " in Explorer");
         }
 
+        //
+        // Config
+        // 
         [MenuItem("WatchMeAlways/Settings", false, 110)]
         private static void Settings()
         {
             EditorWindow.GetWindow(typeof(WatchMeAlwaysSettingsWindow));
         }
+
+        //
+        //
+        //
+
+        static InstantReplay findOrCreateVideoRecorder(GameObject owner)
+        {
+            var instantReplays = GameObject.FindObjectsOfType(typeof(InstantReplay));
+            if (instantReplays.Length <= 0)
+            {
+                // create new instance
+                GameObject videoCapturePrefab = PrefabUtility.InstantiatePrefab(Resources.Load("Prefabs/VideoRecorder")) as GameObject;
+                videoCapturePrefab.name = "VideoRecorder";
+                PrefabUtility.DisconnectPrefabInstance(videoCapturePrefab);
+                GameObjectUtility.SetParentAndAlign(videoCapturePrefab, owner);
+                Undo.RegisterCreatedObjectUndo(videoCapturePrefab, "Create " + videoCapturePrefab.name);
+                instantReplays = GameObject.FindObjectsOfType(typeof(InstantReplay));
+                if (instantReplays.Length <= 0)
+                {
+                    Debug.LogError("Could not get InstantReplay object");
+                }
+            }
+            return instantReplays[0] as InstantReplay;
+        }
+
+
     }
 }
