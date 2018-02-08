@@ -188,9 +188,10 @@ bool Recorder::encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt)
 			return false;
 		}
 
-		char str[128] = { 0 };
-		sprintf_s(str, 128, "Write packet %3" PRId64 " (size=%5d)\n", pkt->pts, pkt->size);
-		UnityDebugCpp::Info(str);
+		printf("Write packet %3" PRId64 " (size=%5d)\n", pkt->pts, pkt->size);
+		//char str[128] = { 0 };
+		//sprintf_s(str, 128, "Write packet %3" PRId64 " (size=%5d)\n", pkt->pts, pkt->size);
+		//UnityDebugCpp::Info(str);
 
 		assert(frames[currentFrame] == nullptr);
 		frames[currentFrame] = new Frame(pkt->data, pkt->size);
