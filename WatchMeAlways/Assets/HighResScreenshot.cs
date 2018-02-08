@@ -85,6 +85,7 @@ public class HighResScreenshot : MonoBehaviour
     public void startFrameEncodeThread()
     {
         frameEncodeThread = new System.Threading.Thread(new System.Threading.ThreadStart(EncodeFrames));
+        frameEncodeThread.Start();
     }
 
     public void stopFrameEncodeThread()
