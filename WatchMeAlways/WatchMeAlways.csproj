@@ -78,8 +78,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\HighResScreenshot.cs" />
     <Compile Include="Assets\WatchMeAlways\Demo\Rotate.cs" />
+    <Compile Include="Assets\WatchMeAlways\Script\InstantReplay.cs" />
     <Compile Include="Assets\WatchMeAlways\Script\UnityDebugCpp.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
