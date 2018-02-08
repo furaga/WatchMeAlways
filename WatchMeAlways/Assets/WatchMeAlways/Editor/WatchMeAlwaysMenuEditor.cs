@@ -124,7 +124,7 @@ namespace WatchMeAlways
         // Screenshot
         //
 
-        [MenuItem("WatchMeAlways/Take Screenshot %F1", false, 70)]
+        // [MenuItem("WatchMeAlways/Take Screenshot %F1", false, 70)]
         private static void TakeScreenshot(MenuCommand menuCommand)
         {
             var instantReplay = findOrCreateVideoRecorder(menuCommand.context as GameObject);
