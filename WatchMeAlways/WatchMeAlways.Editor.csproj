@@ -122,7 +122,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\WatchMeAlways\Editor\WatchMeAlwaysConfigWindow.cs" />
+    <Compile Include="Assets\WatchMeAlways\Editor\WatchMeAlwaysSettingsWindow.cs" />
     <Compile Include="Assets\WatchMeAlways\Editor\WatchMeAlwaysMenuEditor.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
