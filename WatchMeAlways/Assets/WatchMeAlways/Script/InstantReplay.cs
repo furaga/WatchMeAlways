@@ -60,7 +60,7 @@ namespace WatchMeAlways
 
         public void StartRecording()
         {
-            if (state_ == State.NotStarted)
+            if (state_ != State.Running)
             {
                 frameWidth_ = Screen.width / 2 * 2;
                 frameHeight_ = Screen.height / 2 * 2;

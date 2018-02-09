@@ -41,24 +41,16 @@ namespace WatchMeAlways
         //
         // Instant Replay
         //
-
-        [MenuItem("WatchMeAlways/Save Instant Replay %F10", false, 10)]
-        private static void SaveInstantReplay()
-        {
-            Debug.Log("SaveInstantReplay");
-        }
-
-        [MenuItem("WatchMeAlways/Save Instant Replay %F10", true, 10)]
-        private static bool ValidateSaveInstantReplay()
-        {
-            return enableInstantReplay_;
-        }
-
         [MenuItem("WatchMeAlways/Enable Instant Replay", false, 10)]
-        private static void EnableInstantReplay()
+        private static void EnableInstantReplay(MenuCommand menuCommand)
         {
             enableInstantReplay_ = true;
-            Debug.Log("Instant Replay: ON");
+            var instantReplay = findOrCreateVideoRecorder(menuCommand.context as GameObject);
+            if (instantReplay != null)
+            {
+                instantReplay.StartRecording();
+                Debug.Log("Instant Replay: ON");
+            }
         }
 
         [MenuItem("WatchMeAlways/Enable Instant Replay", true)]
@@ -68,14 +60,39 @@ namespace WatchMeAlways
         }
 
         [MenuItem("WatchMeAlways/Disable Instant Replay", false, 10)]
-        private static void DisableInstantReplay()
+        private static void DisableInstantReplay(MenuCommand menuCommand)
         {
             enableInstantReplay_ = false;
-            Debug.Log("Instant Replay: OFF");
+            var instantReplay = findOrCreateVideoRecorder(menuCommand.context as GameObject);
+            if (instantReplay != null)
+            {
+                instantReplay.FinishRecording(System.IO.Path.Combine(SaveDir, "video.h264"));
+                Debug.Log("Instant Replay: OFF");
+            }
         }
 
         [MenuItem("WatchMeAlways/Disable Instant Replay", true)]
         private static bool ValidateDisableInstantReplay()
+        {
+            return enableInstantReplay_;
+        }
+
+
+        [MenuItem("WatchMeAlways/Save Instant Replay %F10", false, 10)]
+        private static void SaveInstantReplay(MenuCommand menuCommand)
+        {
+            var instantReplay = findOrCreateVideoRecorder(menuCommand.context as GameObject);
+            if (instantReplay != null)
+            {
+                instantReplay.FinishRecording(System.IO.Path.Combine(SaveDir, "video.h264"));
+                instantReplay.StartRecording();
+                Debug.Log("Instant Replay: OFF");
+            }
+            Debug.Log("SaveInstantReplay");
+        }
+
+        [MenuItem("WatchMeAlways/Save Instant Replay %F10", true, 10)]
+        private static bool ValidateSaveInstantReplay()
         {
             return enableInstantReplay_;
         }
@@ -95,7 +112,7 @@ namespace WatchMeAlways
             }
             Debug.Log("Recording: STARTED");
         }
-        
+
         [MenuItem("WatchMeAlways/Start Recording %F9", true)]
         private static bool ValidateStartRecording(MenuCommand menuCommand)
         {
@@ -156,7 +173,7 @@ namespace WatchMeAlways
         }
 
         //
-        //
+        // Utility
         //
 
         static InstantReplay findOrCreateVideoRecorder(GameObject owner)
