@@ -6,6 +6,8 @@
 
 extern "C" {
 	DllExport int StartRecording(int width, int height);
+	DllExport int SetReplayLength(int seconds);
+	DllExport int SetBitRate(int mbps);
 	DllExport int AddFrame(uint8_t* pixels, float timeStamp, int imgWidth, int imgHeight);
 	DllExport int FinishRecording(char* saveFilePath);
 }
@@ -27,6 +29,14 @@ int StartRecording(int width, int height)
 		return API_RESULT_NG;
 	}
 	return API_RESULT_OK;
+}
+
+int SetReplayLength(int seconds) {
+	// TODO
+}
+
+int SetBitRate(int mbps) {
+	// TODO
 }
 
 int AddFrame(uint8_t* pixels, float timeStamp, int imgWidth, int imgHeight)
