@@ -23,7 +23,9 @@ int StartRecording(int width, int height)
 {
 	SAFE_DELETE(recorder);
 	recorder = new Recorder();
-	bool succeeded = recorder->StartRecording(width, height);
+	bool succeeded = recorder->StartRecording(
+		RecordingParameters(width, height, 120, 30, RECORDING_QUALITY_SUPERFAST) // TODO
+	);
 	if (!succeeded) {
 		UnityDebugCpp::Error("failed: recorder->StartRecording()\n");
 		return API_RESULT_NG;
@@ -33,10 +35,12 @@ int StartRecording(int width, int height)
 
 int SetReplayLength(int seconds) {
 	// TODO
+	return 0;
 }
 
 int SetBitRate(int mbps) {
 	// TODO
+	return 0;
 }
 
 int AddFrame(uint8_t* pixels, float timeStamp, int imgWidth, int imgHeight)

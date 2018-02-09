@@ -10,4 +10,6 @@
 #define DllExport   __declspec( dllexport )  
 #define SAFE_DELETE(x) if (x != nullptr) { delete x; x = nullptr; }
 
+typedef unsigned int uint;
+
 #include "Unity/UnityDebugCpp.h"
