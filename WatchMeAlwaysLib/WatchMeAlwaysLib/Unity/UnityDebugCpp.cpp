@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <sstream>
 
+static FuncCallBack callbackInstance = nullptr;
+
 //-------------------------------------------------------------------
 void  UnityDebugCpp::Log(const char* message, Color color) {
 	if (callbackInstance != nullptr)
@@ -21,25 +23,25 @@ void  UnityDebugCpp::Log(const std::string message, Color color) {
 void  UnityDebugCpp::Log(const int message, Color color) {
 	std::stringstream ss;
 	ss << message;
-	send_log(ss, color);
+	sendLog(ss, color);
 }
 
 void  UnityDebugCpp::Log(const char message, Color color) {
 	std::stringstream ss;
 	ss << message;
-	send_log(ss, color);
+	sendLog(ss, color);
 }
 
 void  UnityDebugCpp::Log(const float message, Color color) {
 	std::stringstream ss;
 	ss << message;
-	send_log(ss, color);
+	sendLog(ss, color);
 }
 
 void  UnityDebugCpp::Log(const double message, Color color) {
 	std::stringstream ss;
 	ss << message;
-	send_log(ss, color);
+	sendLog(ss, color);
 }
 
 void UnityDebugCpp::Log(const bool message, Color color) {
@@ -49,14 +51,15 @@ void UnityDebugCpp::Log(const bool message, Color color) {
 	else
 		ss << "false";
 
-	send_log(ss, color);
+	sendLog(ss, color);
 }
 
-void UnityDebugCpp::send_log(const std::stringstream &ss, const Color &color) {
+void UnityDebugCpp::sendLog(const std::stringstream &ss, const Color &color) {
 	const std::string tmp = ss.str();
 	const char* tmsg = tmp.c_str();
-	if (callbackInstance != nullptr)
+	if (callbackInstance != nullptr) {
 		callbackInstance(tmsg, (int)color, (int)strlen(tmsg));
+	}
 }
 //-------------------------------------------------------------------
 

@@ -12,7 +12,6 @@ extern "C"
 {
 	//Create a callback delegate
 	typedef void(*FuncCallBack)(const char* message, int color, int size);
-	static FuncCallBack callbackInstance = nullptr;
 	DLLExport void RegisterUnityDebugCppCallback(FuncCallBack cb);
 }
 
@@ -62,6 +61,6 @@ public:
 	}
 
 private:
-	static void send_log(const std::stringstream &ss, const Color &color);
+	static void sendLog(const std::stringstream &ss, const Color &color);
 };
 

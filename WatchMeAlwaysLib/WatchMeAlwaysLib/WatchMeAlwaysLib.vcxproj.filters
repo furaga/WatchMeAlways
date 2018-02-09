@@ -7,6 +7,12 @@
     <Filter Include="Unity">
       <UniqueIdentifier>{422e456e-60a3-4b74-a587-7c5bb1887bc2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="test">
+      <UniqueIdentifier>{c5e721b6-ff28-4b1f-b75a-0460b2b06839}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test\Recorder">
+      <UniqueIdentifier>{8a7c7182-b7d8-45d3-b336-505c331343f3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -21,8 +27,8 @@
     <ClCompile Include="Unity\UnityDebugCpp.cpp">
       <Filter>Unity</Filter>
     </ClCompile>
-    <ClCompile Include="Unity\UnityDebugCppTest.cpp">
-      <Filter>Unity</Filter>
+    <ClCompile Include="test\Recorder\UnityDebugCppTest.cpp">
+      <Filter>test\Recorder</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
