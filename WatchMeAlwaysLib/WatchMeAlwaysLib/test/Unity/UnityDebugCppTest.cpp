@@ -9,10 +9,10 @@ namespace UnityDebugCppTest
 		latestMessage = message;
 	}
 
-	TEST_CLASS(MyTests)
+	TEST_CLASS(UnityDebugCppTest)
 	{
 	public:
-		TEST_METHOD(_0)
+		TEST_METHOD(UnityDebugCppTest_0)
 		{
 			RegisterUnityDebugCppCallback(mockCallbackInstance);
 

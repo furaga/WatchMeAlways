@@ -45,10 +45,6 @@ Recorder::Recorder() :
 	quality_(RECORDING_QUALITY_MEDIUM),
 	recordFrameLength_(MaxFrameNum)
 {
-	//frames_.resize(recordFrameLength_);
-	//for (int i = 0; i < frames_.size(); i++) {
-	//	frames_[i] = nullptr;
-	//}
 }
 
 bool Recorder::StartRecording(const RecordingParameters& params) {

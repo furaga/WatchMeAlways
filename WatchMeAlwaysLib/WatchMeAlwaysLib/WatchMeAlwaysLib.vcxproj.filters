@@ -10,8 +10,11 @@
     <Filter Include="test">
       <UniqueIdentifier>{c5e721b6-ff28-4b1f-b75a-0460b2b06839}</UniqueIdentifier>
     </Filter>
-    <Filter Include="test\Recorder">
+    <Filter Include="test\Unity">
       <UniqueIdentifier>{8a7c7182-b7d8-45d3-b336-505c331343f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test\Recorder">
+      <UniqueIdentifier>{36a32393-2637-4da2-9849-6fff3d468eb2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -27,7 +30,10 @@
     <ClCompile Include="Unity\UnityDebugCpp.cpp">
       <Filter>Unity</Filter>
     </ClCompile>
-    <ClCompile Include="test\Recorder\UnityDebugCppTest.cpp">
+    <ClCompile Include="test\Unity\UnityDebugCppTest.cpp">
+      <Filter>test\Unity</Filter>
+    </ClCompile>
+    <ClCompile Include="test\Recorder\RecorderTest.cpp">
       <Filter>test\Recorder</Filter>
     </ClCompile>
   </ItemGroup>
