@@ -21,6 +21,9 @@
     <ClCompile Include="Unity\UnityDebugCpp.cpp">
       <Filter>Unity</Filter>
     </ClCompile>
+    <ClCompile Include="Unity\UnityDebugCppTest.cpp">
+      <Filter>Unity</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
