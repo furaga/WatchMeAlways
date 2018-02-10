@@ -43,24 +43,24 @@ struct RecordingParameters {
 };
 
 class Recorder {
-
-	AVCodec *codec_;
 	AVCodecContext *ctx_;
 	AVFrame *workingFrame_;
 	AVPacket *pkt_;
 	std::vector<Frame*> frames_;
-	int currentFrame;
+	int currentFrame_;
 	int recordCount_;
 	RecordingQuality quality_;
 	int recordFrameLength_;
 
 public:
 	Recorder();
+	~Recorder();
 	bool StartRecording(const RecordingParameters& parameters);
 	bool AddFrame(uint8_t* pixels, float timeStamp, int imgWidth, int imgHeight);
 	bool FinishRecording(const std::string& filename);
 
 private:
+	void clear();
 	bool encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt);
 };
 

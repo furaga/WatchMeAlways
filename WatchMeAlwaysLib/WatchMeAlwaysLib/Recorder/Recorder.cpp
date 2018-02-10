@@ -36,29 +36,34 @@ const char* getPresetString(RecordingQuality quality) {
 }
 
 Recorder::Recorder() :
-	codec_(nullptr),
 	ctx_(nullptr),
 	workingFrame_(nullptr),
 	pkt_(nullptr),
-	currentFrame(0),
+	currentFrame_(0),
 	recordCount_(0),
 	quality_(RECORDING_QUALITY_MEDIUM),
 	recordFrameLength_(MaxFrameNum)
 {
 }
 
+Recorder::~Recorder()
+{
+	clear();
+}
+
 bool Recorder::StartRecording(const RecordingParameters& params) {
+	clear();
 
 	// Find H264 codec (libx264)
 	avcodec_register_all();
-	codec_ = avcodec_find_encoder(AV_CODEC_ID_H264);
-	if (!codec_) {
+	auto codec = avcodec_find_encoder(AV_CODEC_ID_H264);
+	if (!codec) {
 		UnityDebugCpp::Error("Codec 'AV_CODEC_ID_H264' not found\n");
 		return false;
 	}
 
 	// Create codec context
-	ctx_ = avcodec_alloc_context3(codec_);
+	ctx_ = avcodec_alloc_context3(codec);
 	if (!ctx_) {
 		UnityDebugCpp::Error("Could not allocate video codec context\n");
 		return false;
@@ -79,13 +84,13 @@ bool Recorder::StartRecording(const RecordingParameters& params) {
 	ctx_->gop_size = 10;
 	ctx_->max_b_frames = 1;
 	ctx_->pix_fmt = AV_PIX_FMT_YUV420P; // if h264, this must be yuv420p
-	if (codec_->id == AV_CODEC_ID_H264) {
+	if (codec->id == AV_CODEC_ID_H264) {
 		// High quality encoding
 		av_opt_set(ctx_->priv_data, "preset", getPresetString(params.Quality), 0);
 	}
 
 	// Initialize codec context
-	int ret = avcodec_open2(ctx_, codec_, NULL);
+	int ret = avcodec_open2(ctx_, codec, NULL);
 	if (ret < 0) {
 		UnityDebugCpp::Error("Could not open codec: H264\n");
 		return false;
@@ -106,11 +111,7 @@ bool Recorder::StartRecording(const RecordingParameters& params) {
 		return false;
 	}
 
-	// Reset Encoded frames
-	for (int i = 0; i < frames_.size(); i++) {
-		SAFE_DELETE(frames_[i]);
-	}
-
+	// Set encoded frames
 	if (params.ReplayLength <= 0 || params.ReplayLength >= 1000) {
 		UnityDebugCpp::Error("Replay length (%f) is invalid. It must be > 0.0 and < 1000", params.ReplayLength);
 		return false;
@@ -128,7 +129,7 @@ bool Recorder::StartRecording(const RecordingParameters& params) {
 	}
 
 	// Reset frame counter
-	currentFrame = 0;
+	currentFrame_ = 0;
 	recordCount_ = 0;
 
 	return true;
@@ -145,6 +146,7 @@ void FlipFrameJ420(AVFrame* pFrame) {
 		pFrame->linesize[i] = -pFrame->linesize[i];
 	}
 }
+
 bool Recorder::AddFrame(uint8_t* pixels, float timeStamp, int imgWidth, int imgHeight)
 {
 	int ret = av_frame_make_writable(workingFrame_);
@@ -191,7 +193,7 @@ bool Recorder::FinishRecording(const std::string& filename)
 	}
 
 	for (int i = 0; i < recordCount_; i++) {
-		int index = (currentFrame - recordCount_ + i + (int)frames_.size()) % frames_.size();
+		int index = (currentFrame_ - recordCount_ + i + (int)frames_.size()) % frames_.size();
 		fwrite(frames_[index]->GetData(), 1, frames_[index]->GetDataSize(), f);
 	}
 
@@ -200,13 +202,29 @@ bool Recorder::FinishRecording(const std::string& filename)
 	fwrite(endcode, 1, sizeof(endcode), f);
 	fclose(f);
 
-	avcodec_free_context(&ctx_);
-	av_frame_free(&workingFrame_);
-	av_packet_free(&pkt_);
+	clear();
 
 	return true;
 }
 
+void Recorder::clear() {
+	// clear ffmpeg internal memories
+	avcodec_free_context(&ctx_);
+	av_frame_free(&workingFrame_);
+	av_packet_free(&pkt_);
+	ctx_ = nullptr;
+	workingFrame_ = nullptr;
+	pkt_ = nullptr;
+
+	// clear frames
+	for (int i = 0; i < frames_.size(); i++) {
+		SAFE_DELETE(frames_[i]);
+	}
+
+	// clear counters
+	currentFrame_ = 0;
+	recordCount_ = 0;
+}
 
 bool Recorder::encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt)
 {
@@ -233,10 +251,10 @@ bool Recorder::encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt)
 		//sprintf_s(str, 128, "Write packet %3" PRId64 " (size=%5d)\n", pkt->pts, pkt->size);
 		//UnityDebugCpp::Info(str);
 
-		assert(frames_[currentFrame] == nullptr);
-		frames_[currentFrame] = new Frame(pkt->data, pkt->size);
+		assert(frames_[currentFrame_] == nullptr);
+		frames_[currentFrame_] = new Frame(pkt->data, pkt->size);
 
-		currentFrame = (currentFrame + 1) % frames_.size();
+		currentFrame_ = (currentFrame_ + 1) % frames_.size();
 		if (recordCount_ < frames_.size()) {
 			recordCount_++;
 		}
