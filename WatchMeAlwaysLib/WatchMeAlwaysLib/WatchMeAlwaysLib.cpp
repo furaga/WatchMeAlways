@@ -9,7 +9,7 @@ extern "C" {
 	DllExport int StartRecording(int width, int height);
 	DllExport int SetReplayLength(int seconds);
 	DllExport int SetBitRate(int mbps);
-	DllExport int AddFrame(uint8_t* pixels, float timeStamp, int imgWidth, int imgHeight);
+	DllExport int AddFrame(uint8_t* pixels, int width, int height, float timeStamp);
 	DllExport int FinishRecording(char* saveFilePath);
 }
 
@@ -43,12 +43,12 @@ int SetBitRate(int mbps) {
 	return 0;
 }
 
-int AddFrame(uint8_t* pixels, float timeStamp, int imgWidth, int imgHeight)
+int AddFrame(uint8_t* pixels, int width, int height, float timeStamp)
 {
 	if (recorder == nullptr) {
 		return API_RESULT_NG;
 	}
-	bool succeeded = recorder->AddFrame(pixels, timeStamp, imgWidth, imgHeight);
+	bool succeeded = recorder->AddFrame(pixels, width, height, timeStamp);
 	if (!succeeded) {
 		UnityDebugCpp::Error("failed: recorder->AddFrame()\n");
 		return API_RESULT_NG;

@@ -147,30 +147,42 @@ void FlipFrameJ420(AVFrame* pFrame) {
 	}
 }
 
-bool Recorder::AddFrame(uint8_t* pixels, float timeStamp, int imgWidth, int imgHeight)
+bool Recorder::AddFrame(uint8_t* pixels, int width, int height, float timeStamp)
 {
-	int ret = av_frame_make_writable(workingFrame_);
-	if (ret < 0) {
+	if (pixels == nullptr || width <= 0 || height <= 0) {
+		UnityDebugCpp::Error("AddFrame: Frame is empty (pixels=%p, width=%d, height=%d)", pixels, width, height);
 		return false;
 	}
 
-	// convert rgb -> yuv420
+	// check width, height
+
+
+	int ret = av_frame_make_writable(workingFrame_);
+	if (ret < 0) {
+		printf("AddFrame: av_frame_make_writable failed");
+		return false;
+	}
+
 	// cf. https://stackoverflow.com/questions/16667687/how-to-convert-rgb-from-yuv420p-for-ffmpeg-encoder
 	SwsContext * c = sws_getContext(
-		imgWidth, imgHeight, AV_PIX_FMT_RGB24,
-		imgWidth, imgHeight, AV_PIX_FMT_YUV420P,
-		0, 0, 0, 0);
-	int inLinesize[1] = { 3 * imgWidth };
+		ctx_->width, ctx_->height, AV_PIX_FMT_RGB24,
+		ctx_->width, ctx_->height, AV_PIX_FMT_YUV420P,
+		0, 0, 0, 0
+	);
+
+	int inLinesize[1] = { 3 * ctx_->width};
+
 	//pixels[0] += inLinesize[0] * (imgHeight - 1);
 	//inLinesize[0] = -inLinesize[0];
 
-	sws_scale(c, &pixels, inLinesize, 0, imgHeight, workingFrame_->data, workingFrame_->linesize);
+	sws_scale(c, &pixels, inLinesize, 0, ctx_->height, workingFrame_->data, workingFrame_->linesize);
 	FlipFrameJ420(workingFrame_);
 
 	workingFrame_->pts = (int)timeStamp; // todo
 
 	bool succeeded = encode(ctx_, workingFrame_, pkt_);
 	if (!succeeded) {
+		printf("AddFrame: encode failed");
 		return false;
 	}
 

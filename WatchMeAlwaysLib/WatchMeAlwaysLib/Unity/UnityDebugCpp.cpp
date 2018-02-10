@@ -6,42 +6,42 @@
 #include <stdio.h>
 #include <sstream>
 
-static FuncCallBack callbackInstance = nullptr;
+static UnityPrintLogFn unityPrintLog = nullptr;
 
 //-------------------------------------------------------------------
 void  UnityDebugCpp::Log(const char* message, Color color) {
-	if (callbackInstance != nullptr)
-		callbackInstance(message, (int)color, (int)strlen(message));
+	if (unityPrintLog != nullptr)
+		unityPrintLog(message, (int)color, (int)strlen(message));
 }
 
 void  UnityDebugCpp::Log(const std::string message, Color color) {
 	const char* tmsg = message.c_str();
-	if (callbackInstance != nullptr)
-		callbackInstance(tmsg, (int)color, (int)strlen(tmsg));
+	if (unityPrintLog != nullptr)
+		unityPrintLog(tmsg, (int)color, (int)strlen(tmsg));
 }
 
 void  UnityDebugCpp::Log(const int message, Color color) {
 	std::stringstream ss;
 	ss << message;
-	sendLog(ss, color);
+	printLog(ss, color);
 }
 
 void  UnityDebugCpp::Log(const char message, Color color) {
 	std::stringstream ss;
 	ss << message;
-	sendLog(ss, color);
+	printLog(ss, color);
 }
 
 void  UnityDebugCpp::Log(const float message, Color color) {
 	std::stringstream ss;
 	ss << message;
-	sendLog(ss, color);
+	printLog(ss, color);
 }
 
 void  UnityDebugCpp::Log(const double message, Color color) {
 	std::stringstream ss;
 	ss << message;
-	sendLog(ss, color);
+	printLog(ss, color);
 }
 
 void UnityDebugCpp::Log(const bool message, Color color) {
@@ -51,19 +51,19 @@ void UnityDebugCpp::Log(const bool message, Color color) {
 	else
 		ss << "false";
 
-	sendLog(ss, color);
+	printLog(ss, color);
 }
 
-void UnityDebugCpp::sendLog(const std::stringstream &ss, const Color &color) {
+void UnityDebugCpp::printLog(const std::stringstream &ss, const Color &color) {
 	const std::string tmp = ss.str();
 	const char* tmsg = tmp.c_str();
-	if (callbackInstance != nullptr) {
-		callbackInstance(tmsg, (int)color, (int)strlen(tmsg));
+	if (unityPrintLog != nullptr) {
+		unityPrintLog(tmsg, (int)color, (int)strlen(tmsg));
 	}
 }
 //-------------------------------------------------------------------
 
 //Create a callback delegate
-void RegisterUnityDebugCppCallback(FuncCallBack cb) {
-	callbackInstance = cb;
+void RegisterUnityPrintLogFn(UnityPrintLogFn cb) {
+	unityPrintLog = cb;
 }

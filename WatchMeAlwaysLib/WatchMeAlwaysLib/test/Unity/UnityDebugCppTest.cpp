@@ -5,7 +5,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 namespace UnityDebugCppTest
 {
 	std::string latestMessage;
-	void mockCallbackInstance(const char* message, int color, int size) {
+	void mockUnityPrintLog(const char* message, int color, int size) {
 		latestMessage = message;
 	}
 
@@ -14,7 +14,7 @@ namespace UnityDebugCppTest
 	public:
 		TEST_METHOD(UnityDebugCppTest_0)
 		{
-			RegisterUnityDebugCppCallback(mockCallbackInstance);
+			RegisterUnityPrintLogFn(mockUnityPrintLog);
 
 			UnityDebugCpp::Info("INFO");
 			Assert::AreEqual(latestMessage, std::string("INFO"));
