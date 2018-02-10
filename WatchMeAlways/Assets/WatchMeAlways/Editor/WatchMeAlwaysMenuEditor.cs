@@ -114,20 +114,20 @@ namespace WatchMeAlways
         }
 
         [MenuItem("WatchMeAlways/Start Recording %F9", true)]
-        private static bool ValidateStartRecording(MenuCommand menuCommand)
+        private static bool ValidateStartRecording()
         {
+            return !recording_;
+        }
+
+        [MenuItem("WatchMeAlways/Finish Recording %#F9", false, 50)]
+        private static void FinishRecording(MenuCommand menuCommand)
+        {
+            recording_ = false;
             var instantReplay = findOrCreateVideoRecorder(menuCommand.context as GameObject);
             if (instantReplay != null)
             {
                 instantReplay.FinishRecording(System.IO.Path.Combine(SaveDir, "video.h264"));
             }
-            return !recording_;
-        }
-
-        [MenuItem("WatchMeAlways/Finish Recording %F9", false, 50)]
-        private static void FinishRecording()
-        {
-            recording_ = false;
             Debug.Log("Recording: FINISHED. The recorded video was saved in " + SaveDir);
         }
 
