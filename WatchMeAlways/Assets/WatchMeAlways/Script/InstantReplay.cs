@@ -15,7 +15,7 @@ namespace WatchMeAlways
             [DllImport("WatchMeAlwaysLib")]
             public static extern int StartRecording(int width, int height);
             [DllImport("WatchMeAlwaysLib")]
-            public static extern int AddFrame(byte[] pixels, float timeStamp, int imgWidth, int imgHeight);
+            public static extern int AddFrame(byte[] pixels, int imgWidth, int imgHeight, float timeStamp);
             [DllImport("WatchMeAlwaysLib", CharSet = CharSet.Ansi)]
             public static extern int FinishRecording(string filepath);
         }
@@ -113,7 +113,7 @@ namespace WatchMeAlways
                 if (framesToEncode_.Count >= 1)
                 {
                     var frame = framesToEncode_.Dequeue();
-                    int res = CppRecorder.AddFrame(frame.Pixels, frameCount_++, frameWidth_, frameHeight_);
+                    int res = CppRecorder.AddFrame(frame.Pixels, frameWidth_, frameHeight_, frameCount_++);
                     frameCount_++;
                     Debug.Log("AddFrame: " + res);
                 }
