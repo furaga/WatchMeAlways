@@ -35,10 +35,14 @@ const char* getPresetString(RecordingQuality quality) {
 	}
 }
 
+void deleteAVCodecContext(AVCodecContext* ptr) { avcodec_free_context(&ptr); }
+void deleteAVFrameFree(AVFrame* ptr) { av_frame_free(&ptr); }
+void deleteAVPacket(AVPacket* ptr) { av_packet_free(&ptr); }
+
 Recorder::Recorder() :
-	ctx_(nullptr),
-	workingFrame_(nullptr),
-	pkt_(nullptr),
+	ctx_(nullptr, deleteAVCodecContext),
+	workingFrame_(nullptr, deleteAVFrameFree),
+	pkt_(nullptr, deleteAVPacket),
 	currentFrame_(0),
 	recordCount_(0),
 	quality_(RECORDING_QUALITY_MEDIUM),
@@ -63,14 +67,14 @@ bool Recorder::StartRecording(const RecordingParameters& params) {
 	}
 
 	// Create codec context
-	ctx_ = avcodec_alloc_context3(codec);
+	ctx_.reset(avcodec_alloc_context3(codec));
 	if (!ctx_) {
 		UnityDebugCpp::Error("Could not allocate video codec context\n");
 		return false;
 	}
 
 	// Create avpacket
-	pkt_ = av_packet_alloc();
+	pkt_.reset(av_packet_alloc());
 	if (!pkt_) {
 		return false;
 	}
@@ -90,14 +94,14 @@ bool Recorder::StartRecording(const RecordingParameters& params) {
 	}
 
 	// Initialize codec context
-	int ret = avcodec_open2(ctx_, codec, NULL);
+	int ret = avcodec_open2(ctx_.get(), codec, nullptr);
 	if (ret < 0) {
 		UnityDebugCpp::Error("Could not open codec: H264\n");
 		return false;
 	}
 
 	// Create avframe
-	workingFrame_ = av_frame_alloc();
+	workingFrame_.reset(av_frame_alloc());
 	if (!workingFrame_) {
 		UnityDebugCpp::Error("Could not allocate video frame\n");
 		return false;
@@ -105,7 +109,7 @@ bool Recorder::StartRecording(const RecordingParameters& params) {
 	workingFrame_->format = ctx_->pix_fmt;
 	workingFrame_->width = ctx_->width;
 	workingFrame_->height = ctx_->height;
-	ret = av_frame_get_buffer(workingFrame_, 32);
+	ret = av_frame_get_buffer(workingFrame_.get(), 32);
 	if (ret < 0) {
 		UnityDebugCpp::Error("Could not allocate the video frame data\n");
 		return false;
@@ -159,7 +163,7 @@ bool Recorder::AddFrame(uint8_t* pixels, int width, int height, float timeStamp)
 	// check width, height
 
 
-	int ret = av_frame_make_writable(workingFrame_);
+	int ret = av_frame_make_writable(workingFrame_.get());
 	if (ret < 0) {
 		printf("AddFrame: av_frame_make_writable failed");
 		return false;
@@ -178,11 +182,11 @@ bool Recorder::AddFrame(uint8_t* pixels, int width, int height, float timeStamp)
 	//inLinesize[0] = -inLinesize[0];
 
 	sws_scale(c, &pixels, inLinesize, 0, ctx_->height, workingFrame_->data, workingFrame_->linesize);
-	FlipFrameJ420(workingFrame_);
+	FlipFrameJ420(workingFrame_.get());
 
 	workingFrame_->pts = (int)timeStamp; // todo
 
-	bool succeeded = encode(ctx_, workingFrame_, pkt_);
+	bool succeeded = encode(ctx_.get(), workingFrame_.get(), pkt_.get());
 	if (!succeeded) {
 		printf("AddFrame: encode failed");
 		return false;
@@ -194,7 +198,7 @@ bool Recorder::AddFrame(uint8_t* pixels, int width, int height, float timeStamp)
 bool Recorder::FinishRecording(const std::string& filename)
 {
 	// flush
-	bool succeeded = encode(ctx_, NULL, pkt_);
+	bool succeeded = encode(ctx_.get(), nullptr, pkt_.get());
 	if (!succeeded) {
 		return false;
 	}
@@ -223,12 +227,9 @@ bool Recorder::FinishRecording(const std::string& filename)
 
 void Recorder::clear() {
 	// clear ffmpeg internal memories
-	avcodec_free_context(&ctx_);
-	av_frame_free(&workingFrame_);
-	av_packet_free(&pkt_);
-	ctx_ = nullptr;
-	workingFrame_ = nullptr;
-	pkt_ = nullptr;
+	ctx_.reset(nullptr);
+	workingFrame_.reset(nullptr);
+	pkt_.reset(nullptr);
 
 	// clear frames
 	frames_.clear();

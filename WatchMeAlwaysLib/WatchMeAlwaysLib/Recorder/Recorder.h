@@ -43,10 +43,14 @@ struct RecordingParameters {
 	}
 };
 
+
 class Recorder {
-	AVCodecContext *ctx_;
-	AVFrame *workingFrame_;
-	AVPacket *pkt_;
+	typedef std::unique_ptr<AVCodecContext, void(*)(AVCodecContext*)> AVCodecContextPtr;
+	typedef std::unique_ptr<AVFrame, void(*)(AVFrame*)> AVFramePtr;
+	typedef std::unique_ptr<AVPacket, void(*)(AVPacket*)> AVPacketPtr;
+	AVCodecContextPtr ctx_;
+	AVFramePtr workingFrame_;
+	AVPacketPtr pkt_;
 	std::vector<FramePtr> frames_;
 	int currentFrame_;
 	int recordCount_;
