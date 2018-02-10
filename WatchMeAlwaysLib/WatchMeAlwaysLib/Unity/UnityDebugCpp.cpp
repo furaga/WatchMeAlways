@@ -52,6 +52,7 @@ void UnityDebugCpp::Log(const bool message, Color color) {
 void UnityDebugCpp::printLog(const std::stringstream &ss, const Color &color) {
 	const std::string tmp = ss.str();
 	const char* tmsg = tmp.c_str();
+	printf("%s", tmsg);
 	if (unityPrintLog != nullptr) {
 		unityPrintLog(tmsg, (int)color, (int)strlen(tmsg));
 	}

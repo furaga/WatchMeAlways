@@ -169,12 +169,17 @@ bool Recorder::AddFrame(uint8_t* pixels, int width, int height, float timeStamp)
 		return false;
 	}
 
+	int frameWidth = ctx_->width;
+	int frameHeight = ctx_->height;
+
 	// cf. https://stackoverflow.com/questions/16667687/how-to-convert-rgb-from-yuv420p-for-ffmpeg-encoder
 	SwsContext * c = sws_getContext(
 		ctx_->width, ctx_->height, AV_PIX_FMT_RGB24,
 		ctx_->width, ctx_->height, AV_PIX_FMT_YUV420P,
 		0, 0, 0, 0
 	);
+
+	UnityDebugCpp::Info("(w,h,w,h)=(%d,%d,%d,%d)", frameWidth, frameHeight, width, height);
 
 	int inLinesize[1] = { 3 * ctx_->width };
 
@@ -185,6 +190,7 @@ bool Recorder::AddFrame(uint8_t* pixels, int width, int height, float timeStamp)
 	FlipFrameJ420(workingFrame_.get());
 
 	workingFrame_->pts = (int)timeStamp; // todo
+
 
 	bool succeeded = encode(ctx_.get(), workingFrame_.get(), pkt_.get());
 	if (!succeeded) {

@@ -43,9 +43,14 @@ namespace WatchMeAlways
         class Frame
         {
             public byte[] Pixels { get; private set; }
-            public Frame(byte[] pixels)
+            public int Width { get; private set; }
+            public int Height { get; private set; }
+
+            public Frame(byte[] pixels, int width, int height)
             {
                 this.Pixels = pixels;
+                this.Width = width;
+                this.Height = height;
             }
         }
 
@@ -126,9 +131,9 @@ namespace WatchMeAlways
                 if (framesToEncode_.Count >= 1)
                 {
                     var frame = framesToEncode_.Dequeue();
-                    int res = CppRecorder.AddFrame(frame.Pixels, frameWidth_, frameHeight_, frameCount_++);
+                    int res = CppRecorder.AddFrame(frame.Pixels, frame.Width, frame.Height, frameCount_++);
                     frameCount_++;
-                    Debug.Log("AddFrame: " + res);
+                    Debug.Log("AddFrame: " + (res == 0 ? "OK": "NG"));
                 }
                 else
                 {
@@ -164,15 +169,14 @@ namespace WatchMeAlways
 
                 if (frameWidth_ > 0 && frameHeight_ > 0)
                 {
-                    var tex = new Texture2D(frameWidth_, frameHeight_, TextureFormat.RGB24, false);
+                    var tex = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
 
-                    // bottle-nec!: down fps 90fps -> 65fps
-                    tex.ReadPixels(new Rect(0, 0, frameWidth_, frameHeight_), 0, 0);
+                    // bottle-neck!: down fps 90fps -> 65fps
+                    tex.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0);
                     tex.Apply();
 
                     var bytes = tex.GetRawTextureData();
-                    framesToEncode_.Enqueue(new Frame(bytes));
-                    Debug.Log("# of bytes: " + bytes.Length);
+                    framesToEncode_.Enqueue(new Frame(bytes, tex.width, tex.height));
                 }
             }
         }
@@ -202,7 +206,7 @@ namespace WatchMeAlways
             int w = Screen.width / 2 * 2;
             int h = Screen.height / 2 * 2;
             var tex = new Texture2D(w, h, TextureFormat.RGB24, false);
-            tex.ReadPixels(new Rect(0, 0, w, h), 0, 0);
+            tex.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0);
             tex.Apply();
             System.IO.File.WriteAllBytes(filepath, tex.EncodeToPNG());
             Debug.Log("Saved screenshot in " + filepath);
