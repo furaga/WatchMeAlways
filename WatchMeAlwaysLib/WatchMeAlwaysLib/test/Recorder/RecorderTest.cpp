@@ -1,4 +1,6 @@
 #include "stdafx.h"  
+
+#ifdef UNIT_TEST
 #include <memory>
 #include "CppUnitTest.h"  
 #include "../../Recorder/Recorder.h"  
@@ -53,6 +55,5 @@ namespace RecorderTest
 			std::remove("test_output.h264");
 		}
 	};
-
-
 }
+#endif

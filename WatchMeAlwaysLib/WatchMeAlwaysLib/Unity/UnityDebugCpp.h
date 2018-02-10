@@ -42,21 +42,21 @@ public:
 	static void Info(const char* format, Args const & ... args) {
 		char str[512];
 		sprintf_s(str, format, args ...);
-		Log(str, Color::Red);
+		Info(std::string(str));
 	}
 
 	template <typename ... Args>
 	static void Warn(const char* format, Args const & ... args) {
 		char str[512];
 		sprintf_s(str, format, args ...);
-		Log(str, Color::Red);
+		Warn(std::string(str));
 	}
 
 	template <typename ... Args>
 	static void Error(const char* format, Args const & ... args) {
 		char str[512];
 		sprintf_s(str, format, args ...);
-		Log(str, Color::Red);
+		Error(std::string(str));
 	}
 
 private:

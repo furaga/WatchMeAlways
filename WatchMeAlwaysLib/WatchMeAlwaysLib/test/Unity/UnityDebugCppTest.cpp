@@ -1,4 +1,6 @@
 #include "stdafx.h"  
+
+#ifdef UNIT_TEST
 #include "CppUnitTest.h"  
 #include "../../Unity/UnityDebugCpp.h"  
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
@@ -31,6 +33,5 @@ namespace UnityDebugCppTest
 			Assert::AreEqual(latestMessage, std::string("ERROR 3"));
 		}
 	};
-
-
 }
+#endif
