@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include <string>
+#include <memory>
 
 #include "Recorder/Recorder.h"
 
@@ -17,12 +18,11 @@ enum APIResult {
 	API_RESULT_NG = 1,
 };
 
-Recorder* recorder = nullptr;
+std::unique_ptr<Recorder> recorder = nullptr;
 
 int StartRecording(int width, int height)
 {
-	SAFE_DELETE(recorder);
-	recorder = new Recorder();
+	recorder.reset(new Recorder());
 	bool succeeded = recorder->StartRecording(
 		RecordingParameters(width, height, 120, 30, RECORDING_QUALITY_SUPERFAST) // TODO
 	);
