@@ -12,8 +12,21 @@ namespace WatchMeAlways
     {
         class CppRecorder
         {
+            public enum RecordingQuality
+            {
+                ULTRAFAST = 0,
+                SUPERFAST,
+                VERYFAST,
+                FASTER,
+                FAST,
+                MEDIUM, // default
+                SLOW,
+                SLOWER,
+                VERYSLOW,
+            };
+
             [DllImport("WatchMeAlwaysLib")]
-            public static extern int StartRecording(int width, int height);
+            public static extern int StartRecording(int width, int height, float maxSeconds, float fps, RecordingQuality quality);
             [DllImport("WatchMeAlwaysLib")]
             public static extern int AddFrame(byte[] pixels, int imgWidth, int imgHeight, float timeStamp);
             [DllImport("WatchMeAlwaysLib", CharSet = CharSet.Ansi)]
@@ -65,7 +78,7 @@ namespace WatchMeAlways
                 frameWidth_ = Screen.width / 2 * 2;
                 frameHeight_ = Screen.height / 2 * 2;
 
-                int res = CppRecorder.StartRecording(frameWidth_, frameHeight_);
+                int res = CppRecorder.StartRecording(frameWidth_, frameHeight_, 100.0f, 30.0f, CppRecorder.RecordingQuality.FASTER);
                 state_ = State.Running;
 
                 startScreenshotCoroutine();

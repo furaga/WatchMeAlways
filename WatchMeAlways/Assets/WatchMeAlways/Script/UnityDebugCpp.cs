@@ -10,15 +10,6 @@ public class UnityDebugCpp : MonoBehaviour
     [DllImport("WatchMeAlwaysLib", CallingConvention = CallingConvention.Cdecl)]
     static extern void RegisterUnityPrintLogFn(UnityPrintLogFn cb);
 
-    void OnEnable()
-    {
-        RegisterUnityPrintLogFn(OnDebugCallback);
-    }
-
-    delegate void UnityPrintLogFn(IntPtr request, int color, int size);
-
-    enum Color { red, green, blue, black, white, yellow, orange };
-
     [MonoPInvokeCallback(typeof(UnityPrintLogFn))]
     static void OnDebugCallback(IntPtr request, int color, int size)
     {
@@ -36,5 +27,12 @@ public class UnityDebugCpp : MonoBehaviour
             );
 
         UnityEngine.Debug.Log(debug_string);
+    }
+
+    delegate void UnityPrintLogFn(IntPtr request, int color, int size);
+    enum Color { red, green, blue, black, white, yellow, orange };
+    void OnEnable()
+    {
+        RegisterUnityPrintLogFn(OnDebugCallback);
     }
 }

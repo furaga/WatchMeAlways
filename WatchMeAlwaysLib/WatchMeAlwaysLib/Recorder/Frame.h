@@ -1,14 +1,15 @@
 #pragma once
 #ifndef FRAME_H
 
-#include <stdint.h>
+#include <vector>
 
 class Frame {
-	uint8_t* data;
+	std::vector<uint8_t> data;
 	int dataSize;
 public:
-	Frame(void* src, int byteSize);
-	const uint8_t* const GetData() const { return data; }
+	Frame();
+	void SetData(void* src, int byteSize);
+	const uint8_t* const GetData() const { return &data[0]; }
 	const int GetDataSize() const { return dataSize; }
 };
 

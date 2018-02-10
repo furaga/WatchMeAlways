@@ -2,7 +2,7 @@
 
 #include "targetver.h"
 
-#define WIN32_LEAN_AND_MEAN             // Windows ƒwƒbƒ_[‚©‚çŽg—p‚³‚ê‚Ä‚¢‚È‚¢•”•ª‚ðœŠO‚µ‚Ü‚·B
+#define WIN32_LEAN_AND_MEAN             // Windows ãƒ˜ãƒƒãƒ€ãƒ¼ã‹ã‚‰ä½¿ç”¨ã•ã‚Œã¦ã„ãªã„éƒ¨åˆ†ã‚’é™¤å¤–ã—ã¾ã™ã€‚
 #include <windows.h>
 
 #include <cassert>
@@ -12,4 +12,10 @@
 
 typedef unsigned int uint;
 
+#include <stdio.h>
+#include <sstream>
+#include <stdint.h>
+#include <string>
+#include <vector>
+#include <memory>
 #include "Unity/UnityDebugCpp.h"

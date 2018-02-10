@@ -122,11 +122,13 @@ bool Recorder::StartRecording(const RecordingParameters& params) {
 		return false;
 	}
 
-	int newFrameSize = (int)(params.ReplayLength * params.Quality);
+	int newFrameSize = (int)(params.ReplayLength * params.Fps);
 	frames_.resize(newFrameSize);
 	for (int i = 0; i < frames_.size(); i++) {
-		frames_[i] = nullptr;
+		frames_[i].reset(new Frame());
 	}
+
+	UnityDebugCpp::Info("newFrameSize = %f * %f = %d", params.ReplayLength, params.Fps, newFrameSize);
 
 	// Reset frame counter
 	currentFrame_ = 0;
@@ -170,7 +172,7 @@ bool Recorder::AddFrame(uint8_t* pixels, int width, int height, float timeStamp)
 		0, 0, 0, 0
 	);
 
-	int inLinesize[1] = { 3 * ctx_->width};
+	int inLinesize[1] = { 3 * ctx_->width };
 
 	//pixels[0] += inLinesize[0] * (imgHeight - 1);
 	//inLinesize[0] = -inLinesize[0];
@@ -229,9 +231,7 @@ void Recorder::clear() {
 	pkt_ = nullptr;
 
 	// clear frames
-	for (int i = 0; i < frames_.size(); i++) {
-		SAFE_DELETE(frames_[i]);
-	}
+	frames_.clear();
 
 	// clear counters
 	currentFrame_ = 0;
@@ -263,8 +263,9 @@ bool Recorder::encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt)
 		//sprintf_s(str, 128, "Write packet %3" PRId64 " (size=%5d)\n", pkt->pts, pkt->size);
 		//UnityDebugCpp::Info(str);
 
-		assert(frames_[currentFrame_] == nullptr);
-		frames_[currentFrame_] = new Frame(pkt->data, pkt->size);
+		// Should I reuse instance instead of creating new instance?
+		// TODO: Fix if this line would be bottle neck.
+		frames_[currentFrame_]->SetData(pkt->data, pkt->size);
 
 		currentFrame_ = (currentFrame_ + 1) % frames_.size();
 		if (recordCount_ < frames_.size()) {
