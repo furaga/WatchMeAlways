@@ -1,12 +1,13 @@
 #include "stdafx.h"
 
 #include <string>
+#include <memory>
 
 #include "Recorder/Recorder.h"
 
 extern "C" {
 	DllExport int StartRecording(int width, int height);
-	DllExport int AddFrame(uint8_t* pixels, float timeStamp, int imgWidth, int imgHeight);
+	DllExport int AddFrame(uint8_t* pixels, int width, int height, float timeStamp);
 	DllExport int FinishRecording(char* saveFilePath);
 }
 
@@ -15,13 +16,14 @@ enum APIResult {
 	API_RESULT_NG = 1,
 };
 
-Recorder* recorder = nullptr;
+std::unique_ptr<Recorder> recorder = nullptr;
 
 int StartRecording(int width, int height)
 {
-	SAFE_DELETE(recorder);
-	recorder = new Recorder();
-	bool succeeded = recorder->StartRecording(width, height);
+	recorder.reset(new Recorder());
+	bool succeeded = recorder->StartRecording(
+		RecordingParameters(width, height, 120, 30, RECORDING_QUALITY_SUPERFAST) // TODO
+	);
 	if (!succeeded) {
 		UnityDebugCpp::Error("failed: recorder->StartRecording()\n");
 		return API_RESULT_NG;
@@ -29,12 +31,12 @@ int StartRecording(int width, int height)
 	return API_RESULT_OK;
 }
 
-int AddFrame(uint8_t* pixels, float timeStamp, int imgWidth, int imgHeight)
+int AddFrame(uint8_t* pixels, int width, int height, float timeStamp)
 {
 	if (recorder == nullptr) {
 		return API_RESULT_NG;
 	}
-	bool succeeded = recorder->AddFrame(pixels, timeStamp, imgWidth, imgHeight);
+	bool succeeded = recorder->AddFrame(pixels, width, height, timeStamp);
 	if (!succeeded) {
 		UnityDebugCpp::Error("failed: recorder->AddFrame()\n");
 		return API_RESULT_NG;

@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <string>
+#include <vector>
 
 struct AVCodec;
 struct AVCodecContext;
@@ -13,23 +14,54 @@ class Frame;
 const int FPS = 25;
 const int MaxFrameNum = 25 * 60 * 2; // 2 minutes
 
-class Recorder {
+enum RecordingQuality {
+	RECORDING_QUALITY_ULTRAFAST = 0,
+	RECORDING_QUALITY_SUPERFAST,
+	RECORDING_QUALITY_VERYFAST,
+	RECORDING_QUALITY_FASTER,
+	RECORDING_QUALITY_FAST,
+	RECORDING_QUALITY_MEDIUM, // default
+	RECORDING_QUALITY_SLOW,
+	RECORDING_QUALITY_SLOWER,
+	RECORDING_QUALITY_VERYSLOW,
+};
 
-	AVCodec *codec;
-	AVCodecContext *c;
-	AVFrame *frame;
-	AVPacket *pkt;
-	Frame* frames[MaxFrameNum];
-	int currentFrame;
-	int recordCount;
+struct RecordingParameters {
+	int Width;
+	int Height;
+	float ReplayLength; // in seconds
+	float Fps;
+	RecordingQuality Quality;
+	RecordingParameters(int width, int height, float seconds, float fps, RecordingQuality quality)
+		: Width(width),
+		Height(height),
+		ReplayLength(seconds),
+		Fps(fps),
+		Quality(quality)
+	{
+	}
+};
+
+class Recorder {
+	AVCodecContext *ctx_;
+	AVFrame *workingFrame_;
+	AVPacket *pkt_;
+	std::vector<Frame*> frames_;
+	int currentFrame_;
+	int recordCount_;
+	RecordingQuality quality_;
+	int recordFrameLength_;
 
 public:
 	Recorder();
-	bool StartRecording(int width, int height);
-	bool AddFrame(uint8_t* pixels, float timeStamp, int imgWidth, int imgHeight);
+	~Recorder();
+	bool StartRecording(const RecordingParameters& parameters);
+	// width * height * 3 must be size of pixels.
+	bool AddFrame(uint8_t* pixels, int width, int height, float timeStamp);
 	bool FinishRecording(const std::string& filename);
 
 private:
+	void clear();
 	bool encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt);
 };
 

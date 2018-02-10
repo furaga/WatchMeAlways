@@ -8,18 +8,18 @@ using UnityEngine;
 public class UnityDebugCpp : MonoBehaviour
 {
     [DllImport("WatchMeAlwaysLib", CallingConvention = CallingConvention.Cdecl)]
-    static extern void RegisterUnityDebugCppCallback(debugCallback cb);
+    static extern void RegisterUnityPrintLogFn(UnityPrintLogFn cb);
 
     void OnEnable()
     {
-        RegisterUnityDebugCppCallback(OnDebugCallback);
+        RegisterUnityPrintLogFn(OnDebugCallback);
     }
 
-    delegate void debugCallback(IntPtr request, int color, int size);
+    delegate void UnityPrintLogFn(IntPtr request, int color, int size);
 
     enum Color { red, green, blue, black, white, yellow, orange };
 
-    [MonoPInvokeCallback(typeof(debugCallback))]
+    [MonoPInvokeCallback(typeof(UnityPrintLogFn))]
     static void OnDebugCallback(IntPtr request, int color, int size)
     {
         //Ptr to string

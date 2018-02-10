@@ -10,10 +10,8 @@
 
 extern "C"
 {
-	//Create a callback delegate
-	typedef void(*FuncCallBack)(const char* message, int color, int size);
-	static FuncCallBack callbackInstance = nullptr;
-	DLLExport void RegisterUnityDebugCppCallback(FuncCallBack cb);
+	typedef void(*UnityPrintLogFn)(const char* message, int color, int size);
+	DLLExport void RegisterUnityPrintLogFn(UnityPrintLogFn fn);
 }
 
 //Color Enum
@@ -40,7 +38,28 @@ public:
 		Log(message, Color::Red);
 	}
 
+	template <typename ... Args>
+	static void Info(const char* format, Args const & ... args) {
+		char str[512];
+		sprintf_s(str, format, args ...);
+		Info(std::string(str));
+	}
+
+	template <typename ... Args>
+	static void Warn(const char* format, Args const & ... args) {
+		char str[512];
+		sprintf_s(str, format, args ...);
+		Warn(std::string(str));
+	}
+
+	template <typename ... Args>
+	static void Error(const char* format, Args const & ... args) {
+		char str[512];
+		sprintf_s(str, format, args ...);
+		Error(std::string(str));
+	}
+
 private:
-	static void send_log(const std::stringstream &ss, const Color &color);
+	static void printLog(const std::stringstream &ss, const Color &color);
 };
 
