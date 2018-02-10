@@ -7,22 +7,22 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WatchMeAlwaysLib", "WatchMe
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|x64 = Debug|x64
-		Debug|x86 = Debug|x86
-		Release|x64 = Release|x64
-		Release|x86 = Release|x86
+		DeployDebug|x64 = DeployDebug|x64
+		DeployDebug|x86 = DeployDebug|x86
+		DeployRelease|x64 = DeployRelease|x64
+		DeployRelease|x86 = DeployRelease|x86
 		UnitTest|x64 = UnitTest|x64
 		UnitTest|x86 = UnitTest|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{FF9252A1-CA70-400F-98D3-1A39E0C009CF}.Debug|x64.ActiveCfg = Debug|x64
-		{FF9252A1-CA70-400F-98D3-1A39E0C009CF}.Debug|x64.Build.0 = Debug|x64
-		{FF9252A1-CA70-400F-98D3-1A39E0C009CF}.Debug|x86.ActiveCfg = Debug|Win32
-		{FF9252A1-CA70-400F-98D3-1A39E0C009CF}.Debug|x86.Build.0 = Debug|Win32
-		{FF9252A1-CA70-400F-98D3-1A39E0C009CF}.Release|x64.ActiveCfg = Release|x64
-		{FF9252A1-CA70-400F-98D3-1A39E0C009CF}.Release|x64.Build.0 = Release|x64
-		{FF9252A1-CA70-400F-98D3-1A39E0C009CF}.Release|x86.ActiveCfg = Release|Win32
-		{FF9252A1-CA70-400F-98D3-1A39E0C009CF}.Release|x86.Build.0 = Release|Win32
+		{FF9252A1-CA70-400F-98D3-1A39E0C009CF}.DeployDebug|x64.ActiveCfg = Debug|x64
+		{FF9252A1-CA70-400F-98D3-1A39E0C009CF}.DeployDebug|x64.Build.0 = Debug|x64
+		{FF9252A1-CA70-400F-98D3-1A39E0C009CF}.DeployDebug|x86.ActiveCfg = Debug|Win32
+		{FF9252A1-CA70-400F-98D3-1A39E0C009CF}.DeployDebug|x86.Build.0 = Debug|Win32
+		{FF9252A1-CA70-400F-98D3-1A39E0C009CF}.DeployRelease|x64.ActiveCfg = Release|x64
+		{FF9252A1-CA70-400F-98D3-1A39E0C009CF}.DeployRelease|x64.Build.0 = Release|x64
+		{FF9252A1-CA70-400F-98D3-1A39E0C009CF}.DeployRelease|x86.ActiveCfg = Release|Win32
+		{FF9252A1-CA70-400F-98D3-1A39E0C009CF}.DeployRelease|x86.Build.0 = Release|Win32
 		{FF9252A1-CA70-400F-98D3-1A39E0C009CF}.UnitTest|x64.ActiveCfg = UnitTest|x64
 		{FF9252A1-CA70-400F-98D3-1A39E0C009CF}.UnitTest|x64.Build.0 = UnitTest|x64
 		{FF9252A1-CA70-400F-98D3-1A39E0C009CF}.UnitTest|x86.ActiveCfg = UnitTest|Win32
