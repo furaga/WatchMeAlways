@@ -10,75 +10,86 @@ namespace WatchMeAlways
 {
     public class WatchMeAlwaysSettingsWindow : EditorWindow
     {
-        enum CaptureTarget: int
+        enum CaptureTarget : int
         {
             GamePanel = 0,
             EditorWindow,
             Desktop,
         }
 
-        enum Quality : int
-        {
-            Low = 0, Medium, High, Custom,
-        }
-        
-        int replaySeconds = 60;
-        CaptureTarget captureTarget = CaptureTarget.EditorWindow;
-        Quality quality = Quality.Low;
-        float fps = 30;
-        int mbps= 22;
+        readonly InstantReplay.CppRecorder.RecordingQuality[] qualityPresets = new[] {
+            InstantReplay.CppRecorder.RecordingQuality.FASTER,
+            InstantReplay.CppRecorder.RecordingQuality.MEDIUM,
+            InstantReplay.CppRecorder.RecordingQuality.SLOWER,
+        };
 
+        CaptureTarget captureTarget = CaptureTarget.EditorWindow;
         void OnGUI()
         {
-            // Instant Replay Settings
-            GUILayout.Label("Instant Replay Settings", EditorStyles.boldLabel);
-            replaySeconds = EditorGUILayout.IntSlider("Replay Length (seconds)", replaySeconds, 10, 300);
+            var oldParams = InstantReplay.DefaultParameters;
+            float fps = oldParams.Fps;
+            float replaySeconds = oldParams.ReplayLength;
+            InstantReplay.CppRecorder.RecordingQuality quality = oldParams.Quality;
 
-            // Recording Settings
+            GUILayout.Label("Instant Replay Settings", EditorStyles.boldLabel);
+
+            // replay length
+            replaySeconds = EditorGUILayout.Slider("Replay Length (seconds)", replaySeconds, 10, 300);
+
             GUILayout.Label("Recording Settings", EditorStyles.boldLabel);
+
+            // target
             captureTarget = (CaptureTarget)EditorGUILayout.Popup("Capture Target", (int)captureTarget, new string[] {
                 "\"Game\" Panel",
                 "Unity Editor Window",
                 "Desktop",
             });
 
-            quality = (Quality)EditorGUILayout.Popup("Quality", (int)quality, new string[] {
-                "Low (30FPS, 15Mbps)",
-                "Medium (30FPS, 22Mbps)",
-                "High (30FPS, 50Mbps)",
-                "Custom",
-            });
+            // fps
+            fps = EditorGUILayout.Slider("FPS", fps, 1, 120);
 
-            switch (quality)
+            // quality
+            int index = EditorGUILayout.Popup("Quality", quality2index(quality), new string[] { "Low", "Medium", "High", });
+            quality = index2quality(index);
+
+
+            if (GUILayout.Button("Reset"))
             {
-                case Quality.Low:
-                    fps = 30;
-                    mbps = 15;
-                    break;
-                case Quality.High:
-                    fps = 30;
-                    mbps = 50;
-                    break;
-                case Quality.Medium:
-                    fps = 30;
-                    mbps = 22;
-                    break;
-                case Quality.Custom:
-                    break;
-                default:
-                    Debug.LogErrorFormat("Unexpected quality type: {0}", quality);
-                    break;
+                InstantReplay.DefaultParameters = new InstantReplay.DefaultRecordingParameters()
+                {
+                    ReplayLength = 120.0f,
+                    Fps = 30.0f,
+                    Quality = InstantReplay.CppRecorder.RecordingQuality.MEDIUM,
+                };
             }
 
-            customQualityGUI(quality == Quality.Custom);
+            if (fps != oldParams.Fps ||
+                replaySeconds != oldParams.ReplayLength ||
+                quality != oldParams.Quality)
+            {
+                InstantReplay.DefaultParameters = new InstantReplay.DefaultRecordingParameters()
+                {
+                    Fps = fps,
+                    Quality = quality,
+                    ReplayLength = replaySeconds,
+                };
+            }
         }
 
-        void customQualityGUI(bool isCustomMode)
+        int quality2index(InstantReplay.CppRecorder.RecordingQuality quality)
         {
-            EditorGUI.BeginDisabledGroup(false == isCustomMode);
-            fps = EditorGUILayout.Slider("FPS", fps, 0.1f, 120.0f);
-            mbps = EditorGUILayout.IntSlider("Bit Rate (Mbps)", mbps, 10, 130);
-            EditorGUI.EndDisabledGroup();
+            int index = Array.IndexOf(qualityPresets, quality);
+            return index;
         }
+
+        InstantReplay.CppRecorder.RecordingQuality index2quality(int index)
+        {
+            if (0 <= index && index < qualityPresets.Length)
+            {
+                return qualityPresets[index];
+            }
+            return InstantReplay.CppRecorder.RecordingQuality.MEDIUM;
+        }
+
     }
 }

@@ -10,7 +10,7 @@ namespace WatchMeAlways
 {
     public class InstantReplay : MonoBehaviour
     {
-        class CppRecorder
+        public class CppRecorder
         {
             public enum RecordingQuality
             {
@@ -54,6 +54,20 @@ namespace WatchMeAlways
             }
         }
 
+        public class DefaultRecordingParameters
+        {
+            public float ReplayLength { get; set; }
+            public float Fps { get; set; }
+            public CppRecorder.RecordingQuality Quality { get; set; }
+        }
+
+        public static DefaultRecordingParameters DefaultParameters = new DefaultRecordingParameters()
+        {
+            ReplayLength = 120.0f,
+            Fps = 30.0f,
+            Quality = CppRecorder.RecordingQuality.MEDIUM,
+        };
+
         Queue<Frame> framesToEncode_ = new Queue<Frame>();
         State state_ = State.NotStarted;
         int frameCount_ = 0;
@@ -82,8 +96,8 @@ namespace WatchMeAlways
             {
                 frameWidth_ = Screen.width / 2 * 2;
                 frameHeight_ = Screen.height / 2 * 2;
-
-                int res = CppRecorder.StartRecording(frameWidth_, frameHeight_, 100.0f, 30.0f, CppRecorder.RecordingQuality.FASTER);
+                
+                int res = CppRecorder.StartRecording(frameWidth_, frameHeight_, DefaultParameters.ReplayLength, DefaultParameters.Fps, DefaultParameters.Quality);
                 state_ = State.Running;
 
                 startScreenshotCoroutine();
@@ -120,7 +134,7 @@ namespace WatchMeAlways
             {
                 // finish after flushing
                 quitEncodeFramesIfQueueIsEmpty_ = true;
-                frameEncodeThread_.Join(); 
+                frameEncodeThread_.Join();
             }
         }
 
@@ -133,7 +147,7 @@ namespace WatchMeAlways
                     var frame = framesToEncode_.Dequeue();
                     int res = CppRecorder.AddFrame(frame.Pixels, frame.Width, frame.Height, frameCount_++);
                     frameCount_++;
-                    Debug.Log("AddFrame: " + (res == 0 ? "OK": "NG"));
+                    Debug.Log("AddFrame: " + (res == 0 ? "OK" : "NG"));
                 }
                 else
                 {
