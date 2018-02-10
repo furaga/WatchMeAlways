@@ -10,7 +10,7 @@ namespace WatchMeAlways
 {
     public class InstantReplay : MonoBehaviour
     {
-        class CppRecorder
+        public class CppRecorder
         {
             public enum RecordingQuality
             {
@@ -63,6 +63,9 @@ namespace WatchMeAlways
         Coroutine takeScreenshotCoroutine_ = null;
         Coroutine singleScreenshotCoroutine_ = null;
         bool quitEncodeFramesIfQueueIsEmpty_ = false;
+        public float ReplayLength { get; set; }
+        public float Fps { get; set; }
+        public CppRecorder.RecordingQuality Quality { get; set; }
 
         void Start()
         {
@@ -74,6 +77,9 @@ namespace WatchMeAlways
             frameEncodeThread_ = null;
             takeScreenshotCoroutine_ = null;
             quitEncodeFramesIfQueueIsEmpty_ = false;
+            ReplayLength = 120.0f;
+            Fps = 30.0f;
+            Quality = CppRecorder.RecordingQuality.MEDIUM;
         }
 
         public void StartRecording()
@@ -83,7 +89,7 @@ namespace WatchMeAlways
                 frameWidth_ = Screen.width / 2 * 2;
                 frameHeight_ = Screen.height / 2 * 2;
 
-                int res = CppRecorder.StartRecording(frameWidth_, frameHeight_, 100.0f, 30.0f, CppRecorder.RecordingQuality.FASTER);
+                int res = CppRecorder.StartRecording(frameWidth_, frameHeight_, ReplayLength, Fps, Quality);
                 state_ = State.Running;
 
                 startScreenshotCoroutine();
