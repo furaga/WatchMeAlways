@@ -1,15 +1,16 @@
 #pragma once
 #ifndef RECORDER_H
 
-#include <stdint.h>
-#include <string>
-#include <vector>
-
 struct AVCodec;
 struct AVCodecContext;
 struct AVFrame;
 struct AVPacket;
 class Frame;
+
+#include <vector>
+#include <memory>
+
+typedef std::unique_ptr<Frame> FramePtr;
 
 const int FPS = 25;
 const int MaxFrameNum = 25 * 60 * 2; // 2 minutes
@@ -46,7 +47,7 @@ class Recorder {
 	AVCodecContext *ctx_;
 	AVFrame *workingFrame_;
 	AVPacket *pkt_;
-	std::vector<Frame*> frames_;
+	std::vector<FramePtr> frames_;
 	int currentFrame_;
 	int recordCount_;
 	RecordingQuality quality_;
@@ -64,5 +65,7 @@ private:
 	void clear();
 	bool encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt);
 };
+
+typedef std::unique_ptr<Recorder> RecorderPtr;
 
 #endif

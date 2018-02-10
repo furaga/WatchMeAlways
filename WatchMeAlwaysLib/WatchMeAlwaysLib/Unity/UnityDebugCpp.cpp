@@ -1,11 +1,6 @@
 #include "stdafx.h"
 #include "UnityDebugCpp.h"
 
-#include<stdio.h>
-#include <string>
-#include <stdio.h>
-#include <sstream>
-
 static UnityPrintLogFn unityPrintLog = nullptr;
 
 //-------------------------------------------------------------------

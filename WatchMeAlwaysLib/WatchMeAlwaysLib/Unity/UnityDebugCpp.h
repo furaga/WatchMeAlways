@@ -1,10 +1,6 @@
 // cf) https://stackoverflow.com/questions/43732825/use-debug-log-from-c
 
 #pragma once
-#include<stdio.h>
-#include <string>
-#include <stdio.h>
-#include <sstream>
 
 #define DLLExport __declspec(dllexport)
 

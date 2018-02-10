@@ -1,12 +1,9 @@
 #include "stdafx.h"
 
-#include <string>
-#include <memory>
-
 #include "Recorder/Recorder.h"
 
 extern "C" {
-	DllExport int StartRecording(int width, int height);
+	DllExport int StartRecording(int width, int height, float maxSeconds, float fps, RecordingQuality quality);
 	DllExport int AddFrame(uint8_t* pixels, int width, int height, float timeStamp);
 	DllExport int FinishRecording(char* saveFilePath);
 }
@@ -18,12 +15,11 @@ enum APIResult {
 
 std::unique_ptr<Recorder> recorder = nullptr;
 
-int StartRecording(int width, int height)
+int StartRecording(int width, int height, float maxSeconds, float fps, RecordingQuality quality)
 {
 	recorder.reset(new Recorder());
-	bool succeeded = recorder->StartRecording(
-		RecordingParameters(width, height, 120, 30, RECORDING_QUALITY_SUPERFAST) // TODO
-	);
+	auto params = RecordingParameters(width, height, maxSeconds, fps, quality);
+	bool succeeded = recorder->StartRecording(params);
 	if (!succeeded) {
 		UnityDebugCpp::Error("failed: recorder->StartRecording()\n");
 		return API_RESULT_NG;
