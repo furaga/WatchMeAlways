@@ -90,7 +90,7 @@ namespace WatchMeAlways
             quitEncodeFramesIfQueueIsEmpty_ = false;
         }
 
-        public void StartRecording()
+        public void StartRecording(IRecordingParameters parameters)
         {
             if (state_ != State.Running)
             {
