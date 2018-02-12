@@ -15,6 +15,13 @@ namespace WatchMeAlways
         static bool enableVideoRecorder_ = false;
         static bool recording_ = false;
 
+        public static IRecordingParameters DefaultParameters = new VideoRecorder.RecordingParameters()
+        {
+            ReplayLength = 120.0f,
+            Fps = 30.0f,
+            Quality = VideoRecorder.CppRecorder.RecordingQuality.MEDIUM,
+        };
+
         // SaveDir is fullpath
         static string SaveDir
         {
@@ -48,7 +55,7 @@ namespace WatchMeAlways
             var VideoRecorder = findOrCreateVideoRecorder(menuCommand.context as GameObject);
             if (VideoRecorder != null)
             {
-                VideoRecorder.StartRecording(null);
+                VideoRecorder.StartRecording(DefaultParameters);
                 Debug.Log("Instant Replay: ON");
             }
         }
@@ -85,7 +92,7 @@ namespace WatchMeAlways
             if (VideoRecorder != null)
             {
                 VideoRecorder.FinishRecording(System.IO.Path.Combine(SaveDir, "video.h264"));
-                VideoRecorder.StartRecording(null);
+                VideoRecorder.StartRecording(DefaultParameters);
                 Debug.Log("Instant Replay: OFF");
             }
         }
@@ -107,7 +114,7 @@ namespace WatchMeAlways
             var VideoRecorder = findOrCreateVideoRecorder(menuCommand.context as GameObject);
             if (VideoRecorder != null)
             {
-                VideoRecorder.StartRecording(null);
+                VideoRecorder.StartRecording(DefaultParameters);
                 Debug.Log("Recording: STARTED");
             }
         }

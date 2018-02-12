@@ -26,7 +26,7 @@ namespace WatchMeAlways
         CaptureTarget captureTarget = CaptureTarget.EditorWindow;
         void OnGUI()
         {
-            var oldParams = VideoRecorder.DefaultParameters;
+            var oldParams = WatchMeAlwaysMenuEditor.DefaultParameters as VideoRecorder.RecordingParameters;
             float fps = oldParams.Fps;
             float replaySeconds = oldParams.ReplayLength;
             VideoRecorder.CppRecorder.RecordingQuality quality = oldParams.Quality;
@@ -55,7 +55,7 @@ namespace WatchMeAlways
 
             if (GUILayout.Button("Reset"))
             {
-                VideoRecorder.DefaultParameters = new VideoRecorder.DefaultRecordingParameters()
+                WatchMeAlwaysMenuEditor.DefaultParameters = new VideoRecorder.RecordingParameters()
                 {
                     ReplayLength = 120.0f,
                     Fps = 30.0f,
@@ -67,7 +67,7 @@ namespace WatchMeAlways
                 replaySeconds != oldParams.ReplayLength ||
                 quality != oldParams.Quality)
             {
-                VideoRecorder.DefaultParameters = new VideoRecorder.DefaultRecordingParameters()
+                WatchMeAlwaysMenuEditor.DefaultParameters = new VideoRecorder.RecordingParameters()
                 {
                     Fps = fps,
                     Quality = quality,

@@ -54,20 +54,13 @@ namespace WatchMeAlways
             }
         }
 
-        public class DefaultRecordingParameters
+        public class RecordingParameters : IRecordingParameters
         {
             public float ReplayLength { get; set; }
             public float Fps { get; set; }
             public CppRecorder.RecordingQuality Quality { get; set; }
         }
-
-        public static DefaultRecordingParameters DefaultParameters = new DefaultRecordingParameters()
-        {
-            ReplayLength = 120.0f,
-            Fps = 30.0f,
-            Quality = CppRecorder.RecordingQuality.MEDIUM,
-        };
-
+        
         Queue<Frame> framesToEncode_ = new Queue<Frame>();
         State state_ = State.NotStarted;
         int frameCount_ = 0;
@@ -96,8 +89,10 @@ namespace WatchMeAlways
             {
                 frameWidth_ = Screen.width / 2 * 2;
                 frameHeight_ = Screen.height / 2 * 2;
-                
-                int res = CppRecorder.StartRecording(frameWidth_, frameHeight_, DefaultParameters.ReplayLength, DefaultParameters.Fps, DefaultParameters.Quality);
+
+                var param = parameters as RecordingParameters;
+
+                int res = CppRecorder.StartRecording(frameWidth_, frameHeight_, param.ReplayLength, param.Fps, param.Quality);
                 state_ = State.Running;
 
                 startScreenshotCoroutine();
