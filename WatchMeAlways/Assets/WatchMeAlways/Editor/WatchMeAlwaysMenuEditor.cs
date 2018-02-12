@@ -88,7 +88,6 @@ namespace WatchMeAlways
                 instantReplay.StartRecording(null);
                 Debug.Log("Instant Replay: OFF");
             }
-            Debug.Log("SaveInstantReplay");
         }
 
         [MenuItem("WatchMeAlways/Save Instant Replay %F10", true, 10)]
@@ -109,8 +108,8 @@ namespace WatchMeAlways
             if (instantReplay != null)
             {
                 instantReplay.StartRecording(null);
+                Debug.Log("Recording: STARTED");
             }
-            Debug.Log("Recording: STARTED");
         }
 
         [MenuItem("WatchMeAlways/Start Recording %F9", true)]
@@ -127,8 +126,8 @@ namespace WatchMeAlways
             if (instantReplay != null)
             {
                 instantReplay.FinishRecording(System.IO.Path.Combine(SaveDir, "video.h264"));
+                Debug.Log("Recording: FINISHED. The recorded video was saved in " + SaveDir);
             }
-            Debug.Log("Recording: FINISHED. The recorded video was saved in " + SaveDir);
         }
 
         [MenuItem("WatchMeAlways/Finish Recording %F9", true)]
@@ -148,8 +147,8 @@ namespace WatchMeAlways
             if (instantReplay != null)
             {
                 instantReplay.TakeScreenshot(System.IO.Path.Combine(SaveDir, "screenshot.png"));
+                Debug.Log("Screenshot: a new screenshot was saved in " + SaveDir);
             }
-            Debug.Log("Screenshot: a new screenshot was saved in " + SaveDir);
         }
 
         //
@@ -176,7 +175,7 @@ namespace WatchMeAlways
         // Utility
         //
 
-        static InstantReplay findOrCreateVideoRecorder(GameObject owner)
+        static IRecorder findOrCreateVideoRecorder(GameObject owner)
         {
             var instantReplays = GameObject.FindObjectsOfType(typeof(InstantReplay));
             if (instantReplays.Length <= 0)
@@ -193,7 +192,7 @@ namespace WatchMeAlways
                     Debug.LogError("Could not get InstantReplay object");
                 }
             }
-            return instantReplays[0] as InstantReplay;
+            return instantReplays[0] as IRecorder;
         }
 
 
