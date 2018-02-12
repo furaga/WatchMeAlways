@@ -81,8 +81,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\WatchMeAlways\Demo\Rotate.cs" />
-    <Compile Include="Assets\WatchMeAlways\Script\InstantReplay.cs" />
-    <Compile Include="Assets\WatchMeAlways\Script\Recorder.cs" />
+    <Compile Include="Assets\WatchMeAlways\Script\VideoRecorder.cs" />
+    <Compile Include="Assets\WatchMeAlways\Script\IRecorder.cs" />
     <Compile Include="Assets\WatchMeAlways\Script\UnityDebugCpp.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
