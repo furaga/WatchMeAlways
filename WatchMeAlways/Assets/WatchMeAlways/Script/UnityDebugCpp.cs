@@ -5,34 +5,37 @@ using System;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-public class UnityDebugCpp : MonoBehaviour
+namespace WatchMeAlways
 {
-    [DllImport("WatchMeAlwaysLib", CallingConvention = CallingConvention.Cdecl)]
-    static extern void RegisterUnityPrintLogFn(UnityPrintLogFn cb);
-
-    [MonoPInvokeCallback(typeof(UnityPrintLogFn))]
-    static void OnDebugCallback(IntPtr request, int color, int size)
+    public class UnityDebugCpp : MonoBehaviour
     {
-        //Ptr to string
-        string debug_string = Marshal.PtrToStringAnsi(request, size);
+        [DllImport("WatchMeAlwaysLib", CallingConvention = CallingConvention.Cdecl)]
+        static extern void RegisterUnityPrintLogFn(UnityPrintLogFn cb);
 
-        //Add Specified Color
-        debug_string =
-            String.Format("{0}{1}{2}{3}{4}",
-            "<color=",
-            ((Color)color).ToString(),
-            ">",
-            debug_string,
-            "</color>"
-            );
+        [MonoPInvokeCallback(typeof(UnityPrintLogFn))]
+        static void OnDebugCallback(IntPtr request, int color, int size)
+        {
+            //Ptr to string
+            string debug_string = Marshal.PtrToStringAnsi(request, size);
 
-        UnityEngine.Debug.Log(debug_string);
-    }
+            //Add Specified Color
+            debug_string =
+                String.Format("{0}{1}{2}{3}{4}",
+                "<color=",
+                ((Color)color).ToString(),
+                ">",
+                debug_string,
+                "</color>"
+                );
 
-    delegate void UnityPrintLogFn(IntPtr request, int color, int size);
-    enum Color { red, green, blue, black, white, yellow, orange };
-    void OnEnable()
-    {
-        RegisterUnityPrintLogFn(OnDebugCallback);
+            UnityEngine.Debug.Log(debug_string);
+        }
+
+        delegate void UnityPrintLogFn(IntPtr request, int color, int size);
+        enum Color { red, green, blue, black, white, yellow, orange };
+        void OnEnable()
+        {
+            RegisterUnityPrintLogFn(OnDebugCallback);
+        }
     }
 }
