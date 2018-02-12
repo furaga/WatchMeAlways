@@ -81,6 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\WatchMeAlways\Demo\Rotate.cs" />
+    <Compile Include="Assets\WatchMeAlways\Script\Encoder.cs" />
     <Compile Include="Assets\WatchMeAlways\Script\VideoRecorder.cs" />
     <Compile Include="Assets\WatchMeAlways\Script\IRecorder.cs" />
     <Compile Include="Assets\WatchMeAlways\Script\UnityDebugCpp.cs" />
