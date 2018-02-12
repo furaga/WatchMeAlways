@@ -30,11 +30,10 @@ namespace WatchMeAlways
     {
     }
 
-    interface IRecorder
+    public interface IRecorder
     {
         void StartRecording(IRecordingParameters parameters);
         void FinishRecording(string filepath);
-        void EncodeFrames();
         void TakeScreenshot(string filepath);
     }
 }
