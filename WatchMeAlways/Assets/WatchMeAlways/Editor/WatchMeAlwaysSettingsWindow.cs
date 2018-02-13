@@ -17,19 +17,19 @@ namespace WatchMeAlways
             Desktop,
         }
 
-        readonly VideoRecorder.CppRecorder.RecordingQuality[] qualityPresets = new[] {
-            VideoRecorder.CppRecorder.RecordingQuality.FASTER,
-            VideoRecorder.CppRecorder.RecordingQuality.MEDIUM,
-            VideoRecorder.CppRecorder.RecordingQuality.SLOWER,
+        readonly DesktopRecorder.CppRecorder.RecordingQuality[] qualityPresets = new[] {
+            DesktopRecorder.CppRecorder.RecordingQuality.FASTER,
+            DesktopRecorder.CppRecorder.RecordingQuality.MEDIUM,
+            DesktopRecorder.CppRecorder.RecordingQuality.SLOWER,
         };
 
         CaptureTarget captureTarget = CaptureTarget.EditorWindow;
         void OnGUI()
         {
-            var oldParams = WatchMeAlwaysMenuEditor.DefaultParameters as VideoRecorder.RecordingParameters;
+            var oldParams = WatchMeAlwaysMenuEditor.DefaultParameters as DesktopRecorder.RecordingParameters;
             float fps = oldParams.Fps;
             float replaySeconds = oldParams.ReplayLength;
-            VideoRecorder.CppRecorder.RecordingQuality quality = oldParams.Quality;
+            DesktopRecorder.CppRecorder.RecordingQuality quality = oldParams.Quality;
 
             GUILayout.Label("Instant Replay Settings", EditorStyles.boldLabel);
 
@@ -55,11 +55,11 @@ namespace WatchMeAlways
 
             if (GUILayout.Button("Reset"))
             {
-                WatchMeAlwaysMenuEditor.DefaultParameters = new VideoRecorder.RecordingParameters()
+                WatchMeAlwaysMenuEditor.DefaultParameters = new DesktopRecorder.RecordingParameters()
                 {
                     ReplayLength = 120.0f,
                     Fps = 30.0f,
-                    Quality = VideoRecorder.CppRecorder.RecordingQuality.MEDIUM,
+                    Quality = DesktopRecorder.CppRecorder.RecordingQuality.MEDIUM,
                 };
             }
 
@@ -67,7 +67,7 @@ namespace WatchMeAlways
                 replaySeconds != oldParams.ReplayLength ||
                 quality != oldParams.Quality)
             {
-                WatchMeAlwaysMenuEditor.DefaultParameters = new VideoRecorder.RecordingParameters()
+                WatchMeAlwaysMenuEditor.DefaultParameters = new DesktopRecorder.RecordingParameters()
                 {
                     Fps = fps,
                     Quality = quality,
@@ -76,19 +76,19 @@ namespace WatchMeAlways
             }
         }
 
-        int quality2index(VideoRecorder.CppRecorder.RecordingQuality quality)
+        int quality2index(DesktopRecorder.CppRecorder.RecordingQuality quality)
         {
             int index = Array.IndexOf(qualityPresets, quality);
             return index;
         }
 
-        VideoRecorder.CppRecorder.RecordingQuality index2quality(int index)
+        DesktopRecorder.CppRecorder.RecordingQuality index2quality(int index)
         {
             if (0 <= index && index < qualityPresets.Length)
             {
                 return qualityPresets[index];
             }
-            return VideoRecorder.CppRecorder.RecordingQuality.MEDIUM;
+            return DesktopRecorder.CppRecorder.RecordingQuality.MEDIUM;
         }
 
     }
