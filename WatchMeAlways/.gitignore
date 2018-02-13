@@ -1,6 +1,9 @@
 *.cache
 *.suo
+*.csproj
+*.sln
 Library/
 Temp/
 */RockVR*
 */StreamingAssets*
+obj/
