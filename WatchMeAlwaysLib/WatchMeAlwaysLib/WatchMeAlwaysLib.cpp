@@ -8,7 +8,8 @@ extern "C" {
 	DllExport int AddFrame(uint8_t* pixels, int width, int height, float timeStamp);
 	DllExport int FinishRecording(char* saveFilePath);
 
-	struct Frame {
+	class Frame {
+	public:
 		int Width;
 		int Height;
 		uint8_t* Bytes; // can it be marshal?
