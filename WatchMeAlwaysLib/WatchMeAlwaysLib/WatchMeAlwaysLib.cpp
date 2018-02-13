@@ -1,11 +1,19 @@
 #include "stdafx.h"
 
 #include "Recorder/Recorder.h"
+#include "Capture/DesktopCapture.h"
 
 extern "C" {
 	DllExport int StartRecording(int width, int height, float maxSeconds, float fps, RecordingQuality quality);
 	DllExport int AddFrame(uint8_t* pixels, int width, int height, float timeStamp);
 	DllExport int FinishRecording(char* saveFilePath);
+
+	struct Frame {
+		int Width;
+		int Height;
+		uint8_t* Bytes; // can it be marshal?
+	};
+	DllExport Frame CaptureDesktopImage();
 }
 
 enum APIResult {
@@ -53,4 +61,12 @@ int FinishRecording(char* saveFilePath)
 		return API_RESULT_NG;
 	}
 	return API_RESULT_OK;
+}
+
+Frame CaptureDesktopImage()
+{
+	Frame frame;
+	DesktopCapture capture;
+	frame.Bytes = capture.CaptureDesktopImage(frame.Width, frame.Height);
+	return frame;
 }

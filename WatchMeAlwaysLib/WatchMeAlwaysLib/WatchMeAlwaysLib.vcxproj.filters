@@ -16,6 +16,9 @@
     <Filter Include="test\Recorder">
       <UniqueIdentifier>{36a32393-2637-4da2-9849-6fff3d468eb2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Capture">
+      <UniqueIdentifier>{1d7e0327-4485-4df9-bd17-e20a10c4d90c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -36,6 +39,9 @@
     <ClCompile Include="test\Recorder\RecorderTest.cpp">
       <Filter>test\Recorder</Filter>
     </ClCompile>
+    <ClCompile Include="Capture\DesktopCapture.cpp">
+      <Filter>Capture</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -48,6 +54,9 @@
     </ClInclude>
     <ClInclude Include="Unity\UnityDebugCpp.h">
       <Filter>Unity</Filter>
+    </ClInclude>
+    <ClInclude Include="Capture\DesktopCapture.h">
+      <Filter>Capture</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
