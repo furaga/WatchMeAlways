@@ -184,22 +184,23 @@ namespace WatchMeAlways
 
         static IRecorder findOrCreateVideoRecorder(GameObject owner)
         {
-            var VideoRecorders = GameObject.FindObjectsOfType(typeof(VideoRecorder));
-            if (VideoRecorders.Length <= 0)
-            {
-                // create new instance
-                GameObject videoCapturePrefab = PrefabUtility.InstantiatePrefab(Resources.Load("Prefabs/VideoRecorder")) as GameObject;
-                videoCapturePrefab.name = "VideoRecorder";
-                PrefabUtility.DisconnectPrefabInstance(videoCapturePrefab);
-                GameObjectUtility.SetParentAndAlign(videoCapturePrefab, owner);
-                Undo.RegisterCreatedObjectUndo(videoCapturePrefab, "Create " + videoCapturePrefab.name);
-                VideoRecorders = GameObject.FindObjectsOfType(typeof(VideoRecorder));
-                if (VideoRecorders.Length <= 0)
-                {
-                    Debug.LogError("Could not get VideoRecorder object");
-                }
-            }
-            return VideoRecorders[0] as IRecorder;
+            return DesktopRecorder.Instance;
+            //var VideoRecorders = GameObject.FindObjectsOfType(typeof(VideoRecorder));
+            //if (VideoRecorders.Length <= 0)
+            //{
+            //    // create new instance
+            //    GameObject videoCapturePrefab = PrefabUtility.InstantiatePrefab(Resources.Load("Prefabs/VideoRecorder")) as GameObject;
+            //    videoCapturePrefab.name = "VideoRecorder";
+            //    PrefabUtility.DisconnectPrefabInstance(videoCapturePrefab);
+            //    GameObjectUtility.SetParentAndAlign(videoCapturePrefab, owner);
+            //    Undo.RegisterCreatedObjectUndo(videoCapturePrefab, "Create " + videoCapturePrefab.name);
+            //    VideoRecorders = GameObject.FindObjectsOfType(typeof(VideoRecorder));
+            //    if (VideoRecorders.Length <= 0)
+            //    {
+            //        Debug.LogError("Could not get VideoRecorder object");
+            //    }
+            //}
+            //return VideoRecorders[0] as IRecorder;
         }
 
 
