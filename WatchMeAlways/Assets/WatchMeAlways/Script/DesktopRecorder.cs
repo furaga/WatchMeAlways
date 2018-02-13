@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 
 namespace WatchMeAlways
 {
-    public class DesktopRecorder : IRecorder
+    public class DesktopRecorder : Singleton<DesktopRecorder>, IRecorder
     {
         public class CppRecorder
         {
