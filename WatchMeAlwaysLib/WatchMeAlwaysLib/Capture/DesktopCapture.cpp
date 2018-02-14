@@ -3,7 +3,9 @@
 #include "DesktopCapture.h"
 #include <windows.h>
 
-BYTE* line = nullptr;
+int prevWidth = -1;
+int prevHeight = -1;
+BYTE* bytes = nullptr;
 
 uint8_t* DesktopCapture::CaptureDesktopImage(int& o_width, int& o_height)
 {
@@ -26,10 +28,14 @@ uint8_t* DesktopCapture::CaptureDesktopImage(int& o_width, int& o_height)
 	UINT sizeOfLine = width * 3;
 	sizeOfLine += (sizeOfLine % 4 != 0 ? 4 - sizeOfLine % 4 : 0);
 	sizeOfLine *= height;
-	if (line != nullptr) {
-		free(line);
+	if (prevWidth != width || prevHeight != height) {
+		prevWidth = width;
+		prevHeight = height;
+		if (bytes != nullptr) {
+			free(bytes);
+		}
+		bytes = (BYTE*)malloc(sizeOfLine);
 	}
-	BYTE* bytes = (BYTE*)malloc(sizeOfLine);
 
 	BITMAPINFO bi;
 	ZeroMemory(&bi, sizeof bi);
