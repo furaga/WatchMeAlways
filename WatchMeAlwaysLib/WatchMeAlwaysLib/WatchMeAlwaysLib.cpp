@@ -92,10 +92,14 @@ int AddCapturedDesktopFrame(int key, float timeStamp)
 		UnityDebugCpp::Error("failed to get capturedImage\n");
 		return API_RESULT_NG;
 	}
+
 	bool succeeded = recorder->AddFrame(capturedImage->GetPixels(), capturedImage->GetWidth(), capturedImage->GetHeight(), timeStamp);
 	if (!succeeded) {
 		UnityDebugCpp::Error("failed: recorder->AddFrame()\n");
 		return API_RESULT_NG;
 	}
+
+	capturedImage->Unregister();
+
 	return API_RESULT_OK;
 }
