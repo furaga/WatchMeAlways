@@ -273,9 +273,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="test\Capture\CaptureTest.cpp" />
-    <ClCompile Include="test\Recorder\RecorderTest.cpp" />
-    <ClCompile Include="test\Unity\UnityDebugCppTest.cpp" />
+    <ClCompile Include="test\CaptureTest.cpp" />
+    <ClCompile Include="test\RecorderTest.cpp" />
+    <ClCompile Include="test\UnityDebugCppTest.cpp" />
     <ClCompile Include="Unity\UnityDebugCpp.cpp" />
     <ClCompile Include="WatchMeAlwaysLib.cpp" />
   </ItemGroup>

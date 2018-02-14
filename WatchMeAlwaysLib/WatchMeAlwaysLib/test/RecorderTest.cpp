@@ -2,8 +2,8 @@
 
 #ifdef UNIT_TEST
 #include "CppUnitTest.h"  
-#include "../../Recorder/Recorder.h"  
-#include "../../Unity/UnityDebugCpp.h"  
+#include "../Recorder/Recorder.h"  
+#include "../Unity/UnityDebugCpp.h"  
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 namespace RecorderTest

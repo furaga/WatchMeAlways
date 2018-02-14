@@ -2,7 +2,7 @@
 
 #ifdef UNIT_TEST
 #include "CppUnitTest.h"  
-#include "../../Unity/UnityDebugCpp.h"  
+#include "../Unity/UnityDebugCpp.h"  
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 namespace UnityDebugCppTest
 {

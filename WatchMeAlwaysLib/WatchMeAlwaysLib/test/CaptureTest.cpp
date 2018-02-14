@@ -2,8 +2,8 @@
 
 #ifdef UNIT_TEST
 #include "CppUnitTest.h"  
-#include "../../Capture/DesktopCapture.h"  
-#include "../../Unity/UnityDebugCpp.h"  
+#include "../Capture/DesktopCapture.h"  
+#include "../Unity/UnityDebugCpp.h"  
 
 #include <memory>
 
