@@ -242,6 +242,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Capture\DesktopCapture.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='UnitTest|Win32'">false</CompileAsManaged>
@@ -278,6 +279,7 @@
     <ClCompile Include="WatchMeAlwaysLib.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Capture\DesktopCapture.h" />
     <ClInclude Include="Recorder\Frame.h" />
     <ClInclude Include="Recorder\Recorder.h" />
     <ClInclude Include="stdafx.h" />

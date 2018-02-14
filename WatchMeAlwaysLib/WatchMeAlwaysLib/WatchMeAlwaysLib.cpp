@@ -1,11 +1,20 @@
 #include "stdafx.h"
 
 #include "Recorder/Recorder.h"
+#include "Capture/DesktopCapture.h"
 
 extern "C" {
 	DllExport int StartRecording(int width, int height, float maxSeconds, float fps, RecordingQuality quality);
 	DllExport int AddFrame(uint8_t* pixels, int width, int height, float timeStamp);
 	DllExport int FinishRecording(char* saveFilePath);
+
+	class Frame {
+	public:
+		int Width;
+		int Height;
+		uint8_t* Bytes; // can it be marshal?
+	};
+	DllExport int CaptureDesktopImage(Frame* frame);
 }
 
 enum APIResult {
@@ -52,5 +61,12 @@ int FinishRecording(char* saveFilePath)
 		UnityDebugCpp::Error("failed: recorder->FinishRecording()\n");
 		return API_RESULT_NG;
 	}
+	return API_RESULT_OK;
+}
+
+int CaptureDesktopImage(Frame* frame)
+{
+	DesktopCapture capture;
+	frame->Bytes = capture.CaptureDesktopImage(frame->Width, frame->Height);
 	return API_RESULT_OK;
 }
