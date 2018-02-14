@@ -12,14 +12,14 @@ namespace WatchMeAlways
     {
         internal class Frame
         {
-            public IntPtr Pixels { get; private set; }
+            public int Data { get; private set; }
             public int Width { get; private set; }
             public int Height { get; private set; }
             public long TimeMilliSeconds { get; private set; }
 
-            public Frame(IntPtr pixels, int width, int height, long time = 0)
+            public Frame(int data, int width, int height, long time = 0)
             {
-                this.Pixels = pixels;
+                this.Data = data;
                 this.Width = width;
                 this.Height = height;
                 this.TimeMilliSeconds = time;
@@ -41,22 +41,22 @@ namespace WatchMeAlways
                 VERYSLOW,
             };
 
-            [StructLayout(LayoutKind.Sequential, Pack=8)]
+            [StructLayout(LayoutKind.Sequential, Pack = 8)]
             public class Frame
             {
                 public int Width;
                 public int Height;
-                public IntPtr Bytes;
+                public int Data;
             }
 
             [DllImport("WatchMeAlwaysLib")]
             public static extern int StartRecording(int width, int height, float maxSeconds, float fps, RecordingQuality quality);
-            [DllImport("WatchMeAlwaysLib")]
-            public static extern int AddFrame(IntPtr pixels, int imgWidth, int imgHeight, float timeStamp);
             [DllImport("WatchMeAlwaysLib", CharSet = CharSet.Ansi)]
             public static extern int FinishRecording(string filepath);
             [DllImport("WatchMeAlwaysLib", CallingConvention = CallingConvention.Cdecl)]
             public static extern int CaptureDesktopImage([Out] Frame frame);
+            [DllImport("WatchMeAlwaysLib")]
+            public static extern int AddCapturedDesktopFrame(int data, float timeStamp);
         }
 
         public class RecordingParameters : IRecordingParameters
@@ -65,7 +65,7 @@ namespace WatchMeAlways
             public float Fps { get; set; }
             public CppRecorder.RecordingQuality Quality { get; set; }
         }
-        
+
         Queue<Frame> framesToEncode_ = new Queue<Frame>();
         State state_ = State.NotStarted;
         int frameCount_ = 0;
@@ -148,7 +148,7 @@ namespace WatchMeAlways
                     // bottle-neck!: take 20ms - 30ms
                     var frame = new CppRecorder.Frame();
                     int res = CppRecorder.CaptureDesktopImage(frame);
-                    framesToEncode_.Enqueue(new Frame(frame.Bytes, frame.Width, frame.Height, recordingTimer_.ElapsedMilliseconds));
+                    framesToEncode_.Enqueue(new Frame(frame.Data, frame.Width, frame.Height, recordingTimer_.ElapsedMilliseconds));
                 }
             }
         }
@@ -178,7 +178,7 @@ namespace WatchMeAlways
                 if (framesToEncode_.Count >= 1)
                 {
                     var frame = framesToEncode_.Dequeue();
-                   int res = CppRecorder.AddFrame(frame.Pixels, frame.Width, frame.Height, frameCount_++);
+                    int res = CppRecorder.AddCapturedDesktopFrame(frame.Data, frame.TimeMilliSeconds);
                     frameCount_++;
                     Debug.Log("AddFrame: " + (res == 0 ? "OK" : "NG"));
                 }
@@ -198,7 +198,7 @@ namespace WatchMeAlways
             //// capture image
             //var frame = CppRecorder.CaptureDesktopImage();
             //var tex = new Texture2D(frame.Width, frame.Height);
-            
+
             //tex.LoadRawTextureData(frame.Bytes);
 
             //// encode to png

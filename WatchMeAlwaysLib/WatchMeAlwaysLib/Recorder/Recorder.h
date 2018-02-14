@@ -62,7 +62,7 @@ public:
 	~Recorder();
 	bool StartRecording(const RecordingParameters& parameters);
 	// width * height * 3 must be size of pixels.
-	bool AddFrame(uint8_t* pixels, int width, int height, float timeStamp);
+	bool AddFrame(const uint8_t* const pixels, int width, int height, float timeStamp);
 	bool FinishRecording(const std::string& filename);
 
 private:

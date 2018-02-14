@@ -12,9 +12,10 @@ extern "C" {
 	public:
 		int Width;
 		int Height;
-		uint8_t* Bytes; // can it be marshal?
+		int Data;
 	};
 	DllExport int CaptureDesktopImage(Frame* frame);
+	DllExport int AddCapturedDesktopFrame(int key, float timeStamp);
 }
 
 enum APIResult {
@@ -22,11 +23,14 @@ enum APIResult {
 	API_RESULT_NG = 1,
 };
 
+std::unique_ptr<DesktopCapture> capture = nullptr;
 std::unique_ptr<Recorder> recorder = nullptr;
 
 int StartRecording(int width, int height, float maxSeconds, float fps, RecordingQuality quality)
 {
-	recorder.reset(new Recorder());
+	if (recorder == nullptr) {
+		recorder.reset(new Recorder());
+	}
 	auto params = RecordingParameters(width, height, maxSeconds, fps, quality);
 	bool succeeded = recorder->StartRecording(params);
 	if (!succeeded) {
@@ -66,7 +70,36 @@ int FinishRecording(char* saveFilePath)
 
 int CaptureDesktopImage(Frame* frame)
 {
-	DesktopCapture capture;
-	frame->Bytes = capture.CaptureDesktopImage(frame->Width, frame->Height);
+	if (capture == nullptr) {
+		capture.reset(new DesktopCapture());
+	}
+	frame->Data = capture->CaptureDesktopImage(frame->Width, frame->Height);
+	return API_RESULT_OK;
+}
+
+int AddCapturedDesktopFrame(int key, float timeStamp)
+{
+	if (capture == nullptr) {
+		return API_RESULT_NG;
+	}
+
+	if (recorder == nullptr) {
+		return API_RESULT_NG;
+	}
+
+	auto capturedImage = capture->GetCapturedImage(key);
+	if (!capturedImage) {
+		UnityDebugCpp::Error("failed to get capturedImage\n");
+		return API_RESULT_NG;
+	}
+
+	bool succeeded = recorder->AddFrame(capturedImage->GetPixels(), capturedImage->GetWidth(), capturedImage->GetHeight(), timeStamp);
+	if (!succeeded) {
+		UnityDebugCpp::Error("failed: recorder->AddFrame()\n");
+		return API_RESULT_NG;
+	}
+
+	capturedImage->Unregister();
+
 	return API_RESULT_OK;
 }

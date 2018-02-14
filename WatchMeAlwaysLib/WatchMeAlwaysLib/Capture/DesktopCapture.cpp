@@ -3,11 +3,23 @@
 #include "DesktopCapture.h"
 #include <windows.h>
 
-int prevWidth = -1;
-int prevHeight = -1;
-BYTE* bytes = nullptr;
+static int capturedImageMapCounter_ = 1;
+std::unordered_map<int, std::unique_ptr<CapturedImage> > capturedImageMap_;
 
-uint8_t* DesktopCapture::CaptureDesktopImage(int& o_width, int& o_height)
+void CapturedImage::Unregister() {
+	capturedImageMap_.erase(this->key_);
+}
+
+int DesktopCapture::registerCapturedImage(std::unique_ptr<CapturedImage>&& capturedImage)
+{
+	int key = capturedImageMapCounter_;
+	capturedImage->key_ = key;
+	capturedImageMap_[key] = std::move(capturedImage);
+	capturedImageMapCounter_++;
+	return key;
+}
+
+int DesktopCapture::CaptureDesktopImage(int& o_width, int& o_height)
 {
 	auto hwnd = GetDesktopWindow();
 	auto hdc = GetDC(NULL);
@@ -28,14 +40,8 @@ uint8_t* DesktopCapture::CaptureDesktopImage(int& o_width, int& o_height)
 	UINT sizeOfLine = width * 3;
 	sizeOfLine += (sizeOfLine % 4 != 0 ? 4 - sizeOfLine % 4 : 0);
 	sizeOfLine *= height;
-	if (prevWidth != width || prevHeight != height) {
-		prevWidth = width;
-		prevHeight = height;
-		if (bytes != nullptr) {
-			free(bytes);
-		}
-		bytes = (BYTE*)malloc(sizeOfLine);
-	}
+
+	auto capturedImage = std::unique_ptr<CapturedImage>(new CapturedImage(new uint8_t[sizeOfLine], width, height));
 
 	BITMAPINFO bi;
 	ZeroMemory(&bi, sizeof bi);
@@ -47,12 +53,23 @@ uint8_t* DesktopCapture::CaptureDesktopImage(int& o_width, int& o_height)
 	bi.bmiHeader.biCompression = BI_RGB;
 	bi.bmiHeader.biSizeImage = sizeOfLine * height;
 
-	int res = GetDIBits(hmdc, hbmp, 0, height, bytes, &bi, DIB_RGB_COLORS);
+	uint8_t* pixels = const_cast<uint8_t*>(capturedImage->GetPixels());
+	int res = GetDIBits(hmdc, hbmp, 0, height, pixels, &bi, DIB_RGB_COLORS);
 
 	DeleteObject(hbmp);
 	DeleteDC(hmdc);
 
+	int key = registerCapturedImage(std::move(capturedImage));
+
 	o_width = width;
 	o_height = height;
-	return bytes;
+	return key;
+}
+
+CapturedImage* DesktopCapture::GetCapturedImage(int key) {
+	auto iter = capturedImageMap_.find(key);
+	if (iter == capturedImageMap_.end()) {
+		return nullptr;
+	}
+	return (*iter).second.get();
 }

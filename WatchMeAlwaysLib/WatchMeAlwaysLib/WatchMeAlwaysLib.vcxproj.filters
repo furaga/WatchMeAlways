@@ -19,6 +19,9 @@
     <Filter Include="Capture">
       <UniqueIdentifier>{1d7e0327-4485-4df9-bd17-e20a10c4d90c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="test\Capture">
+      <UniqueIdentifier>{368b3a18-a0e5-4edb-a9cc-4150f080ec77}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -41,6 +44,9 @@
     </ClCompile>
     <ClCompile Include="Capture\DesktopCapture.cpp">
       <Filter>Capture</Filter>
+    </ClCompile>
+    <ClCompile Include="test\Capture\CaptureTest.cpp">
+      <Filter>test\Capture</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
