@@ -4,18 +4,17 @@
 #include <windows.h>
 
 static int capturedImageMapCounter_ = 1;
+std::unordered_map<int, std::unique_ptr<CapturedImage> > capturedImageMap_;
 
-void DesktopCapture::unregisterCapturedImage(int key)
-{
-	capturedImageMap_.erase(key);
+void CapturedImage::Unregister() {
+	capturedImageMap_.erase(this->key_);
 }
 
 int DesktopCapture::registerCapturedImage(std::unique_ptr<CapturedImage>&& capturedImage)
 {
 	int key = capturedImageMapCounter_;
+	capturedImage->key_ = key;
 	capturedImageMap_[key] = std::move(capturedImage);
-	auto unregisterFn = [&]() { this->unregisterCapturedImage(key); };
-	capturedImage->SetUnregisterFunction(unregisterFn);
 	capturedImageMapCounter_++;
 	return key;
 }
@@ -65,4 +64,12 @@ int DesktopCapture::CaptureDesktopImage(int& o_width, int& o_height)
 	o_width = width;
 	o_height = height;
 	return key;
+}
+
+CapturedImage* DesktopCapture::GetCapturedImage(int key) {
+	auto iter = capturedImageMap_.find(key);
+	if (iter == capturedImageMap_.end()) {
+		return nullptr;
+	}
+	return (*iter).second.get();
 }
