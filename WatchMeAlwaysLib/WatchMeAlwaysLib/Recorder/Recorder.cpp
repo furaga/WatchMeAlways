@@ -153,7 +153,7 @@ void FlipFrameJ420(AVFrame* pFrame) {
 	}
 }
 
-bool Recorder::AddFrame(uint8_t* pixels, int width, int height, float timeStamp)
+bool Recorder::AddFrame(const uint8_t* const pixels, int width, int height, float timeStamp)
 {
 	if (pixels == nullptr || width <= 0 || height <= 0) {
 		UnityDebugCpp::Error("AddFrame: Frame is empty (pixels=%p, width=%d, height=%d)", pixels, width, height);
