@@ -14,7 +14,7 @@ extern "C" {
 		int Height;
 		uint8_t* Bytes; // can it be marshal?
 	};
-	DllExport Frame CaptureDesktopImage();
+	DllExport int CaptureDesktopImage(Frame* frame);
 }
 
 enum APIResult {
@@ -64,10 +64,9 @@ int FinishRecording(char* saveFilePath)
 	return API_RESULT_OK;
 }
 
-Frame CaptureDesktopImage()
+int CaptureDesktopImage(Frame* frame)
 {
-	Frame frame;
 	DesktopCapture capture;
-	frame.Bytes = capture.CaptureDesktopImage(frame.Width, frame.Height);
-	return frame;
+	frame->Bytes = capture.CaptureDesktopImage(frame->Width, frame->Height);
+	return API_RESULT_OK;
 }

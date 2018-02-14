@@ -171,8 +171,8 @@ bool Recorder::AddFrame(uint8_t* pixels, int width, int height, float timeStamp)
 
 	// cf. https://stackoverflow.com/questions/16667687/how-to-convert-rgb-from-yuv420p-for-ffmpeg-encoder
 	SwsContext * c = sws_getContext(
-		width, height, AV_PIX_FMT_RGB24,
-		ctx_->width, ctx_->height, AV_PIX_FMT_YUV420P,
+		width / 2 * 2, height / 2 * 2, AV_PIX_FMT_BGR24,
+		ctx_->width /2 * 2, ctx_->height / 2 * 2, AV_PIX_FMT_YUV420P,
 		0, 0, 0, 0
 	);
 

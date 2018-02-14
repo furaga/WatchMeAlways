@@ -10,6 +10,22 @@ namespace WatchMeAlways
 {
     public class DesktopRecorder : Singleton<DesktopRecorder>, IRecorder
     {
+        internal class Frame
+        {
+            public IntPtr Pixels { get; private set; }
+            public int Width { get; private set; }
+            public int Height { get; private set; }
+            public long TimeMilliSeconds { get; private set; }
+
+            public Frame(IntPtr pixels, int width, int height, long time = 0)
+            {
+                this.Pixels = pixels;
+                this.Width = width;
+                this.Height = height;
+                this.TimeMilliSeconds = time;
+            }
+        }
+
         public class CppRecorder
         {
             public enum RecordingQuality
@@ -25,21 +41,22 @@ namespace WatchMeAlways
                 VERYSLOW,
             };
 
+            [StructLayout(LayoutKind.Sequential, Pack=8)]
             public class Frame
             {
-                public byte[] Bytes;
                 public int Width;
                 public int Height;
+                public IntPtr Bytes;
             }
 
             [DllImport("WatchMeAlwaysLib")]
             public static extern int StartRecording(int width, int height, float maxSeconds, float fps, RecordingQuality quality);
             [DllImport("WatchMeAlwaysLib")]
-            public static extern int AddFrame(byte[] pixels, int imgWidth, int imgHeight, float timeStamp);
+            public static extern int AddFrame(IntPtr pixels, int imgWidth, int imgHeight, float timeStamp);
             [DllImport("WatchMeAlwaysLib", CharSet = CharSet.Ansi)]
             public static extern int FinishRecording(string filepath);
-            [DllImport("WatchMeAlwaysLib")]
-            public static extern Frame CaptureDesktopImage();
+            [DllImport("WatchMeAlwaysLib", CallingConvention = CallingConvention.Cdecl)]
+            public static extern int CaptureDesktopImage([Out] Frame frame);
         }
 
         public class RecordingParameters : IRecordingParameters
@@ -74,8 +91,8 @@ namespace WatchMeAlways
         {
             if (state_ != State.Running)
             {
-                frameWidth_ = Screen.width / 2 * 2;
-                frameHeight_ = Screen.height / 2 * 2;
+                frameWidth_ = 1920;// Screen.width / 2 * 2;
+                frameHeight_ = 1080; // Screen.height / 2 * 2;
 
                 var param = parameters as RecordingParameters;
 
@@ -107,7 +124,7 @@ namespace WatchMeAlways
         // thread for recording
         void startFrameCaptureThread()
         {
-            captureThread_ = new System.Threading.Thread(new System.Threading.ThreadStart(encoding));
+            captureThread_ = new System.Threading.Thread(new System.Threading.ThreadStart(capturing));
             captureThread_.Start();
         }
 
@@ -129,7 +146,8 @@ namespace WatchMeAlways
                 if (frameWidth_ > 0 && frameHeight_ > 0)
                 {
                     // bottle-neck!: take 20ms - 30ms
-                    var frame = CppRecorder.CaptureDesktopImage();
+                    var frame = new CppRecorder.Frame();
+                    int res = CppRecorder.CaptureDesktopImage(frame);
                     framesToEncode_.Enqueue(new Frame(frame.Bytes, frame.Width, frame.Height, recordingTimer_.ElapsedMilliseconds));
                 }
             }
@@ -160,7 +178,7 @@ namespace WatchMeAlways
                 if (framesToEncode_.Count >= 1)
                 {
                     var frame = framesToEncode_.Dequeue();
-                    int res = CppRecorder.AddFrame(frame.Pixels, frame.Width, frame.Height, frameCount_++);
+                   int res = CppRecorder.AddFrame(frame.Pixels, frame.Width, frame.Height, frameCount_++);
                     frameCount_++;
                     Debug.Log("AddFrame: " + (res == 0 ? "OK" : "NG"));
                 }
@@ -177,17 +195,18 @@ namespace WatchMeAlways
 
         public void TakeScreenshot(string filepath)
         {
-            // capture image
-            var frame = CppRecorder.CaptureDesktopImage();
-            var tex = new Texture2D(frame.Width, frame.Height);
-            tex.LoadRawTextureData(frame.Bytes);
+            //// capture image
+            //var frame = CppRecorder.CaptureDesktopImage();
+            //var tex = new Texture2D(frame.Width, frame.Height);
+            
+            //tex.LoadRawTextureData(frame.Bytes);
 
-            // encode to png
-            var pngData = tex.EncodeToPNG();
+            //// encode to png
+            //var pngData = tex.EncodeToPNG();
 
-            // save
-            filepath = System.IO.Path.ChangeExtension(filepath, "png");
-            System.IO.File.WriteAllBytes(filepath, pngData);
+            //// save
+            //filepath = System.IO.Path.ChangeExtension(filepath, "png");
+            //System.IO.File.WriteAllBytes(filepath, pngData);
         }
     }
 }

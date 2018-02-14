@@ -25,7 +25,7 @@ uint8_t* DesktopCapture::CaptureDesktopImage(int& o_width, int& o_height)
 
 	UINT sizeOfLine = width * 3;
 	sizeOfLine += (sizeOfLine % 4 != 0 ? 4 - sizeOfLine % 4 : 0);
-
+	sizeOfLine *= height;
 	if (line != nullptr) {
 		free(line);
 	}
@@ -41,10 +41,12 @@ uint8_t* DesktopCapture::CaptureDesktopImage(int& o_width, int& o_height)
 	bi.bmiHeader.biCompression = BI_RGB;
 	bi.bmiHeader.biSizeImage = sizeOfLine * height;
 
-	GetDIBits(hmdc, hbmp, 0, height, bytes, &bi, DIB_RGB_COLORS);
+	int res = GetDIBits(hmdc, hbmp, 0, height, bytes, &bi, DIB_RGB_COLORS);
 
 	DeleteObject(hbmp);
 	DeleteDC(hmdc);
 
+	o_width = width;
+	o_height = height;
 	return bytes;
 }
