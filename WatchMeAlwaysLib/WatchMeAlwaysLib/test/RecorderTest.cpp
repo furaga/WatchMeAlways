@@ -112,14 +112,16 @@ namespace RecorderTest
 
 		TEST_METHOD(RecorderTest_2)
 		{
-			std::unique_ptr<Recorder> recorder(new Recorder());
+			//
+			// run DesktopCapture and Recorder in parallel
+			//
 
+			std::unique_ptr<Recorder> recorder(new Recorder());
 			std::unique_ptr<DesktopCapture> capture(new DesktopCapture());
 
 			int w, h;
 			int key = capture->CaptureDesktopImage(w, h);
 
-			// start recording
 			auto params = RecordingParameters(w, h, 1.0f, 10.0f, RECORDING_QUALITY_ULTRAFAST);
 			bool succeeded = recorder->StartRecording(params);
 			Assert::IsTrue(succeeded);
@@ -127,6 +129,7 @@ namespace RecorderTest
 			std::queue<int> q;
 			q.push(key);
 
+			// run capturing thread
 			std::thread cap([&] {
 				for (int i = 0; i < 10; i++) {
 					int key = capture->CaptureDesktopImage(w, h);
@@ -134,6 +137,7 @@ namespace RecorderTest
 				}
 			});
 
+			// run recording thread
 			std::thread rec([&] {
 				for (int i = 0; i < 10 + 1; i++) {
 					while (true) {
@@ -149,6 +153,7 @@ namespace RecorderTest
 				}
 			});
 
+			// wait until each thread finishes
 			cap.join();
 			rec.join();
 
