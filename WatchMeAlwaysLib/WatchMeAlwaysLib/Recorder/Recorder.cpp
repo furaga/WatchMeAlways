@@ -194,6 +194,11 @@ bool Recorder::AddFrame(const uint8_t* const pixels, int width, int height, floa
 
 bool Recorder::FinishRecording(const std::string& filename)
 {
+	if (ctx_ == nullptr || pkt_ == nullptr) {
+		UnityDebugCpp::Error("FinishRecording: Recorder is not started. Please call StartRecording().");
+		return false;
+	}
+
 	// flush
 	bool succeeded = encode(ctx_.get(), nullptr, pkt_.get());
 	if (!succeeded) {
@@ -203,7 +208,7 @@ bool Recorder::FinishRecording(const std::string& filename)
 	FILE *f;
 	errno_t err = fopen_s(&f, filename.c_str(), "wb");
 	if (err) {
-		UnityDebugCpp::Error("Could not open " + filename + "\n");
+		UnityDebugCpp::Error("FinishRecording: Could not open " + filename + "\n");
 		return false;
 	}
 

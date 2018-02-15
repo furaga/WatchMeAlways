@@ -78,7 +78,7 @@ namespace RecorderTest
 
 			// finish recording 
 			bool succeeded = recorder->FinishRecording("test_output.h264");
-			Assert::IsTrue(succeeded);
+			Assert::IsFalse(succeeded);
 			
 			std::remove("test_output.h264");
 
