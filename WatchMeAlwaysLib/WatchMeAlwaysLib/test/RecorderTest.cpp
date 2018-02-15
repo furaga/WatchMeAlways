@@ -22,6 +22,10 @@ namespace RecorderTest
 
 		TEST_METHOD(RecorderTest_0)
 		{
+			//
+			// start -> finalize -> start -> finalize
+			//
+
 			std::unique_ptr<Recorder> recorder(new Recorder());
 
 			// start recording
@@ -61,6 +65,43 @@ namespace RecorderTest
 			succeeded = recorder->FinishRecording("test_output.h264");
 			Assert::IsTrue(succeeded);
 
+			std::remove("test_output.h264");
+		}
+
+		TEST_METHOD(RecorderTest_1)
+		{
+			//
+			// finalize -> start -> finalize
+			//
+
+			std::unique_ptr<Recorder> recorder(new Recorder());
+
+			// finish recording 
+			bool succeeded = recorder->FinishRecording("test_output.h264");
+			Assert::IsTrue(succeeded);
+			
+			std::remove("test_output.h264");
+
+			// start recording
+			auto params = RecordingParameters(4, 4, 10, 9, RECORDING_QUALITY_SUPERFAST);
+			succeeded = recorder->StartRecording(params);
+			Assert::IsTrue(succeeded);
+
+			// create frame RGB data
+			uint8_t pixels[4 * 4 * 3];
+			for (int i = 0; i < sizeof(pixels) / sizeof(uint8_t); i++) {
+				pixels[i] = 100;
+			}
+
+			// add frames with valid parameters
+			for (int i = 0; i < 100; i++) {
+				succeeded = recorder->AddFrame(pixels, 4, 4, 0.1f);
+				Assert::IsTrue(succeeded);
+			}
+
+			// finish recording 
+			succeeded = recorder->FinishRecording("test_output.h264");
+			Assert::IsTrue(succeeded);
 			std::remove("test_output.h264");
 		}
 	};
