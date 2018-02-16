@@ -28,7 +28,6 @@ namespace CaptureTest
 
 			int monitorCount = capture->GetMonitorCount();
 			Assert::IsTrue(monitorCount >= 1);
-			Assert::IsTrue(monitorCount == 2);
 
 			auto monitor = capture->GetMonitor(0);
 			int key = capture->CaptureDesktopImage(monitor.GetCaptureRect());
@@ -44,6 +43,27 @@ namespace CaptureTest
 			Assert::IsTrue(capturedImage->GetPixels() != nullptr);
 
 			capturedImage->Unregister();
+		}
+		TEST_METHOD(CaptureTest_1) {
+			std::unique_ptr<DesktopCapture> capture(new DesktopCapture());
+
+			// OK cases
+			int monitorCount = capture->GetMonitorCount();
+			for (int i = 0; i < monitorCount; i++) {
+				auto monitor = capture->GetMonitor(i);
+				Assert::IsTrue(monitor.GetCaptureRect().Left >= 0);
+				Assert::IsTrue(monitor.GetCaptureRect().Top >= 0);
+				Assert::IsTrue(monitor.GetCaptureRect().Width > 0);
+				Assert::IsTrue(monitor.GetCaptureRect().Height > 0);
+			}
+
+			// NG case
+			auto monitor = capture->GetMonitor(-1);
+			Assert::IsTrue(monitor.GetCaptureRect().Width <= 0);
+			Assert::IsTrue(monitor.GetCaptureRect().Height <= 0);
+			monitor = capture->GetMonitor(monitorCount);
+			Assert::IsTrue(monitor.GetCaptureRect().Width <= 0);
+			Assert::IsTrue(monitor.GetCaptureRect().Height <= 0);
 		}
 	};
 }

@@ -98,11 +98,23 @@ namespace WatchMeAlways
 
             [DllImport("WatchMeAlwaysLib")]
             public static extern int GetMonitor(int n, [Out] Monitor monitor);
+
+            public static Monitor GetMonitor(int n)
+            {
+                Monitor monitor = new Monitor();
+                int err = GetMonitor(n, monitor);
+                if (err != 0)
+                {
+                    return null;
+                }
+                return monitor;
+            }
         }
 
         public class RecordingParameters : IRecordingParameters
         {
-            public float ReplayLength { get; set; }
+            public int Monitor { get; set; }
+            public float RecordLength { get; set; }
             public float Fps { get; set; }
             public CppRecorder.RecordingQuality Quality { get; set; }
         }
@@ -137,7 +149,7 @@ namespace WatchMeAlways
 
                 var param = parameters as RecordingParameters;
 
-                int res = CppRecorder.StartRecording(frameWidth_, frameHeight_, param.ReplayLength, param.Fps, param.Quality);
+                int res = CppRecorder.StartRecording(frameWidth_, frameHeight_, param.RecordLength, param.Fps, param.Quality);
                 state_ = State.Running;
 
                 recordingTimer_.Reset(); // need?
