@@ -18,4 +18,5 @@ typedef unsigned int uint;
 #include <string>
 #include <vector>
 #include <memory>
+#include "Unity/Debug.h"
 #include "Unity/UnityDebugCpp.h"
