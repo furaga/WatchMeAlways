@@ -262,13 +262,17 @@ bool Recorder::encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt)
 		}
 
 		printf("Write packet %3" PRId64 " (size=%5d)\n", pkt->pts, pkt->size);
-		//char str[128] = { 0 };
-		//sprintf_s(str, 128, "Write packet %3" PRId64 " (size=%5d)\n", pkt->pts, pkt->size);
-		//UnityDebugCpp::Info(str);
+
+
+		// TODO: 超過分の動画データを捨てる
+		//int timestamp = 0;
+		//while (timestamp - frames_.peek()->GetTimestamp() >= recordFrameLength_) {
+		//	frames_.pop();
+		//}
 
 		// Should I reuse instance instead of creating new instance?
 		// TODO: Fix if this line would be bottle neck.
-		frames_[currentFrame_]->SetData(pkt->data, pkt->size);
+		frames_[currentFrame_]->SetData(pkt->data, pkt->size, timestamp);
 
 		currentFrame_ = (currentFrame_ + 1) % frames_.size();
 		if (recordCount_ < frames_.size()) {
@@ -277,6 +281,8 @@ bool Recorder::encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt)
 
 		av_packet_unref(pkt);
 	}
+
+	// ここが切れ目？
 
 	return true;
 }
