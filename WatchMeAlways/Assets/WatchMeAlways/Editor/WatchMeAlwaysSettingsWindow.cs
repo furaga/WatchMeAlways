@@ -23,55 +23,76 @@ namespace WatchMeAlways
             DesktopRecorder.CppRecorder.RecordingQuality.SLOWER,
         };
 
-        CaptureTarget captureTarget = CaptureTarget.EditorWindow;
+        CaptureTarget monitor = CaptureTarget.EditorWindow;
+
+        string[] getMonitorTexts()
+        {
+            int count = DesktopRecorder.CppRecorder.GetMonitorCount();
+            List<string> texts = new List<string>();
+            for (int i = 0; i < count; i++)
+            {
+                var monitor = DesktopRecorder.CppRecorder.GetMonitor(i);
+                if (monitor != null)
+                {
+                    string t = string.Format(
+                        "Monitor{0} ({1}x{2}{3})",
+                        (i + 1),
+                        monitor.Width,
+                        monitor.Height,
+                        monitor.IsPrimary ? ", PRIMARY" : "");
+                    texts.Add(t);
+                }
+            }
+            return texts.ToArray();
+        }
+
         void OnGUI()
         {
-            var oldParams = WatchMeAlwaysMenuEditor.DefaultParameters as DesktopRecorder.RecordingParameters;
-            float fps = oldParams.Fps;
-            float replaySeconds = oldParams.ReplayLength;
-            DesktopRecorder.CppRecorder.RecordingQuality quality = oldParams.Quality;
+            // restore current parameters
+            var prevParams = WatchMeAlwaysMenuEditor.RecordingParameters as DesktopRecorder.RecordingParameters;
+            int monitor = prevParams.Monitor;
+            float recordLength = prevParams.RecordLength;
+            float fps = prevParams.Fps;
+            DesktopRecorder.CppRecorder.RecordingQuality quality = prevParams.Quality;
 
-            GUILayout.Label("Instant Replay Settings", EditorStyles.boldLabel);
-
-            // replay length
-            replaySeconds = EditorGUILayout.Slider("Replay Length (seconds)", replaySeconds, 10, 300);
-
+            // draw GUI
             GUILayout.Label("Recording Settings", EditorStyles.boldLabel);
-
-            // target
-            captureTarget = (CaptureTarget)EditorGUILayout.Popup("Capture Target", (int)captureTarget, new string[] {
-                "\"Game\" Panel",
-                "Unity Editor Window",
-                "Desktop",
-            });
-
-            // fps
+            recordLength = EditorGUILayout.Slider("Record Length (seconds)", recordLength, 10, 300);
+            monitor = EditorGUILayout.Popup("Monitor", monitor, getMonitorTexts());
             fps = EditorGUILayout.Slider("FPS", fps, 1, 120);
+            int qualityIndex = EditorGUILayout.Popup("Quality", quality2index(quality), new string[] { "Low", "Medium", "High", });
+            quality = index2quality(qualityIndex);
 
-            // quality
-            int index = EditorGUILayout.Popup("Quality", quality2index(quality), new string[] { "Low", "Medium", "High", });
-            quality = index2quality(index);
-
-
+            // reset button
             if (GUILayout.Button("Reset"))
             {
-                WatchMeAlwaysMenuEditor.DefaultParameters = new DesktopRecorder.RecordingParameters()
-                {
-                    ReplayLength = 120.0f,
-                    Fps = 30.0f,
-                    Quality = DesktopRecorder.CppRecorder.RecordingQuality.MEDIUM,
-                };
+                WatchMeAlwaysMenuEditor.RecordingParameters = DefaultParameters;
             }
 
-            if (fps != oldParams.Fps ||
-                replaySeconds != oldParams.ReplayLength ||
-                quality != oldParams.Quality)
+            if (fps != prevParams.Fps ||
+                recordLength != prevParams.RecordLength ||
+                quality != prevParams.Quality)
             {
-                WatchMeAlwaysMenuEditor.DefaultParameters = new DesktopRecorder.RecordingParameters()
+                WatchMeAlwaysMenuEditor.RecordingParameters = new DesktopRecorder.RecordingParameters()
                 {
+                    Monitor = monitor,
                     Fps = fps,
                     Quality = quality,
-                    ReplayLength = replaySeconds,
+                    RecordLength = recordLength,
+                };
+            }
+        }
+
+        DesktopRecorder.RecordingParameters DefaultParameters
+        {
+            get
+            {
+                return new DesktopRecorder.RecordingParameters()
+                {
+                    Monitor = 0,
+                    RecordLength = 120.0f,
+                    Fps = 30.0f,
+                    Quality = DesktopRecorder.CppRecorder.RecordingQuality.MEDIUM,
                 };
             }
         }
