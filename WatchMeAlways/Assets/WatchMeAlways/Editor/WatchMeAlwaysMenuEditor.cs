@@ -22,8 +22,8 @@ namespace WatchMeAlways
             Quality = DesktopRecorder.CppRecorder.RecordingQuality.MEDIUM,
         };
 
-        // SaveDir is fullpath
-        static string SaveDir
+        // The full path of folder where recorded video will be saved.
+        static string GalleryDicrectory
         {
             get
             {
@@ -66,7 +66,7 @@ namespace WatchMeAlways
         private static void DisableVideoRecorder(MenuCommand menuCommand)
         {
             enableVideoRecorder_ = false;
-            DesktopRecorder.Instance.FinishRecording(System.IO.Path.Combine(SaveDir, "video.h264"));
+            DesktopRecorder.Instance.FinishRecording(System.IO.Path.Combine(GalleryDicrectory, "video.h264"));
             Debug.Log("Instant Replay: OFF");
         }
 
@@ -79,7 +79,7 @@ namespace WatchMeAlways
         [MenuItem("WatchMeAlways/Save Instant Replay %F10", false, 10)]
         private static void SaveVideoRecorder(MenuCommand menuCommand)
         {
-            DesktopRecorder.Instance.FinishRecording(System.IO.Path.Combine(SaveDir, "video.h264"));
+            DesktopRecorder.Instance.FinishRecording(System.IO.Path.Combine(GalleryDicrectory, "video.h264"));
             DesktopRecorder.Instance.StartRecording(RecordingParameters);
             Debug.Log("Instant Replay: OFF");
         }
@@ -113,8 +113,8 @@ namespace WatchMeAlways
         private static void FinishRecording(MenuCommand menuCommand)
         {
             recording_ = false;
-            DesktopRecorder.Instance.FinishRecording(System.IO.Path.Combine(SaveDir, "video.h264"));
-            Debug.Log("Recording: FINISHED. The recorded video was saved in " + SaveDir);
+            DesktopRecorder.Instance.FinishRecording(System.IO.Path.Combine(GalleryDicrectory, "video.h264"));
+            Debug.Log("Recording: FINISHED. The recorded video was saved in " + GalleryDicrectory);
 
         }
 
@@ -133,8 +133,8 @@ namespace WatchMeAlways
         {
             if (DesktopRecorder.Instance != null)
             {
-                DesktopRecorder.Instance.TakeScreenshot(System.IO.Path.Combine(SaveDir, "screenshot.png"));
-                Debug.Log("Screenshot: a new screenshot was saved in " + SaveDir);
+                DesktopRecorder.Instance.TakeScreenshot(System.IO.Path.Combine(GalleryDicrectory, "screenshot.png"));
+                Debug.Log("Screenshot: a new screenshot was saved in " + GalleryDicrectory);
             }
         }
 
@@ -144,9 +144,9 @@ namespace WatchMeAlways
         [MenuItem("WatchMeAlways/Open Gallery in Explorer", false, 90)]
         private static void OpenGalleryInExplorer()
         {
-            createDirectoryIfNotExists(SaveDir);
-            System.Diagnostics.Process.Start(SaveDir);
-            Debug.Log("Open gallery folder " + SaveDir + " in Explorer");
+            createDirectoryIfNotExists(GalleryDicrectory);
+            System.Diagnostics.Process.Start(GalleryDicrectory);
+            Debug.Log("Open gallery folder " + GalleryDicrectory + " in Explorer");
         }
 
         //
