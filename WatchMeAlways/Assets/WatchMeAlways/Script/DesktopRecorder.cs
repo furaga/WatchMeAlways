@@ -117,6 +117,17 @@ namespace WatchMeAlways
                 stopFrameCaptureThread();
                 stopFrameEncodeThread();
                 int res = CppRecorder.FinishRecording(saveVideoPath);
+
+
+                string ffpmegPath = System.IO.Path.GetFullPath("./Assets/WatchMeAlways/Plugins/x86_64/ffmpeg.exe");
+                System.Diagnostics.Process.Start(
+                    ffpmegPath,
+                    string.Format(
+                        "-i {0} -c:v copy -f mp4 {1}",
+                        saveVideoPath,
+                        System.IO.Path.ChangeExtension(saveVideoPath, "mp4")
+                    )
+                );
                 Debug.Log("FinishRecording: " + res);
             }
         }
