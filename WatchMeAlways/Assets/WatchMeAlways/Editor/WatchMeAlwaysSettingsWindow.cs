@@ -10,21 +10,12 @@ namespace WatchMeAlways
 {
     public class WatchMeAlwaysSettingsWindow : EditorWindow
     {
-        enum CaptureTarget : int
-        {
-            GamePanel = 0,
-            EditorWindow,
-            Desktop,
-        }
-
         readonly DesktopRecorder.CppRecorder.RecordingQuality[] qualityPresets = new[] {
             DesktopRecorder.CppRecorder.RecordingQuality.FASTER,
             DesktopRecorder.CppRecorder.RecordingQuality.MEDIUM,
             DesktopRecorder.CppRecorder.RecordingQuality.SLOWER,
         };
-
-        CaptureTarget monitor = CaptureTarget.EditorWindow;
-
+        
         string[] getMonitorTexts()
         {
             int count = DesktopRecorder.CppRecorder.GetMonitorCount();
@@ -57,8 +48,8 @@ namespace WatchMeAlways
 
             // draw GUI
             GUILayout.Label("Recording Settings", EditorStyles.boldLabel);
-            recordLength = EditorGUILayout.Slider("Record Length (seconds)", recordLength, 10, 300);
             monitor = EditorGUILayout.Popup("Monitor", monitor, getMonitorTexts());
+            recordLength = EditorGUILayout.Slider("Record Length (seconds)", recordLength, 10, 300);
             fps = EditorGUILayout.Slider("FPS", fps, 1, 120);
             int qualityIndex = EditorGUILayout.Popup("Quality", quality2index(quality), new string[] { "Low", "Medium", "High", });
             quality = index2quality(qualityIndex);
@@ -69,7 +60,8 @@ namespace WatchMeAlways
                 WatchMeAlwaysMenuEditor.RecordingParameters = DefaultParameters;
             }
 
-            if (fps != prevParams.Fps ||
+            if (monitor != prevParams.Monitor ||
+                fps != prevParams.Fps ||
                 recordLength != prevParams.RecordLength ||
                 quality != prevParams.Quality)
             {

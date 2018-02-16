@@ -124,6 +124,7 @@ namespace WatchMeAlways
         int frameCount_ = 0;
         int frameWidth_ = 0;
         int frameHeight_ = 0;
+        int monitorNumber_ = 0;
         System.Threading.Thread captureThread_ = null;
         System.Threading.Thread encodeThread_ = null;
         bool quitEncodeFramesIfQueueIsEmpty_ = false;
@@ -144,10 +145,17 @@ namespace WatchMeAlways
         {
             if (state_ != State.Running)
             {
-                frameWidth_ = 1920;// Screen.width / 2 * 2;
-                frameHeight_ = 1080; // Screen.height / 2 * 2;
-
                 var param = parameters as RecordingParameters;
+                var monitor = CppRecorder.GetMonitor(param.Monitor);
+                if (monitor == null || monitor.Width <= 0 || monitor.Height <= 0)
+                {
+                    Debug.LogErrorFormat("Failed to get monitor ({0}) informaiton", param.Monitor);
+                    return;
+                }
+
+                monitorNumber_ = param.Monitor;
+                frameWidth_ = monitor.Width;
+                frameHeight_ = monitor.Height;
 
                 int res = CppRecorder.StartRecording(frameWidth_, frameHeight_, param.RecordLength, param.Fps, param.Quality);
                 state_ = State.Running;
@@ -207,31 +215,22 @@ namespace WatchMeAlways
                 // TODO: FPS control
                 System.Threading.Thread.Sleep(10);
 
-                if (frameWidth_ > 0 && frameHeight_ > 0)
+                var monitor = CppRecorder.GetMonitor(monitorNumber_); // todo:
+                if (monitor == null)
                 {
-                    // bottle-neck!: take 20ms - 30ms
-                    int monitorCount = CppRecorder.GetMonitorCount();
-                    if (monitorCount <= 0)
-                    {
-                        continue;
-                    }
-
-
-                    var monitor = new CppRecorder.Monitor();
-                    int err = CppRecorder.GetMonitor(monitorCount - 1, monitor); // todo:
-                    if (err != 0) {
-                        continue;
-                    }
-
-                    var frame = new CppRecorder.Frame();
-                    err = CppRecorder.CaptureDesktop(monitor.Rect, frame);
-                    if (err != 0)
-                    {
-                        continue;
-                    }
-
-                    framesToEncode_.Enqueue(new Frame(frame.Data, frame.Width, frame.Height, recordingTimer_.ElapsedMilliseconds));
+                    Debug.LogErrorFormat("Failed to get monitor ({0}) informaiton", monitorNumber_);
+                    continue;
                 }
+
+                var frame = new CppRecorder.Frame();
+                int err = CppRecorder.CaptureDesktop(monitor.Rect, frame);
+                if (err != 0)
+                {
+                    Debug.LogErrorFormat("Failed to capture desktop image");
+                    continue;
+                }
+
+                framesToEncode_.Enqueue(new Frame(frame.Data, frame.Width, frame.Height, recordingTimer_.ElapsedMilliseconds));
             }
         }
 
