@@ -25,11 +25,17 @@ namespace CaptureTest
 		TEST_METHOD(CaptureTest_0)
 		{
 			std::unique_ptr<DesktopCapture> capture(new DesktopCapture());
-			int w, h;
 
-			int key = capture->CaptureDesktopImage(w, h);
-			Assert::IsTrue(w > 0);
-			Assert::IsTrue(h > 0);
+			int monitorCount = capture->GetMonitorCount();
+			Assert::IsTrue(monitorCount >= 1);
+			Assert::IsTrue(monitorCount == 2);
+
+			auto monitor = capture->GetMonitor(0);
+			int key = capture->CaptureDesktopImage(monitor.GetCaptureRect());
+			Assert::IsTrue(monitor.GetCaptureRect().Left > 0);
+			Assert::IsTrue(monitor.GetCaptureRect().Top > 0);
+			Assert::IsTrue(monitor.GetCaptureRect().Width > 0);
+			Assert::IsTrue(monitor.GetCaptureRect().Height > 0);
 
 			auto capturedImage = capture->GetCapturedImage(key);
 			Assert::IsTrue(capturedImage != nullptr);

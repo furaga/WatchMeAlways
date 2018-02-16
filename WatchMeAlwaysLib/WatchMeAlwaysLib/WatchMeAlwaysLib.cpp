@@ -4,9 +4,19 @@
 #include "Capture/DesktopCapture.h"
 
 extern "C" {
-	DllExport int StartRecording(int width, int height, float maxSeconds, float fps, RecordingQuality quality);
-	DllExport int AddFrame(uint8_t* pixels, int width, int height, float timeStamp);
-	DllExport int FinishRecording(char* saveFilePath);
+	class Rect {
+	public:
+		int Left;
+		int Top;
+		int Width;
+		int Height;
+	};
+
+	class Monitor {
+	public:
+		Rect* Rect;
+		bool IsPrimary;
+	};
 
 	class Frame {
 	public:
@@ -14,7 +24,13 @@ extern "C" {
 		int Height;
 		int Data;
 	};
-	DllExport int CaptureDesktopImage(Frame* frame);
+
+	DllExport int StartRecording(int width, int height, float maxSeconds, float fps, RecordingQuality quality);
+	DllExport int AddFrame(uint8_t* pixels, int width, int height, float timeStamp);
+	DllExport int FinishRecording(char* saveFilePath);
+	DllExport int GetMonitorCount();
+	DllExport int GetMonitor(int n, Monitor* rect);
+	DllExport int CaptureDesktopImage(Rect* rect, Frame* frame);
 	DllExport int AddCapturedDesktopFrame(int key, float timeStamp);
 }
 
@@ -56,6 +72,7 @@ int AddFrame(uint8_t* pixels, int width, int height, float timeStamp)
 int FinishRecording(char* saveFilePath)
 {
 	if (recorder == nullptr) {
+		UnityDebugCpp::Error("recorder is not initialized\n");
 		return API_RESULT_NG;
 	}
 	std::string filename(saveFilePath);
@@ -68,22 +85,69 @@ int FinishRecording(char* saveFilePath)
 	return API_RESULT_OK;
 }
 
-int CaptureDesktopImage(Frame* frame)
+int GetMonitorCount() {
+	if (capture == nullptr) {
+		UnityDebugCpp::Error("capture is not initialized\n");
+		return API_RESULT_NG;
+	}
+	return capture->GetMonitorCount();
+}
+
+int GetMonitor(int n, Monitor* outMonitor) {
+	if (capture == nullptr) {
+		UnityDebugCpp::Error("capture is not initialized\n");
+		return API_RESULT_NG;
+	}
+	if (outMonitor == nullptr) {
+		UnityDebugCpp::Error("outMonitor is null\n");
+		return API_RESULT_NG;
+	}
+	if (outMonitor->Rect == nullptr) {
+		UnityDebugCpp::Error("outMonitor->Rect is null\n");
+		return API_RESULT_NG;
+	}
+	auto monitor = capture->GetMonitor(n);
+	outMonitor->Rect->Left = monitor.GetCaptureRect().Left;
+	outMonitor->Rect->Top = monitor.GetCaptureRect().Top;
+	outMonitor->Rect->Width = monitor.GetCaptureRect().Width;
+	outMonitor->Rect->Height = monitor.GetCaptureRect().Height;
+	outMonitor->IsPrimary = monitor.IsPrimary();
+	return API_RESULT_OK;
+}
+
+int CaptureDesktopImage(Monitor* monitor, Frame* frame)
 {
 	if (capture == nullptr) {
 		capture.reset(new DesktopCapture());
 	}
-	frame->Data = capture->CaptureDesktopImage(frame->Width, frame->Height);
+	if (monitor == nullptr) {
+		UnityDebugCpp::Error("monitor is null\n");
+		return API_RESULT_NG;
+	}
+	if (monitor->Rect == nullptr) {
+		UnityDebugCpp::Error("monitor->Rect is null\n");
+		return API_RESULT_NG;
+	}
+	frame->Data = capture->CaptureDesktopImage(
+		CaptureRect(
+			monitor->Rect->Left,
+			monitor->Rect->Top,
+			monitor->Rect->Width,
+			monitor->Rect->Height
+		)
+	);
 	return API_RESULT_OK;
 }
 
 int AddCapturedDesktopFrame(int key, float timeStamp)
 {
 	if (capture == nullptr) {
+		UnityDebugCpp::Error("capture is not initialized\n");
 		return API_RESULT_NG;
 	}
 
 	if (recorder == nullptr) {
+		UnityDebugCpp::Error("recorder is not initialized\n");
 		return API_RESULT_NG;
 	}
 
