@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <memory>
 
+// TODO: not work in Unity (NOTHING will be printed in output.txt)
 class Debug {
 public:
 	typedef std::unique_ptr<FILE, void(*)(FILE*)> FilePtr;
