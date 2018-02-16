@@ -31,14 +31,40 @@ public:
 	}
 };
 
+struct CaptureRect {
+	int Left;
+	int Top;
+	int Width;
+	int Height;
+	CaptureRect(int left, int top, int width, int height) :
+		Left(left),
+		Top(top),
+		Width(width),
+		Height(height) { }
+};
+
 class DesktopCapture {
+public:
+	class Monitor {
+		CaptureRect rect_;
+		bool isPrimary_;
+	public:
+		Monitor(const CaptureRect& rect, bool isPrimary) : rect_(rect), isPrimary_(isPrimary) {}
+		const CaptureRect GetCaptureRect() const { return rect_; }
+		bool IsPrimary() const { return isPrimary_; }
+	};
+
+private:
 	int registerCapturedImage(std::unique_ptr<CapturedImage>&& capturedImage);
+	std::vector<Monitor> monitors_;
 
 public:
-	DesktopCapture() {}
+	DesktopCapture();
 	~DesktopCapture() {}
-	int CaptureDesktopImage(int& o_width, int& o_height);
-	CapturedImage* GetCapturedImage(int key);
+	int CaptureDesktopImage(const CaptureRect& rect);
+	CapturedImage* GetCapturedImage(int key) const;
+	int GetMonitorCount() const { return (int)monitors_.size(); }
+	const Monitor GetMonitor(int n) const { return monitors_[n]; }
 };
 
 

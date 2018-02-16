@@ -119,10 +119,10 @@ namespace RecorderTest
 			std::unique_ptr<Recorder> recorder(new Recorder());
 			std::unique_ptr<DesktopCapture> capture(new DesktopCapture());
 
-			int w, h;
-			int key = capture->CaptureDesktopImage(w, h);
+			auto monitor = capture->GetMonitor(0);
+			int key = capture->CaptureDesktopImage(monitor.GetCaptureRect());
 
-			auto params = RecordingParameters(w, h, 1.0f, 10.0f, RECORDING_QUALITY_ULTRAFAST);
+			auto params = RecordingParameters(monitor.GetCaptureRect().Width, monitor.GetCaptureRect().Height, 1.0f, 10.0f, RECORDING_QUALITY_ULTRAFAST);
 			bool succeeded = recorder->StartRecording(params);
 			Assert::IsTrue(succeeded);
 
@@ -132,7 +132,7 @@ namespace RecorderTest
 			// run capturing thread
 			std::thread cap([&] {
 				for (int i = 0; i < 10; i++) {
-					int key = capture->CaptureDesktopImage(w, h);
+					int key = capture->CaptureDesktopImage(monitor.GetCaptureRect());
 					q.push(key);
 				}
 			});
@@ -145,7 +145,7 @@ namespace RecorderTest
 							int key = q.front();
 							q.pop();
 							auto capturedImage = capture->GetCapturedImage(key);
-							succeeded = recorder->AddFrame(capturedImage->GetPixels(), w, h, i * 30.0f);
+							succeeded = recorder->AddFrame(capturedImage->GetPixels(), monitor.GetCaptureRect().Width, monitor.GetCaptureRect().Height, i * 30.0f);
 							capturedImage->Unregister();
 							break;
 						}
