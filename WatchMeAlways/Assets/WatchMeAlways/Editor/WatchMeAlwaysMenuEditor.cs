@@ -15,9 +15,9 @@ namespace WatchMeAlways
         static bool enableVideoRecorder_ = false;
         static bool recording_ = false;
 
-        public static IRecordingParameters DefaultParameters = new DesktopRecorder.RecordingParameters()
+        public static IRecordingParameters RecordingParameters = new DesktopRecorder.RecordingParameters()
         {
-            ReplayLength = 120.0f,
+            RecordLength = 120.0f,
             Fps = 30.0f,
             Quality = DesktopRecorder.CppRecorder.RecordingQuality.MEDIUM,
         };
@@ -55,7 +55,7 @@ namespace WatchMeAlways
             var DesktopRecorder = findOrCreateVideoRecorder(menuCommand.context as GameObject);
             if (DesktopRecorder != null)
             {
-                DesktopRecorder.StartRecording(DefaultParameters);
+                DesktopRecorder.StartRecording(RecordingParameters);
                 Debug.Log("Instant Replay: ON");
             }
         }
@@ -92,7 +92,7 @@ namespace WatchMeAlways
             if (DesktopRecorder != null)
             {
                 DesktopRecorder.FinishRecording(System.IO.Path.Combine(SaveDir, "video.h264"));
-                DesktopRecorder.StartRecording(DefaultParameters);
+                DesktopRecorder.StartRecording(RecordingParameters);
                 Debug.Log("Instant Replay: OFF");
             }
         }
@@ -114,7 +114,7 @@ namespace WatchMeAlways
             var DesktopRecorder = findOrCreateVideoRecorder(menuCommand.context as GameObject);
             if (DesktopRecorder != null)
             {
-                DesktopRecorder.StartRecording(DefaultParameters);
+                DesktopRecorder.StartRecording(RecordingParameters);
                 Debug.Log("Recording: STARTED");
             }
         }

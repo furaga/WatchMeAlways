@@ -64,7 +64,12 @@ public:
 	int CaptureDesktopImage(const CaptureRect& rect);
 	CapturedImage* GetCapturedImage(int key) const;
 	int GetMonitorCount() const { return (int)monitors_.size(); }
-	const Monitor GetMonitor(int n) const { return monitors_[n]; }
+	const Monitor GetMonitor(int n) const {
+		if (0 <= n && n < monitors_.size()) {
+			return monitors_[n];
+		}
+		return Monitor(CaptureRect(0, 0, 0, 0), false);
+	}
 };
 
 
