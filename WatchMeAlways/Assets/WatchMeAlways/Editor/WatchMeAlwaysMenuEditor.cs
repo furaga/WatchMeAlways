@@ -52,12 +52,8 @@ namespace WatchMeAlways
         private static void EnableVideoRecorder(MenuCommand menuCommand)
         {
             enableVideoRecorder_ = true;
-            var DesktopRecorder = findOrCreateVideoRecorder(menuCommand.context as GameObject);
-            if (DesktopRecorder != null)
-            {
-                DesktopRecorder.StartRecording(RecordingParameters);
-                Debug.Log("Instant Replay: ON");
-            }
+            DesktopRecorder.Instance.StartRecording(RecordingParameters);
+            Debug.Log("Instant Replay: ON");
         }
 
         [MenuItem("WatchMeAlways/Enable Instant Replay", true)]
@@ -70,12 +66,8 @@ namespace WatchMeAlways
         private static void DisableVideoRecorder(MenuCommand menuCommand)
         {
             enableVideoRecorder_ = false;
-            var DesktopRecorder = findOrCreateVideoRecorder(menuCommand.context as GameObject);
-            if (DesktopRecorder != null)
-            {
-                DesktopRecorder.FinishRecording(System.IO.Path.Combine(SaveDir, "video.h264"));
-                Debug.Log("Instant Replay: OFF");
-            }
+            DesktopRecorder.Instance.FinishRecording(System.IO.Path.Combine(SaveDir, "video.h264"));
+            Debug.Log("Instant Replay: OFF");
         }
 
         [MenuItem("WatchMeAlways/Disable Instant Replay", true)]
@@ -84,17 +76,12 @@ namespace WatchMeAlways
             return enableVideoRecorder_;
         }
 
-
         [MenuItem("WatchMeAlways/Save Instant Replay %F10", false, 10)]
         private static void SaveVideoRecorder(MenuCommand menuCommand)
         {
-            var DesktopRecorder = findOrCreateVideoRecorder(menuCommand.context as GameObject);
-            if (DesktopRecorder != null)
-            {
-                DesktopRecorder.FinishRecording(System.IO.Path.Combine(SaveDir, "video.h264"));
-                DesktopRecorder.StartRecording(RecordingParameters);
-                Debug.Log("Instant Replay: OFF");
-            }
+            DesktopRecorder.Instance.FinishRecording(System.IO.Path.Combine(SaveDir, "video.h264"));
+            DesktopRecorder.Instance.StartRecording(RecordingParameters);
+            Debug.Log("Instant Replay: OFF");
         }
 
         [MenuItem("WatchMeAlways/Save Instant Replay %F10", true, 10)]
@@ -111,12 +98,9 @@ namespace WatchMeAlways
         private static void StartRecording(MenuCommand menuCommand)
         {
             recording_ = true;
-            var DesktopRecorder = findOrCreateVideoRecorder(menuCommand.context as GameObject);
-            if (DesktopRecorder != null)
-            {
-                DesktopRecorder.StartRecording(RecordingParameters);
-                Debug.Log("Recording: STARTED");
-            }
+            DesktopRecorder.Instance.StartRecording(RecordingParameters);
+            Debug.Log("Recording: STARTED");
+
         }
 
         [MenuItem("WatchMeAlways/Start Recording %F9", true)]
@@ -129,12 +113,9 @@ namespace WatchMeAlways
         private static void FinishRecording(MenuCommand menuCommand)
         {
             recording_ = false;
-            var DesktopRecorder = findOrCreateVideoRecorder(menuCommand.context as GameObject);
-            if (DesktopRecorder != null)
-            {
-                DesktopRecorder.FinishRecording(System.IO.Path.Combine(SaveDir, "video.h264"));
-                Debug.Log("Recording: FINISHED. The recorded video was saved in " + SaveDir);
-            }
+            DesktopRecorder.Instance.FinishRecording(System.IO.Path.Combine(SaveDir, "video.h264"));
+            Debug.Log("Recording: FINISHED. The recorded video was saved in " + SaveDir);
+
         }
 
         [MenuItem("WatchMeAlways/Finish Recording %F9", true)]
@@ -150,10 +131,9 @@ namespace WatchMeAlways
         // [MenuItem("WatchMeAlways/Take Screenshot %F1", false, 70)]
         private static void TakeScreenshot(MenuCommand menuCommand)
         {
-            var DesktopRecorder = findOrCreateVideoRecorder(menuCommand.context as GameObject);
-            if (DesktopRecorder != null)
+            if (DesktopRecorder.Instance != null)
             {
-                DesktopRecorder.TakeScreenshot(System.IO.Path.Combine(SaveDir, "screenshot.png"));
+                DesktopRecorder.Instance.TakeScreenshot(System.IO.Path.Combine(SaveDir, "screenshot.png"));
                 Debug.Log("Screenshot: a new screenshot was saved in " + SaveDir);
             }
         }
@@ -177,32 +157,6 @@ namespace WatchMeAlways
         {
             EditorWindow.GetWindow(typeof(WatchMeAlwaysSettingsWindow));
         }
-
-        //
-        // Utility
-        //
-
-        static IRecorder findOrCreateVideoRecorder(GameObject owner)
-        {
-            return DesktopRecorder.Instance;
-            //var VideoRecorders = GameObject.FindObjectsOfType(typeof(VideoRecorder));
-            //if (VideoRecorders.Length <= 0)
-            //{
-            //    // create new instance
-            //    GameObject videoCapturePrefab = PrefabUtility.InstantiatePrefab(Resources.Load("Prefabs/VideoRecorder")) as GameObject;
-            //    videoCapturePrefab.name = "VideoRecorder";
-            //    PrefabUtility.DisconnectPrefabInstance(videoCapturePrefab);
-            //    GameObjectUtility.SetParentAndAlign(videoCapturePrefab, owner);
-            //    Undo.RegisterCreatedObjectUndo(videoCapturePrefab, "Create " + videoCapturePrefab.name);
-            //    VideoRecorders = GameObject.FindObjectsOfType(typeof(VideoRecorder));
-            //    if (VideoRecorders.Length <= 0)
-            //    {
-            //        Debug.LogError("Could not get VideoRecorder object");
-            //    }
-            //}
-            //return VideoRecorders[0] as IRecorder;
-        }
-
 
     }
 }
