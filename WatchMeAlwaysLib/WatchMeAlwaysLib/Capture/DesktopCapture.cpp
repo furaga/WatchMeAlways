@@ -55,20 +55,22 @@ int DesktopCapture::registerCapturedImage(std::unique_ptr<CapturedImage>&& captu
 int DesktopCapture::CaptureDesktopImage(const CaptureRect& capRect)
 {
 	// capture image
+	int x = capRect.Left;
+	int y = capRect.Top;
 	int w = capRect.Width;
 	int h = capRect.Height;
 	RECT rect;
-	rect.left = capRect.Left;
-	rect.top = capRect.Top;
-	rect.right = capRect.Left + capRect.Width;
-	rect.bottom = capRect.Top + capRect.Height;
+	rect.left = x;
+	rect.top = y;
+	rect.right = x + w;
+	rect.bottom = y + h;
 
 	auto hdc = GetDC(NULL);
 	HDC hmdc = CreateCompatibleDC(hdc);
-	HBITMAP hbmp = CreateCompatibleBitmap(hdc, capRect.Left, capRect.Top);
+	HBITMAP hbmp = CreateCompatibleBitmap(hdc, w, h);
 
 	HBITMAP hbmpOld = (HBITMAP)SelectObject(hmdc, hbmp);
-	BitBlt(hmdc, 0, 0, w, h, hdc, 0, 0, SRCCOPY);
+	BitBlt(hmdc, 0, 0, w, h, hdc, x, y, SRCCOPY);
 	SelectObject(hmdc, hbmpOld);
 
 	UINT sizeOfLine = w * 3;

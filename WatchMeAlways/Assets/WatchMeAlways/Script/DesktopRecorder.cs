@@ -41,22 +41,63 @@ namespace WatchMeAlways
                 VERYSLOW,
             };
 
-            [StructLayout(LayoutKind.Sequential, Pack = 8)]
+            [StructLayout(LayoutKind.Sequential)]
+            public class Rect
+            {
+                public int Left = 0;
+                public int Top = 0;
+                public int Width = 0;
+                public int Height = 0;
+            };
+
+            [StructLayout(LayoutKind.Sequential)]
+            public class Monitor
+            {
+                public int Left = 0;
+                public int Top = 0;
+                public int Width = 0;
+                public int Height = 0;
+                public bool IsPrimary = false;
+                public Rect Rect {
+                    get
+                    {
+                        return new Rect
+                        {
+                            Left = Left,
+                            Top = Top,
+                            Width = Width,
+                            Height = Height,
+                        };
+                    }
+                }
+            };
+
+
+            [StructLayout(LayoutKind.Sequential)]
             public class Frame
             {
-                public int Width;
-                public int Height;
-                public int Data;
+                public int Width = 0;
+                public int Height = 0;
+                public int Data = 0;
             }
 
             [DllImport("WatchMeAlwaysLib")]
             public static extern int StartRecording(int width, int height, float maxSeconds, float fps, RecordingQuality quality);
+
             [DllImport("WatchMeAlwaysLib", CharSet = CharSet.Ansi)]
             public static extern int FinishRecording(string filepath);
+
             [DllImport("WatchMeAlwaysLib", CallingConvention = CallingConvention.Cdecl)]
-            public static extern int CaptureDesktopImage([Out] Frame frame);
+            public static extern int CaptureDesktop(Rect rect, [Out] Frame frame);
+
             [DllImport("WatchMeAlwaysLib")]
             public static extern int AddCapturedDesktopFrame(int data, float timeStamp);
+
+            [DllImport("WatchMeAlwaysLib")]
+            public static extern int GetMonitorCount();
+
+            [DllImport("WatchMeAlwaysLib")]
+            public static extern int GetMonitor(int n, [Out] Monitor monitor);
         }
 
         public class RecordingParameters : IRecordingParameters
@@ -123,7 +164,7 @@ namespace WatchMeAlways
                 System.Diagnostics.Process.Start(
                     ffpmegPath,
                     string.Format(
-                        "-i {0} -c:v copy -f mp4 {1}",
+                        "-i {0} -c:v copy -f mp4 -y {1}",
                         saveVideoPath,
                         System.IO.Path.ChangeExtension(saveVideoPath, "mp4")
                     )
@@ -157,8 +198,26 @@ namespace WatchMeAlways
                 if (frameWidth_ > 0 && frameHeight_ > 0)
                 {
                     // bottle-neck!: take 20ms - 30ms
+                    int monitorCount = CppRecorder.GetMonitorCount();
+                    if (monitorCount <= 0)
+                    {
+                        continue;
+                    }
+
+
+                    var monitor = new CppRecorder.Monitor();
+                    int err = CppRecorder.GetMonitor(monitorCount - 1, monitor); // todo:
+                    if (err != 0) {
+                        continue;
+                    }
+
                     var frame = new CppRecorder.Frame();
-                    int res = CppRecorder.CaptureDesktopImage(frame);
+                    err = CppRecorder.CaptureDesktop(monitor.Rect, frame);
+                    if (err != 0)
+                    {
+                        continue;
+                    }
+
                     framesToEncode_.Enqueue(new Frame(frame.Data, frame.Width, frame.Height, recordingTimer_.ElapsedMilliseconds));
                 }
             }
