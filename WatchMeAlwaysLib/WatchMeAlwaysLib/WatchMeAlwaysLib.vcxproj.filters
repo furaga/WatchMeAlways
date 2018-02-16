@@ -39,6 +39,9 @@
     <ClCompile Include="test\RecorderTest.cpp">
       <Filter>Test</Filter>
     </ClCompile>
+    <ClCompile Include="Unity\Debug.cpp">
+      <Filter>Unity</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -54,6 +57,9 @@
     </ClInclude>
     <ClInclude Include="Capture\DesktopCapture.h">
       <Filter>Capture</Filter>
+    </ClInclude>
+    <ClInclude Include="Unity\Debug.h">
+      <Filter>Unity</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

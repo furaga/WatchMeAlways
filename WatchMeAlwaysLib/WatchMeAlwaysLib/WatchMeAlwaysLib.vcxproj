@@ -276,6 +276,7 @@
     <ClCompile Include="test\CaptureTest.cpp" />
     <ClCompile Include="test\RecorderTest.cpp" />
     <ClCompile Include="test\UnityDebugCppTest.cpp" />
+    <ClCompile Include="Unity\Debug.cpp" />
     <ClCompile Include="Unity\UnityDebugCpp.cpp" />
     <ClCompile Include="WatchMeAlwaysLib.cpp" />
   </ItemGroup>
@@ -285,6 +286,7 @@
     <ClInclude Include="Recorder\Recorder.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Unity\Debug.h" />
     <ClInclude Include="Unity\UnityDebugCpp.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

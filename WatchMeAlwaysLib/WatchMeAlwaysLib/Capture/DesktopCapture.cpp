@@ -7,15 +7,20 @@ static int capturedImageMapCounter_ = 1;
 std::unordered_map<int, std::unique_ptr<CapturedImage> > capturedImageMap_;
 
 void CapturedImage::Unregister() {
+	int key = key_;
+	Debug::Println("unregister s: key = %d", key);
 	capturedImageMap_.erase(this->key_);
+	Debug::Println("unregister e: key = %d", key);
 }
 
 int DesktopCapture::registerCapturedImage(std::unique_ptr<CapturedImage>&& capturedImage)
 {
 	int key = capturedImageMapCounter_;
+	Debug::Println("register s: key = %d", key);
 	capturedImage->key_ = key;
 	capturedImageMap_[key] = std::move(capturedImage);
 	capturedImageMapCounter_++;
+	Debug::Println("register e: key = %d", key);
 	return key;
 }
 
