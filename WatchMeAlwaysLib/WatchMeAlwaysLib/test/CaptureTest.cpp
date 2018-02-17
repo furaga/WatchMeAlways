@@ -31,8 +31,8 @@ namespace CaptureTest
 
 			auto monitor = capture->GetMonitor(0);
 			int key = capture->CaptureDesktopImage(monitor.GetCaptureRect());
-			Assert::IsTrue(monitor.GetCaptureRect().Left > 0);
-			Assert::IsTrue(monitor.GetCaptureRect().Top > 0);
+			Assert::IsTrue(monitor.GetCaptureRect().Left >= 0);
+			Assert::IsTrue(monitor.GetCaptureRect().Top >= 0);
 			Assert::IsTrue(monitor.GetCaptureRect().Width > 0);
 			Assert::IsTrue(monitor.GetCaptureRect().Height > 0);
 
