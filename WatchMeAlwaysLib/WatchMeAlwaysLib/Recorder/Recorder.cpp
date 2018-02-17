@@ -265,7 +265,7 @@ bool Recorder::encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt)
 
 
 		// TODO: 超過分の動画データを捨てる
-		//int timestamp = 0;
+		int timestamp = 0;
 		//while (timestamp - frames_.peek()->GetTimestamp() >= recordFrameLength_) {
 		//	frames_.pop();
 		//}
