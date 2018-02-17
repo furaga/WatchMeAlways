@@ -12,11 +12,11 @@ namespace WatchMeAlwaysConsole
     {
         internal static void Log(string msg)
         {
-            Console.WriteLine(msg);
+            // Console.WriteLine(msg);
         }
         internal static void LogErrorFormat(string msg, params object[] args)
         {
-            Console.WriteLine(string.Format(msg, args));
+            // Console.WriteLine(string.Format(msg, args));
         }
     }
 
