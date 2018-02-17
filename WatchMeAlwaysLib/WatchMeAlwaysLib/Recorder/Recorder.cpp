@@ -261,12 +261,12 @@ bool Recorder::encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt)
 			return false;
 		}
 
-		printf("Write packet %3" PRId64 " (size=%5d)\n", pkt->pts, pkt->size);
+		// printf("Write packet %3" PRId64 " (size=%5d)\n", pkt->pts, pkt->size);
 
 
 		// TODO: 超過分の動画データを捨てる
 		int timestamp = 0;
-		//while (timestamp - frames_.peek()->GetTimestamp() >= recordFrameLength_) {
+		//while (timestamp - frames_.peek()->GetTimestamp() >= recordFrameLength_) {B
 		//	frames_.pop();
 		//}
 
