@@ -46,9 +46,6 @@ namespace WatchMeAlwaysConsole
                         var t = typeof(DesktopRecorder.CppRecorder.RecordingQuality);
                         param.RecordingParameters.Quality = (DesktopRecorder.CppRecorder.RecordingQuality)Enum.Parse(t, args[i + 1]);
                         break;
-                    case "--output":
-                        param.OutputPath= args[i + 1];
-                        break;
                 }
             }
 
