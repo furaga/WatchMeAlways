@@ -38,11 +38,13 @@ const char* getPresetString(RecordingQuality quality) {
 void deleteAVCodecContext(AVCodecContext* ptr) { avcodec_free_context(&ptr); }
 void deleteAVFrameFree(AVFrame* ptr) { av_frame_free(&ptr); }
 void deleteAVPacket(AVPacket* ptr) { av_packet_free(&ptr); }
+void deleteSwsContext(SwsContext* ptr) { sws_freeContext(ptr); }
 
 Recorder::Recorder() :
 	ctx_(nullptr, deleteAVCodecContext),
 	workingFrame_(nullptr, deleteAVFrameFree),
 	pkt_(nullptr, deleteAVPacket),
+	swsCtx_(nullptr, deleteSwsContext),
 	currentFrame_(0),
 	recordCount_(0),
 	quality_(RECORDING_QUALITY_MEDIUM),
@@ -126,7 +128,7 @@ bool Recorder::StartRecording(const RecordingParameters& params) {
 		return false;
 	}
 
-	int newFrameSize = (int)(params.ReplayLength * params.Fps);
+	int newFrameSize = (int)100; // params.ReplayLength * params.Fps);
 	frames_.resize(newFrameSize);
 	for (int i = 0; i < frames_.size(); i++) {
 		frames_[i].reset(new Frame());
@@ -170,14 +172,14 @@ bool Recorder::AddFrame(const uint8_t* const pixels, int width, int height, floa
 	}
 
 	// cf. https://stackoverflow.com/questions/16667687/how-to-convert-rgb-from-yuv420p-for-ffmpeg-encoder
-	SwsContext * c = sws_getContext(
+	swsCtx_.reset(sws_getContext(
 		width / 2 * 2, height / 2 * 2, AV_PIX_FMT_BGR24,
 		ctx_->width /2 * 2, ctx_->height / 2 * 2, AV_PIX_FMT_YUV420P,
 		0, 0, 0, 0
-	);
+	));
 
 	int inLinesize[1] = { 3 * width };
-	sws_scale(c, &pixels, inLinesize, 0, height, workingFrame_->data, workingFrame_->linesize);
+	sws_scale(swsCtx_.get(), &pixels, inLinesize, 0, height, workingFrame_->data, workingFrame_->linesize);
 	FlipFrameJ420(workingFrame_.get());
 
 	workingFrame_->pts = (int)timeStamp; // todo
@@ -261,14 +263,18 @@ bool Recorder::encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt)
 			return false;
 		}
 
-		printf("Write packet %3" PRId64 " (size=%5d)\n", pkt->pts, pkt->size);
-		//char str[128] = { 0 };
-		//sprintf_s(str, 128, "Write packet %3" PRId64 " (size=%5d)\n", pkt->pts, pkt->size);
-		//UnityDebugCpp::Info(str);
+		// printf("Write packet %3" PRId64 " (size=%5d)\n", pkt->pts, pkt->size);
+
+
+		// TODO: 超過分の動画データを捨てる
+		int timestamp = 0;
+		//while (timestamp - frames_.peek()->GetTimestamp() >= recordFrameLength_) {B
+		//	frames_.pop();
+		//}
 
 		// Should I reuse instance instead of creating new instance?
 		// TODO: Fix if this line would be bottle neck.
-		frames_[currentFrame_]->SetData(pkt->data, pkt->size);
+		frames_[currentFrame_]->SetData(pkt->data, pkt->size, timestamp);
 
 		currentFrame_ = (currentFrame_ + 1) % frames_.size();
 		if (recordCount_ < frames_.size()) {
@@ -277,6 +283,8 @@ bool Recorder::encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt)
 
 		av_packet_unref(pkt);
 	}
+
+	// ここが切れ目？
 
 	return true;
 }

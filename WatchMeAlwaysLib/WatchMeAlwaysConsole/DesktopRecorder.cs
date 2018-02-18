@@ -2,30 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using UnityEngine;
+using System.Threading.Tasks;
 using System.Collections;
 using System.Runtime.InteropServices;
 
-namespace WatchMeAlways
+namespace WatchMeAlwaysConsole
 {
-    public class DesktopRecorder : Singleton<DesktopRecorder>, IRecorder
+    class Debug
     {
-        internal class Frame
+        internal static void Log(string msg)
         {
-            public int Data { get; private set; }
-            public int Width { get; private set; }
-            public int Height { get; private set; }
-            public long TimeMilliSeconds { get; private set; }
-
-            public Frame(int data, int width, int height, long time = 0)
-            {
-                this.Data = data;
-                this.Width = width;
-                this.Height = height;
-                this.TimeMilliSeconds = time;
-            }
+            // Console.WriteLine(msg);
         }
+        internal static void LogErrorFormat(string msg, params object[] args)
+        {
+            // Console.WriteLine(string.Format(msg, args));
+        }
+    }
 
+    class DesktopRecorder : Singleton<DesktopRecorder>
+    {
         public class CppRecorder
         {
             public enum RecordingQuality
@@ -58,7 +54,8 @@ namespace WatchMeAlways
                 public int Width = 0;
                 public int Height = 0;
                 public bool IsPrimary = false;
-                public Rect Rect {
+                public Rect Rect
+                {
                     get
                     {
                         return new Rect
@@ -111,7 +108,30 @@ namespace WatchMeAlways
             }
         }
 
-        public class RecordingParameters : IRecordingParameters
+        class Frame
+        {
+            public int Data { get; private set; }
+            public int Width { get; private set; }
+            public int Height { get; private set; }
+            public long TimeMilliSeconds { get; private set; }
+
+            public Frame(int data, int width, int height, long time = 0)
+            {
+                this.Data = data;
+                this.Width = width;
+                this.Height = height;
+                this.TimeMilliSeconds = time;
+            }
+        }
+
+        enum State
+        {
+            NotStarted,
+            Running,
+            Stopped,
+        }
+
+        public class RecordingParameters
         {
             public int Monitor { get; set; }
             public float RecordLength { get; set; }
@@ -122,26 +142,22 @@ namespace WatchMeAlways
         Queue<Frame> framesToEncode_ = new Queue<Frame>();
         State state_ = State.NotStarted;
         int frameCount_ = 0;
-        int frameWidth_ = 0;
-        int frameHeight_ = 0;
         int monitorNumber_ = 0;
         System.Threading.Thread captureThread_ = null;
         System.Threading.Thread encodeThread_ = null;
         bool quitEncodeFramesIfQueueIsEmpty_ = false;
         System.Diagnostics.Stopwatch recordingTimer_ = new System.Diagnostics.Stopwatch();
 
-        void Start()
+        void Initialize()
         {
             framesToEncode_ = new Queue<Frame>();
             state_ = State.NotStarted;
             frameCount_ = 0;
-            frameWidth_ = 0;
-            frameHeight_ = 0;
             encodeThread_ = null;
             quitEncodeFramesIfQueueIsEmpty_ = false;
         }
 
-        public void StartRecording(IRecordingParameters parameters)
+        public void StartRecording(RecordingParameters parameters)
         {
             if (state_ != State.Running)
             {
@@ -154,10 +170,8 @@ namespace WatchMeAlways
                 }
 
                 monitorNumber_ = param.Monitor;
-                frameWidth_ = monitor.Width;
-                frameHeight_ = monitor.Height;
 
-                int res = CppRecorder.StartRecording(frameWidth_, frameHeight_, param.RecordLength, param.Fps, param.Quality);
+                int res = CppRecorder.StartRecording(monitor.Width, monitor.Height, param.RecordLength, param.Fps, param.Quality);
                 state_ = State.Running;
 
                 recordingTimer_.Reset(); // need?
@@ -178,17 +192,6 @@ namespace WatchMeAlways
                 stopFrameCaptureThread();
                 stopFrameEncodeThread();
                 int res = CppRecorder.FinishRecording(saveVideoPath);
-
-
-                string ffpmegPath = System.IO.Path.GetFullPath("./Assets/WatchMeAlways/Plugins/x86_64/ffmpeg.exe");
-                System.Diagnostics.Process.Start(
-                    ffpmegPath,
-                    string.Format(
-                        "-i {0} -c:v copy -f mp4 -y {1}",
-                        saveVideoPath,
-                        System.IO.Path.ChangeExtension(saveVideoPath, "mp4")
-                    )
-                );
                 Debug.Log("FinishRecording: " + res);
             }
         }
@@ -272,22 +275,6 @@ namespace WatchMeAlways
                     System.Threading.Thread.Sleep(100); // sleep 100ms if there is no frame to encode.
                 }
             }
-        }
-
-        public void TakeScreenshot(string filepath)
-        {
-            //// capture image
-            //var frame = CppRecorder.CaptureDesktopImage();
-            //var tex = new Texture2D(frame.Width, frame.Height);
-
-            //tex.LoadRawTextureData(frame.Bytes);
-
-            //// encode to png
-            //var pngData = tex.EncodeToPNG();
-
-            //// save
-            //filepath = System.IO.Path.ChangeExtension(filepath, "png");
-            //System.IO.File.WriteAllBytes(filepath, pngData);
         }
     }
 }
