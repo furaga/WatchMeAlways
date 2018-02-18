@@ -126,7 +126,7 @@ bool Recorder::StartRecording(const RecordingParameters& params) {
 		return false;
 	}
 
-	int newFrameSize = (int)(params.ReplayLength * params.Fps);
+	int newFrameSize = (int)100; // params.ReplayLength * params.Fps);
 	frames_.resize(newFrameSize);
 	for (int i = 0; i < frames_.size(); i++) {
 		frames_[i].reset(new Frame());
