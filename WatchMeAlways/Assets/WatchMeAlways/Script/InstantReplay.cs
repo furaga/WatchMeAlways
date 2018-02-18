@@ -48,6 +48,11 @@ namespace WatchMeAlways
 
         public void Start()
         {
+            foreach (var f in System.IO.Directory.GetFiles(TmpDicrectory))
+            {
+                System.IO.File.Delete(f);
+            }
+
             killAll(consolePath);
 
             string arg = "";
