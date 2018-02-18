@@ -5,6 +5,7 @@ struct AVCodec;
 struct AVCodecContext;
 struct AVFrame;
 struct AVPacket;
+struct SwsContext;
 class Frame;
 
 #include <vector>
@@ -48,9 +49,11 @@ class Recorder {
 	typedef std::unique_ptr<AVCodecContext, void(*)(AVCodecContext*)> AVCodecContextPtr;
 	typedef std::unique_ptr<AVFrame, void(*)(AVFrame*)> AVFramePtr;
 	typedef std::unique_ptr<AVPacket, void(*)(AVPacket*)> AVPacketPtr;
+	typedef std::unique_ptr<SwsContext, void(*)(SwsContext*)> SwsContextPtr;
 	AVCodecContextPtr ctx_;
 	AVFramePtr workingFrame_;
 	AVPacketPtr pkt_;
+	SwsContextPtr swsCtx_;
 	std::vector<FramePtr> frames_;
 	int currentFrame_;
 	int recordCount_;

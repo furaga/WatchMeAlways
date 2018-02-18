@@ -38,11 +38,13 @@ const char* getPresetString(RecordingQuality quality) {
 void deleteAVCodecContext(AVCodecContext* ptr) { avcodec_free_context(&ptr); }
 void deleteAVFrameFree(AVFrame* ptr) { av_frame_free(&ptr); }
 void deleteAVPacket(AVPacket* ptr) { av_packet_free(&ptr); }
+void deleteSwsContext(SwsContext* ptr) { sws_freeContext(ptr); }
 
 Recorder::Recorder() :
 	ctx_(nullptr, deleteAVCodecContext),
 	workingFrame_(nullptr, deleteAVFrameFree),
 	pkt_(nullptr, deleteAVPacket),
+	swsCtx_(nullptr, deleteSwsContext),
 	currentFrame_(0),
 	recordCount_(0),
 	quality_(RECORDING_QUALITY_MEDIUM),
@@ -170,14 +172,14 @@ bool Recorder::AddFrame(const uint8_t* const pixels, int width, int height, floa
 	}
 
 	// cf. https://stackoverflow.com/questions/16667687/how-to-convert-rgb-from-yuv420p-for-ffmpeg-encoder
-	SwsContext * c = sws_getContext(
+	swsCtx_.reset(sws_getContext(
 		width / 2 * 2, height / 2 * 2, AV_PIX_FMT_BGR24,
 		ctx_->width /2 * 2, ctx_->height / 2 * 2, AV_PIX_FMT_YUV420P,
 		0, 0, 0, 0
-	);
+	));
 
 	int inLinesize[1] = { 3 * width };
-	sws_scale(c, &pixels, inLinesize, 0, height, workingFrame_->data, workingFrame_->linesize);
+	sws_scale(swsCtx_.get(), &pixels, inLinesize, 0, height, workingFrame_->data, workingFrame_->linesize);
 	FlipFrameJ420(workingFrame_.get());
 
 	workingFrame_->pts = (int)timeStamp; // todo

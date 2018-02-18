@@ -67,7 +67,7 @@ namespace WatchMeAlwaysConsole
                         param.RecordingParameters.Quality = (DesktopRecorder.CppRecorder.RecordingQuality)Enum.Parse(t, args[i + 1]);
                         break;
                     case "--msgpath":
-                        param.MessagePath = args[i + 1];
+                        param.MessagePath = System.IO.Path.GetFullPath(args[i + 1]);
                         break;
                 }
             }
