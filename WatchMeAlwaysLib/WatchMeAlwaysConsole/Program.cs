@@ -11,10 +11,30 @@ namespace WatchMeAlwaysConsole
         class Parameter
         {
             public DesktopRecorder.RecordingParameters RecordingParameters = new DesktopRecorder.RecordingParameters();
+            public string MessagePath = ".";
             public string OutputPath = "";
         }
 
-       static Parameter parseArguments(string[] args)
+        static bool finishedWatching_ = true;
+        static Parameter param = new Parameter();
+
+        static void Main(string[] args)
+        {
+            param = parseArguments(args);
+            DesktopRecorder.Instance.StartRecording(param.RecordingParameters);
+
+            System.IO.FileSystemWatcher watcher = null;
+            startWatching(watcher);
+
+            while (!finishedWatching_)
+            {
+                System.Threading.Thread.Sleep(500);
+            }
+
+            Console.WriteLine("Quit");
+        }
+        
+        static Parameter parseArguments(string[] args)
         {
             // set default
             var param = new Parameter() {
@@ -46,24 +66,75 @@ namespace WatchMeAlwaysConsole
                         var t = typeof(DesktopRecorder.CppRecorder.RecordingQuality);
                         param.RecordingParameters.Quality = (DesktopRecorder.CppRecorder.RecordingQuality)Enum.Parse(t, args[i + 1]);
                         break;
+                    case "--msgpath":
+                        param.MessagePath = args[i + 1];
+                        break;
                 }
             }
 
             return param;
         }
 
-        static void Main(string[] args)
+        static void startWatching(System.IO.FileSystemWatcher watcher)
         {
-            var param = parseArguments(args);
+            if (watcher != null) return;
 
-            DesktopRecorder.Instance.StartRecording(param.RecordingParameters);
+            watcher = new System.IO.FileSystemWatcher();
+            watcher.Path = System.IO.Path.GetDirectoryName(param.MessagePath);
+            watcher.NotifyFilter = System.IO.NotifyFilters.LastWrite;
+            watcher.Filter = System.IO.Path.GetFileName(param.MessagePath);
 
-            Console.WriteLine("Press Any key to stop");
-            Console.ReadKey();
+            watcher.Changed += new System.IO.FileSystemEventHandler(watcher_Changed);
+            watcher.Created += new System.IO.FileSystemEventHandler(watcher_Changed);
 
-            DesktopRecorder.Instance.FinishRecording(param.OutputPath);
-            Console.WriteLine("Finished: " + param.OutputPath);
-            Console.ReadKey();
+            watcher.EnableRaisingEvents = true;
+            finishedWatching_ = false;
+            Console.Error.WriteLine("Start watching: " + param.MessagePath);
+        }
+
+        static void watcher_Changed(System.Object source, System.IO.FileSystemEventArgs e)
+        {
+            try
+            {
+                switch (e.ChangeType)
+                {
+                    case System.IO.WatcherChangeTypes.Changed:
+                        string line = System.IO.File.ReadAllText(param.MessagePath);
+                        if (line == null)
+                        {
+                            break;
+                        }
+                        var tokens = line.Split(' ').Where(t => string.IsNullOrWhiteSpace(t) == false).ToArray();
+                        if (tokens.Length >= 0 && tokens[0].Contains('@'))
+                        {
+                            switch (tokens[0].Substring(tokens[0].IndexOf('@')))
+                            {
+                                case "@save":
+                                    if (tokens.Length >= 3)
+                                    {
+                                        if (System.IO.File.Exists(tokens[1]))
+                                        {
+                                            break;
+                                        }
+                                        DesktopRecorder.Instance.FinishRecording(tokens[1]);
+                                        DesktopRecorder.Instance.StartRecording(param.RecordingParameters);
+                                        Console.Error.WriteLine("Saved in " + tokens[1]);
+                                        Console.Error.WriteLine();
+                                        System.IO.File.WriteAllText(tokens[2], "");
+                                    }
+                                    break;
+                                case "@quit":
+                                    finishedWatching_ = true;
+                                    break;
+                            }
+                        }
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex.ToString() + "\n" + ex.StackTrace);
+            }
         }
     }
 }
