@@ -5,8 +5,8 @@
 #include <mutex>
 
 static std::mutex mutexRegistering_;
-static int capturedImageMapCounter_ = 1;
-static std::unordered_map<int, std::unique_ptr<CapturedImage> > capturedImageMap_;
+static int capturedFrameMapCounter_ = 1;
+static std::unordered_map<int, std::unique_ptr<CapturedFrame> > capturedFrameMap_;
 
 BOOL CALLBACK onEnumMonitor(HMONITOR hMonitor, HDC, LPRECT monitorRect, LPARAM param) {
 
@@ -36,25 +36,25 @@ DesktopCapturer::DesktopCapturer()
 	EnumDisplayMonitors(NULL, NULL, (MONITORENUMPROC)onEnumMonitor, (LPARAM)&monitors_);
 }
 
-void CapturedImage::Unregister() {
+void CapturedFrame::Unregister() {
 	std::lock_guard<std::mutex> lock(mutexRegistering_);
 	int key = key_;
-	capturedImageMap_.erase(this->key_);
+	capturedFrameMap_.erase(this->key_);
 }
 
-int DesktopCapturer::registerCapturedImage(std::unique_ptr<CapturedImage>&& capturedImage)
+int DesktopCapturer::registerCapturedFrame(std::unique_ptr<CapturedFrame>&& capturedFrame)
 {
 	std::lock_guard<std::mutex> lock(mutexRegistering_);
-	int key = capturedImageMapCounter_;
-	capturedImage->key_ = key;
-	capturedImageMap_[key] = std::move(capturedImage);
-	capturedImageMapCounter_++;
+	int key = capturedFrameMapCounter_;
+	capturedFrame->key_ = key;
+	capturedFrameMap_[key] = std::move(capturedFrame);
+	capturedFrameMapCounter_++;
 	return key;
 }
 
-int DesktopCapturer::CaptureDesktopImage(const CaptureRect& capRect)
+int DesktopCapturer::CaptureDesktopFrame(const CaptureRect& capRect)
 {
-	// capture image
+	// capture frame
 	int x = capRect.Left;
 	int y = capRect.Top;
 	int w = capRect.Width;
@@ -77,7 +77,7 @@ int DesktopCapturer::CaptureDesktopImage(const CaptureRect& capRect)
 	sizeOfLine += (sizeOfLine % 4 != 0 ? 4 - sizeOfLine % 4 : 0);
 	sizeOfLine *= h;
 
-	auto capturedImage = std::unique_ptr<CapturedImage>(new CapturedImage(new uint8_t[sizeOfLine], w, h));
+	auto capturedFrame = std::unique_ptr<CapturedFrame>(new CapturedFrame(new uint8_t[sizeOfLine], w, h));
 
 	BITMAPINFO bi;
 	ZeroMemory(&bi, sizeof bi);
@@ -89,19 +89,19 @@ int DesktopCapturer::CaptureDesktopImage(const CaptureRect& capRect)
 	bi.bmiHeader.biCompression = BI_RGB;
 	bi.bmiHeader.biSizeImage = sizeOfLine * h;
 
-	uint8_t* pixels = const_cast<uint8_t*>(capturedImage->GetPixels());
+	uint8_t* pixels = const_cast<uint8_t*>(capturedFrame->GetPixels());
 	int res = GetDIBits(hmdc, hbmp, 0, h, pixels, &bi, DIB_RGB_COLORS);
 
 	DeleteObject(hbmp);
 	DeleteDC(hmdc);
 
-	int key = registerCapturedImage(std::move(capturedImage));
+	int key = registerCapturedFrame(std::move(capturedFrame));
 	return key;
 }
 
-CapturedImage* DesktopCapturer::GetCapturedFrame(int key) const {
-	auto iter = capturedImageMap_.find(key);
-	if (iter == capturedImageMap_.end()) {
+CapturedFrame* DesktopCapturer::GetCapturedFrame(int key) const {
+	auto iter = capturedFrameMap_.find(key);
+	if (iter == capturedFrameMap_.end()) {
 		return nullptr;
 	}
 	return (*iter).second.get();

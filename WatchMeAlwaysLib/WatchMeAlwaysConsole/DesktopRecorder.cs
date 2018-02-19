@@ -229,7 +229,7 @@ namespace WatchMeAlwaysConsole
                 int err = CppRecorder.CaptureDesktop(monitor.Rect, frame);
                 if (err != 0)
                 {
-                    Debug.LogErrorFormat("Failed to capture desktop image");
+                    Debug.LogErrorFormat("Failed to capture desktop frame");
                     continue;
                 }
 

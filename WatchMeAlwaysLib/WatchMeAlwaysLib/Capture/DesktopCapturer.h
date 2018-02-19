@@ -6,7 +6,7 @@
 
 class DesktopCapturer;
 
-class CapturedImage {
+class CapturedFrame {
 	friend class DesktopCapturer;
 	int width_;
 	int height_;
@@ -23,7 +23,7 @@ public:
 		return pixels_.get();
 	}
 	void Unregister();
-	CapturedImage(uint8_t* pixels, int width, int height)
+	CapturedFrame(uint8_t* pixels, int width, int height)
 		: width_(width),
 		height_(height)
 	{
@@ -55,14 +55,14 @@ public:
 	};
 
 private:
-	int registerCapturedImage(std::unique_ptr<CapturedImage>&& capturedImage);
+	int registerCapturedFrame(std::unique_ptr<CapturedFrame>&& capturedFrame);
 	std::vector<Monitor> monitors_;
 
 public:
 	DesktopCapturer();
 	~DesktopCapturer() {}
-	int CaptureDesktopImage(const CaptureRect& rect);
-	CapturedImage* GetCapturedFrame(int key) const;
+	int CaptureDesktopFrame(const CaptureRect& rect);
+	CapturedFrame* GetCapturedFrame(int key) const;
 	int GetMonitorCount() const { return (int)monitors_.size(); }
 	const Monitor GetMonitor(int n) const {
 		if (0 <= n && n < monitors_.size()) {

@@ -120,7 +120,7 @@ namespace EncoderTest
 			std::unique_ptr<DesktopCapturer> capture(new DesktopCapturer());
 
 			auto monitor = capture->GetMonitor(0);
-			int key = capture->CaptureDesktopImage(monitor.GetCaptureRect());
+			int key = capture->CaptureDesktopFrame(monitor.GetCaptureRect());
 
 			auto params = RecordingParameters(monitor.GetCaptureRect().Width, monitor.GetCaptureRect().Height, 1.0f, 10.0f, RECORDING_QUALITY_ULTRAFAST);
 			bool succeeded = Encoder->StartEncoding(params);
@@ -132,7 +132,7 @@ namespace EncoderTest
 			// run capturing thread
 			std::thread cap([&] {
 				for (int i = 0; i < 10; i++) {
-					int key = capture->CaptureDesktopImage(monitor.GetCaptureRect());
+					int key = capture->CaptureDesktopFrame(monitor.GetCaptureRect());
 					q.push(key);
 				}
 			});
@@ -144,9 +144,9 @@ namespace EncoderTest
 						if (q.empty() == false) {
 							int key = q.front();
 							q.pop();
-							auto capturedImage = capture->GetCapturedFrame(key);
-							succeeded = Encoder->EncodeFrame(capturedImage->GetPixels(), monitor.GetCaptureRect().Width, monitor.GetCaptureRect().Height, i * 30.0f);
-							capturedImage->Unregister();
+							auto capturedFrame = capture->GetCapturedFrame(key);
+							succeeded = Encoder->EncodeFrame(capturedFrame->GetPixels(), monitor.GetCaptureRect().Width, monitor.GetCaptureRect().Height, i * 30.0f);
+							capturedFrame->Unregister();
 							break;
 						}
 					}

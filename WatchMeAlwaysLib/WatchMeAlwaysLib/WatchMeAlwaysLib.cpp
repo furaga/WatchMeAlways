@@ -122,7 +122,7 @@ int CaptureDesktopFrame(Rect* rect, Frame* frame)
 		UnityDebugCpp::Error("rect is null\n");
 		return API_RESULT_NG;
 	}
-	frame->Data = capture->CaptureDesktopImage(
+	frame->Data = capture->CaptureDesktopFrame(
 		CaptureRect(
 			rect->Left,
 			rect->Top,
@@ -145,19 +145,19 @@ int EncodeDesktopFrame(int key, float timeStamp)
 		return API_RESULT_NG;
 	}
 
-	auto capturedImage = capture->GetCapturedFrame(key);
-	if (!capturedImage) {
-		UnityDebugCpp::Error("failed to get capturedImage\n");
+	auto capturedFrame = capture->GetCapturedFrame(key);
+	if (!capturedFrame) {
+		UnityDebugCpp::Error("failed to get capturedFrame\n");
 		return API_RESULT_NG;
 	}
 
-	bool succeeded = recorder->EncodeFrame(capturedImage->GetPixels(), capturedImage->GetWidth(), capturedImage->GetHeight(), timeStamp);
+	bool succeeded = recorder->EncodeFrame(capturedFrame->GetPixels(), capturedFrame->GetWidth(), capturedFrame->GetHeight(), timeStamp);
 	if (!succeeded) {
 		UnityDebugCpp::Error("failed: recorder->EncodeFrame()\n");
 		return API_RESULT_NG;
 	}
 
-	capturedImage->Unregister();
+	capturedFrame->Unregister();
 
 	return API_RESULT_OK;
 }
