@@ -85,10 +85,10 @@ namespace WatchMeAlwaysConsole
             public static extern int FinishRecording(string filepath);
 
             [DllImport("WatchMeAlwaysLib", CallingConvention = CallingConvention.Cdecl)]
-            public static extern int CaptureDesktop(Rect rect, [Out] Frame frame);
+            public static extern int CaptureDesktopFrame(Rect rect, [Out] Frame frame);
 
             [DllImport("WatchMeAlwaysLib")]
-            public static extern int AddCapturedDesktopFrame(int data, float timeStamp);
+            public static extern int EncodeDesktopFrame(int data, float timeStamp);
 
             [DllImport("WatchMeAlwaysLib")]
             public static extern int GetMonitorCount();
@@ -226,7 +226,7 @@ namespace WatchMeAlwaysConsole
                 }
 
                 var frame = new CppRecorder.Frame();
-                int err = CppRecorder.CaptureDesktop(monitor.Rect, frame);
+                int err = CppRecorder.CaptureDesktopFrame(monitor.Rect, frame);
                 if (err != 0)
                 {
                     Debug.LogErrorFormat("Failed to capture desktop frame");
@@ -262,7 +262,7 @@ namespace WatchMeAlwaysConsole
                 if (framesToEncode_.Count >= 1)
                 {
                     var frame = framesToEncode_.Dequeue();
-                    int res = CppRecorder.AddCapturedDesktopFrame(frame.Data, frame.TimeMilliSeconds);
+                    int res = CppRecorder.EncodeDesktopFrame(frame.Data, frame.TimeMilliSeconds);
                     frameCount_++;
                     Debug.Log("AddFrame: " + (res == 0 ? "OK" : "NG"));
                 }
