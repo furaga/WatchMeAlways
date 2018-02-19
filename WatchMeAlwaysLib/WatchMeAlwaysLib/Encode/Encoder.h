@@ -45,7 +45,7 @@ struct RecordingParameters {
 };
 
 
-class Recorder {
+class Encoder {
 	typedef std::unique_ptr<AVCodecContext, void(*)(AVCodecContext*)> AVCodecContextPtr;
 	typedef std::unique_ptr<AVFrame, void(*)(AVFrame*)> AVFramePtr;
 	typedef std::unique_ptr<AVPacket, void(*)(AVPacket*)> AVPacketPtr;
@@ -61,18 +61,18 @@ class Recorder {
 	int recordFrameLength_;
 
 public:
-	Recorder();
-	~Recorder();
-	bool StartRecording(const RecordingParameters& parameters);
+	Encoder();
+	~Encoder();
+	bool StartEncoding(const RecordingParameters& parameters);
 	// width * height * 3 must be size of pixels.
-	bool AddFrame(const uint8_t* const pixels, int width, int height, float timeStamp);
-	bool FinishRecording(const std::string& filename);
+	bool EncodeFrame(const uint8_t* const pixels, int width, int height, float timeStamp);
+	bool FinishEncoding(const std::string& filename);
 
 private:
 	void clear();
 	bool encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt);
 };
 
-typedef std::unique_ptr<Recorder> RecorderPtr;
+typedef std::unique_ptr<Encoder> RecorderPtr;
 
 #endif

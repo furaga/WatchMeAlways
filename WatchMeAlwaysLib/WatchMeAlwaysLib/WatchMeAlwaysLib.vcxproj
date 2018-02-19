@@ -177,7 +177,7 @@
     </Link>
     <PostBuildEvent>
       <Command>cp -f $(TargetPath) $(SolutionDir)..\WatchMeAlways\Assets\WatchMeAlways\Plugins\x86_64
-cp -f $(TargetPath) $(SolutionDir)\WatchMeAlwaysConsole\bin\Debug
+cp -f $(TargetPath) $(SolutionDir)\WatchMeAlwaysServer\bin\Debug
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -250,7 +250,7 @@ cp -f $(TargetPath) $(SolutionDir)\WatchMeAlwaysConsole\bin\Debug
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Capture\DesktopCapture.cpp" />
+    <ClCompile Include="Capture\DesktopCapturer.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='UnitTest|Win32'">false</CompileAsManaged>
@@ -271,8 +271,8 @@ cp -f $(TargetPath) $(SolutionDir)\WatchMeAlwaysConsole\bin\Debug
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Recorder\Frame.cpp" />
-    <ClCompile Include="Recorder\Recorder.cpp" />
+    <ClCompile Include="Encode\Encoder.cpp" />
+    <ClCompile Include="Encode\Frame.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='UnitTest|Win32'">Create</PrecompiledHeader>
@@ -282,16 +282,16 @@ cp -f $(TargetPath) $(SolutionDir)\WatchMeAlwaysConsole\bin\Debug
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="test\CaptureTest.cpp" />
-    <ClCompile Include="test\RecorderTest.cpp" />
+    <ClCompile Include="test\EncoderTest.cpp" />
     <ClCompile Include="test\UnityDebugCppTest.cpp" />
     <ClCompile Include="Unity\Debug.cpp" />
     <ClCompile Include="Unity\UnityDebugCpp.cpp" />
     <ClCompile Include="WatchMeAlwaysLib.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Capture\DesktopCapture.h" />
-    <ClInclude Include="Recorder\Frame.h" />
-    <ClInclude Include="Recorder\Recorder.h" />
+    <ClInclude Include="Capture\DesktopCapturer.h" />
+    <ClInclude Include="Encode\Encoder.h" />
+    <ClInclude Include="Encode\Frame.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Unity\Debug.h" />

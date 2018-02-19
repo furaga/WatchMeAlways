@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WatchMeAlwaysConsole
+namespace WatchMeAlwaysServer
 {
     class Program
     {
         class Parameter
         {
             public DesktopRecorder.RecordingParameters RecordingParameters = new DesktopRecorder.RecordingParameters();
-            public string MessagePath = ".";
+            public string MessagePath = "msg.txt";
             public string OutputPath = "";
         }
 
@@ -67,17 +67,19 @@ namespace WatchMeAlwaysConsole
                         param.RecordingParameters.Quality = (DesktopRecorder.CppRecorder.RecordingQuality)Enum.Parse(t, args[i + 1]);
                         break;
                     case "--msgpath":
-                        param.MessagePath = System.IO.Path.GetFullPath(args[i + 1]);
+                        param.MessagePath = args[i + 1];
                         break;
                 }
             }
 
+            param.MessagePath = System.IO.Path.GetFullPath(param.MessagePath);
             return param;
         }
 
         static void startWatching(System.IO.FileSystemWatcher watcher)
         {
             if (watcher != null) return;
+            if (string.IsNullOrWhiteSpace(param.MessagePath)) return; 
 
             watcher = new System.IO.FileSystemWatcher();
             watcher.Path = System.IO.Path.GetDirectoryName(param.MessagePath);

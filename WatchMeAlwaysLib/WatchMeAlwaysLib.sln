@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WatchMeAlwaysLib", "WatchMeAlwaysLib\WatchMeAlwaysLib.vcxproj", "{FF9252A1-CA70-400F-98D3-1A39E0C009CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WatchMeAlwaysConsole", "WatchMeAlwaysConsole\WatchMeAlwaysConsole.csproj", "{AB4E1266-DC4B-4138-AE5F-6BCE3F906563}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WatchMeAlwaysServer", "WatchMeAlwaysServer\WatchMeAlwaysServer.csproj", "{AB4E1266-DC4B-4138-AE5F-6BCE3F906563}"
 	ProjectSection(ProjectDependencies) = postProject
 		{FF9252A1-CA70-400F-98D3-1A39E0C009CF} = {FF9252A1-CA70-400F-98D3-1A39E0C009CF}
 	EndProjectSection

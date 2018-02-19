@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Recorder">
-      <UniqueIdentifier>{2b1b5375-0e6c-4878-99c2-c086937f142a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Unity">
       <UniqueIdentifier>{422e456e-60a3-4b74-a587-7c5bb1887bc2}</UniqueIdentifier>
     </Filter>
@@ -13,22 +10,16 @@
     <Filter Include="Test">
       <UniqueIdentifier>{c5e721b6-ff28-4b1f-b75a-0460b2b06839}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Encode">
+      <UniqueIdentifier>{2b1b5375-0e6c-4878-99c2-c086937f142a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="WatchMeAlwaysLib.cpp" />
-    <ClCompile Include="Recorder\Recorder.cpp">
-      <Filter>Recorder</Filter>
-    </ClCompile>
-    <ClCompile Include="Recorder\Frame.cpp">
-      <Filter>Recorder</Filter>
-    </ClCompile>
     <ClCompile Include="Unity\UnityDebugCpp.cpp">
       <Filter>Unity</Filter>
-    </ClCompile>
-    <ClCompile Include="Capture\DesktopCapture.cpp">
-      <Filter>Capture</Filter>
     </ClCompile>
     <ClCompile Include="test\UnityDebugCppTest.cpp">
       <Filter>Test</Filter>
@@ -36,30 +27,39 @@
     <ClCompile Include="test\CaptureTest.cpp">
       <Filter>Test</Filter>
     </ClCompile>
-    <ClCompile Include="test\RecorderTest.cpp">
-      <Filter>Test</Filter>
-    </ClCompile>
     <ClCompile Include="Unity\Debug.cpp">
       <Filter>Unity</Filter>
+    </ClCompile>
+    <ClCompile Include="Capture\DesktopCapturer.cpp">
+      <Filter>Capture</Filter>
+    </ClCompile>
+    <ClCompile Include="Encode\Frame.cpp">
+      <Filter>Encode</Filter>
+    </ClCompile>
+    <ClCompile Include="Encode\Encoder.cpp">
+      <Filter>Encode</Filter>
+    </ClCompile>
+    <ClCompile Include="test\EncoderTest.cpp">
+      <Filter>Test</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="Recorder\Recorder.h">
-      <Filter>Recorder</Filter>
-    </ClInclude>
-    <ClInclude Include="Recorder\Frame.h">
-      <Filter>Recorder</Filter>
-    </ClInclude>
     <ClInclude Include="Unity\UnityDebugCpp.h">
       <Filter>Unity</Filter>
     </ClInclude>
-    <ClInclude Include="Capture\DesktopCapture.h">
-      <Filter>Capture</Filter>
-    </ClInclude>
     <ClInclude Include="Unity\Debug.h">
       <Filter>Unity</Filter>
+    </ClInclude>
+    <ClInclude Include="Capture\DesktopCapturer.h">
+      <Filter>Capture</Filter>
+    </ClInclude>
+    <ClInclude Include="Encode\Frame.h">
+      <Filter>Encode</Filter>
+    </ClInclude>
+    <ClInclude Include="Encode\Encoder.h">
+      <Filter>Encode</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

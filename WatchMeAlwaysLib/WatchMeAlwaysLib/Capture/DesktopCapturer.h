@@ -4,10 +4,10 @@
 #include <functional>
 #include <unordered_map>
 
-class DesktopCapture;
+class DesktopCapturer;
 
-class CapturedImage {
-	friend class DesktopCapture;
+class CapturedFrame {
+	friend class DesktopCapturer;
 	int width_;
 	int height_;
 	std::unique_ptr<uint8_t[]> pixels_;
@@ -23,7 +23,7 @@ public:
 		return pixels_.get();
 	}
 	void Unregister();
-	CapturedImage(uint8_t* pixels, int width, int height)
+	CapturedFrame(uint8_t* pixels, int width, int height)
 		: width_(width),
 		height_(height)
 	{
@@ -43,7 +43,7 @@ struct CaptureRect {
 		Height(height) { }
 };
 
-class DesktopCapture {
+class DesktopCapturer {
 public:
 	class Monitor {
 		CaptureRect rect_;
@@ -55,14 +55,14 @@ public:
 	};
 
 private:
-	int registerCapturedImage(std::unique_ptr<CapturedImage>&& capturedImage);
+	int registerCapturedFrame(std::unique_ptr<CapturedFrame>&& capturedFrame);
 	std::vector<Monitor> monitors_;
 
 public:
-	DesktopCapture();
-	~DesktopCapture() {}
-	int CaptureDesktopImage(const CaptureRect& rect);
-	CapturedImage* GetCapturedImage(int key) const;
+	DesktopCapturer();
+	~DesktopCapturer() {}
+	int CaptureDesktopFrame(const CaptureRect& rect);
+	CapturedFrame* GetCapturedFrame(int key) const;
 	int GetMonitorCount() const { return (int)monitors_.size(); }
 	const Monitor GetMonitor(int n) const {
 		if (0 <= n && n < monitors_.size()) {

@@ -1,4 +1,4 @@
-﻿namespace WatchMeAlwaysConsole
+﻿namespace WatchMeAlwaysServer
 {
     // cf. http://waken.hatenablog.com/entry/2016/03/05/102928
     public class Singleton<T> where T : class, new()

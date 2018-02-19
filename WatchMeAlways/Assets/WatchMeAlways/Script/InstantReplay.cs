@@ -9,7 +9,7 @@ namespace WatchMeAlways
 {
     public class InstantReplay : Singleton<InstantReplay>
     {
-        readonly string consolePath = System.IO.Path.GetFullPath("./Assets/WatchMeAlways/Plugins/x86_64/WatchMeAlwaysConsole.exe");
+        readonly string serverPath = System.IO.Path.GetFullPath("./Assets/WatchMeAlways/Plugins/x86_64/WatchMeAlwaysServer.exe");
         readonly string ffmpegPath = System.IO.Path.GetFullPath("./Assets/WatchMeAlways/Plugins/x86_64/ffmpeg.exe");
 
         public static string GalleryDicrectory
@@ -48,12 +48,13 @@ namespace WatchMeAlways
 
         public void Start()
         {
+            createDirectoryIfNotExists(TmpDicrectory);
             foreach (var f in System.IO.Directory.GetFiles(TmpDicrectory))
             {
                 System.IO.File.Delete(f);
             }
 
-            killAll(consolePath);
+            killAll(serverPath);
 
             string arg = "";
             if (config != null)
@@ -65,17 +66,18 @@ namespace WatchMeAlways
             }
             arg += " --msgpath " + MessageFile;
 
-            runConsole(arg);
+            runServer(arg);
         }
 
         public void Stop()
         {
-            killAll(consolePath);
+            killAll(serverPath);
         }
 
         public void Save()
         {
             createDirectoryIfNotExists(GalleryDicrectory);
+            createDirectoryIfNotExists(TmpDicrectory);
 
             string basepath = System.IO.Path.Combine(GalleryDicrectory, DateTime.Now.ToString("yyyyMMdd-HHmmss"));
             string h264path = basepath + ".h264";
@@ -117,7 +119,7 @@ namespace WatchMeAlways
 
         public bool IsRecording()
         {
-            return search(consolePath).Count >= 1;
+            return search(serverPath).Count >= 1;
         }
 
         public void GetMonitors()
@@ -165,11 +167,12 @@ namespace WatchMeAlways
             return new List<System.Diagnostics.Process>();
         }
 
-        System.Diagnostics.Process runConsole(string arguments)
+        System.Diagnostics.Process runServer(string arguments)
         {
             try
             {
-                var process = System.Diagnostics.Process.Start(consolePath, arguments);
+                Debug.Log(arguments);
+                var process = System.Diagnostics.Process.Start(serverPath, arguments);
                 return process;
             }
             catch (Exception ex)

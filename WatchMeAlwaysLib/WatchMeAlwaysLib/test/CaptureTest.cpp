@@ -2,7 +2,7 @@
 
 #ifdef UNIT_TEST
 #include "CppUnitTest.h"  
-#include "../Capture/DesktopCapture.h"  
+#include "../Capture/DesktopCapturer.h"  
 #include "../Unity/UnityDebugCpp.h"  
 
 #include <memory>
@@ -24,28 +24,28 @@ namespace CaptureTest
 
 		TEST_METHOD(CaptureTest_0)
 		{
-			std::unique_ptr<DesktopCapture> capture(new DesktopCapture());
+			std::unique_ptr<DesktopCapturer> capture(new DesktopCapturer());
 
 			int monitorCount = capture->GetMonitorCount();
 			Assert::IsTrue(monitorCount >= 1);
 
 			auto monitor = capture->GetMonitor(0);
-			int key = capture->CaptureDesktopImage(monitor.GetCaptureRect());
+			int key = capture->CaptureDesktopFrame(monitor.GetCaptureRect());
 			Assert::IsTrue(monitor.GetCaptureRect().Left >= 0);
 			Assert::IsTrue(monitor.GetCaptureRect().Top >= 0);
 			Assert::IsTrue(monitor.GetCaptureRect().Width > 0);
 			Assert::IsTrue(monitor.GetCaptureRect().Height > 0);
 
-			auto capturedImage = capture->GetCapturedImage(key);
-			Assert::IsTrue(capturedImage != nullptr);
-			Assert::IsTrue(capturedImage->GetWidth() > 0);
-			Assert::IsTrue(capturedImage->GetHeight() > 0);
-			Assert::IsTrue(capturedImage->GetPixels() != nullptr);
+			auto capturedFrame = capture->GetCapturedFrame(key);
+			Assert::IsTrue(capturedFrame != nullptr);
+			Assert::IsTrue(capturedFrame->GetWidth() > 0);
+			Assert::IsTrue(capturedFrame->GetHeight() > 0);
+			Assert::IsTrue(capturedFrame->GetPixels() != nullptr);
 
-			capturedImage->Unregister();
+			capturedFrame->Unregister();
 		}
 		TEST_METHOD(CaptureTest_1) {
-			std::unique_ptr<DesktopCapture> capture(new DesktopCapture());
+			std::unique_ptr<DesktopCapturer> capture(new DesktopCapturer());
 
 			// OK cases
 			int monitorCount = capture->GetMonitorCount();

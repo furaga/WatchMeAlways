@@ -7,8 +7,8 @@
     <ProjectGuid>{AB4E1266-DC4B-4138-AE5F-6BCE3F906563}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WatchMeAlwaysConsole</RootNamespace>
-    <AssemblyName>WatchMeAlwaysConsole</AssemblyName>
+    <RootNamespace>WatchMeAlwaysServer</RootNamespace>
+    <AssemblyName>WatchMeAlwaysServer</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
