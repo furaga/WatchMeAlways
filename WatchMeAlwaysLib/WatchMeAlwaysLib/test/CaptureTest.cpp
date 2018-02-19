@@ -36,7 +36,7 @@ namespace CaptureTest
 			Assert::IsTrue(monitor.GetCaptureRect().Width > 0);
 			Assert::IsTrue(monitor.GetCaptureRect().Height > 0);
 
-			auto capturedImage = capture->GetCapturedImage(key);
+			auto capturedImage = capture->GetCapturedFrame(key);
 			Assert::IsTrue(capturedImage != nullptr);
 			Assert::IsTrue(capturedImage->GetWidth() > 0);
 			Assert::IsTrue(capturedImage->GetHeight() > 0);

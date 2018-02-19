@@ -99,7 +99,7 @@ int DesktopCapturer::CaptureDesktopImage(const CaptureRect& capRect)
 	return key;
 }
 
-CapturedImage* DesktopCapturer::GetCapturedImage(int key) const {
+CapturedImage* DesktopCapturer::GetCapturedFrame(int key) const {
 	auto iter = capturedImageMap_.find(key);
 	if (iter == capturedImageMap_.end()) {
 		return nullptr;

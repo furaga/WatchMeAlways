@@ -62,7 +62,7 @@ public:
 	DesktopCapturer();
 	~DesktopCapturer() {}
 	int CaptureDesktopImage(const CaptureRect& rect);
-	CapturedImage* GetCapturedImage(int key) const;
+	CapturedImage* GetCapturedFrame(int key) const;
 	int GetMonitorCount() const { return (int)monitors_.size(); }
 	const Monitor GetMonitor(int n) const {
 		if (0 <= n && n < monitors_.size()) {

@@ -144,7 +144,7 @@ namespace EncoderTest
 						if (q.empty() == false) {
 							int key = q.front();
 							q.pop();
-							auto capturedImage = capture->GetCapturedImage(key);
+							auto capturedImage = capture->GetCapturedFrame(key);
 							succeeded = Encoder->EncodeFrame(capturedImage->GetPixels(), monitor.GetCaptureRect().Width, monitor.GetCaptureRect().Height, i * 30.0f);
 							capturedImage->Unregister();
 							break;
