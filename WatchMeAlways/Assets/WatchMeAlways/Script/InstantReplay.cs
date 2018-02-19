@@ -48,6 +48,7 @@ namespace WatchMeAlways
 
         public void Start()
         {
+            createDirectoryIfNotExists(TmpDicrectory);
             foreach (var f in System.IO.Directory.GetFiles(TmpDicrectory))
             {
                 System.IO.File.Delete(f);
@@ -65,7 +66,7 @@ namespace WatchMeAlways
             }
             arg += " --msgpath " + MessageFile;
 
-            runConsole(arg);
+            runServer(arg);
         }
 
         public void Stop()
@@ -76,6 +77,7 @@ namespace WatchMeAlways
         public void Save()
         {
             createDirectoryIfNotExists(GalleryDicrectory);
+            createDirectoryIfNotExists(TmpDicrectory);
 
             string basepath = System.IO.Path.Combine(GalleryDicrectory, DateTime.Now.ToString("yyyyMMdd-HHmmss"));
             string h264path = basepath + ".h264";
@@ -165,10 +167,11 @@ namespace WatchMeAlways
             return new List<System.Diagnostics.Process>();
         }
 
-        System.Diagnostics.Process runConsole(string arguments)
+        System.Diagnostics.Process runServer(string arguments)
         {
             try
             {
+                Debug.Log(arguments);
                 var process = System.Diagnostics.Process.Start(serverPath, arguments);
                 return process;
             }
