@@ -9,7 +9,7 @@ namespace WatchMeAlways
 {
     public class InstantReplay : Singleton<InstantReplay>
     {
-        readonly string consolePath = System.IO.Path.GetFullPath("./Assets/WatchMeAlways/Plugins/x86_64/WatchMeAlwaysConsole.exe");
+        readonly string serverPath = System.IO.Path.GetFullPath("./Assets/WatchMeAlways/Plugins/x86_64/WatchMeAlwaysServer.exe");
         readonly string ffmpegPath = System.IO.Path.GetFullPath("./Assets/WatchMeAlways/Plugins/x86_64/ffmpeg.exe");
 
         public static string GalleryDicrectory
@@ -53,7 +53,7 @@ namespace WatchMeAlways
                 System.IO.File.Delete(f);
             }
 
-            killAll(consolePath);
+            killAll(serverPath);
 
             string arg = "";
             if (config != null)
@@ -70,7 +70,7 @@ namespace WatchMeAlways
 
         public void Stop()
         {
-            killAll(consolePath);
+            killAll(serverPath);
         }
 
         public void Save()
@@ -117,7 +117,7 @@ namespace WatchMeAlways
 
         public bool IsRecording()
         {
-            return search(consolePath).Count >= 1;
+            return search(serverPath).Count >= 1;
         }
 
         public void GetMonitors()
@@ -169,7 +169,7 @@ namespace WatchMeAlways
         {
             try
             {
-                var process = System.Diagnostics.Process.Start(consolePath, arguments);
+                var process = System.Diagnostics.Process.Start(serverPath, arguments);
                 return process;
             }
             catch (Exception ex)

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Collections;
 using System.Runtime.InteropServices;
 
-namespace WatchMeAlwaysConsole
+namespace WatchMeAlwaysServer
 {
     class Debug
     {

@@ -177,7 +177,7 @@
     </Link>
     <PostBuildEvent>
       <Command>cp -f $(TargetPath) $(SolutionDir)..\WatchMeAlways\Assets\WatchMeAlways\Plugins\x86_64
-cp -f $(TargetPath) $(SolutionDir)\WatchMeAlwaysConsole\bin\Debug
+cp -f $(TargetPath) $(SolutionDir)\WatchMeAlwaysServer\bin\Debug
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
