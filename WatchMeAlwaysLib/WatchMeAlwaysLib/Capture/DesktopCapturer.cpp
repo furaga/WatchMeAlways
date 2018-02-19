@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include "DesktopCapture.h"
+#include "DesktopCapturer.h"
 #include <windows.h>
 #include <mutex>
 
@@ -24,13 +24,13 @@ BOOL CALLBACK onEnumMonitor(HMONITOR hMonitor, HDC, LPRECT monitorRect, LPARAM p
 	BOOL result = GetMonitorInfo(hMonitor, &monitorInfoEx);
 	bool isPrimary = result && monitorInfoEx.dwFlags == MONITORINFOF_PRIMARY;
 
-	std::vector<DesktopCapture::Monitor>* monitors = (std::vector<DesktopCapture::Monitor>*)param;
-	monitors->push_back(DesktopCapture::Monitor(rect, isPrimary));
+	std::vector<DesktopCapturer::Monitor>* monitors = (std::vector<DesktopCapturer::Monitor>*)param;
+	monitors->push_back(DesktopCapturer::Monitor(rect, isPrimary));
 
 	return TRUE;
 }
 
-DesktopCapture::DesktopCapture()
+DesktopCapturer::DesktopCapturer()
 {
 	// http://yamatyuu.net/computer/program/sdk/base/enumdisplay/index.html
 	EnumDisplayMonitors(NULL, NULL, (MONITORENUMPROC)onEnumMonitor, (LPARAM)&monitors_);
@@ -42,7 +42,7 @@ void CapturedImage::Unregister() {
 	capturedImageMap_.erase(this->key_);
 }
 
-int DesktopCapture::registerCapturedImage(std::unique_ptr<CapturedImage>&& capturedImage)
+int DesktopCapturer::registerCapturedImage(std::unique_ptr<CapturedImage>&& capturedImage)
 {
 	std::lock_guard<std::mutex> lock(mutexRegistering_);
 	int key = capturedImageMapCounter_;
@@ -52,7 +52,7 @@ int DesktopCapture::registerCapturedImage(std::unique_ptr<CapturedImage>&& captu
 	return key;
 }
 
-int DesktopCapture::CaptureDesktopImage(const CaptureRect& capRect)
+int DesktopCapturer::CaptureDesktopImage(const CaptureRect& capRect)
 {
 	// capture image
 	int x = capRect.Left;
@@ -99,7 +99,7 @@ int DesktopCapture::CaptureDesktopImage(const CaptureRect& capRect)
 	return key;
 }
 
-CapturedImage* DesktopCapture::GetCapturedImage(int key) const {
+CapturedImage* DesktopCapturer::GetCapturedImage(int key) const {
 	auto iter = capturedImageMap_.find(key);
 	if (iter == capturedImageMap_.end()) {
 		return nullptr;

@@ -2,7 +2,7 @@
 
 #ifdef UNIT_TEST
 #include "CppUnitTest.h"  
-#include "../Capture/DesktopCapture.h"  
+#include "../Capture/DesktopCapturer.h"  
 #include "../Unity/UnityDebugCpp.h"  
 
 #include <memory>
@@ -24,7 +24,7 @@ namespace CaptureTest
 
 		TEST_METHOD(CaptureTest_0)
 		{
-			std::unique_ptr<DesktopCapture> capture(new DesktopCapture());
+			std::unique_ptr<DesktopCapturer> capture(new DesktopCapturer());
 
 			int monitorCount = capture->GetMonitorCount();
 			Assert::IsTrue(monitorCount >= 1);
@@ -45,7 +45,7 @@ namespace CaptureTest
 			capturedImage->Unregister();
 		}
 		TEST_METHOD(CaptureTest_1) {
-			std::unique_ptr<DesktopCapture> capture(new DesktopCapture());
+			std::unique_ptr<DesktopCapturer> capture(new DesktopCapturer());
 
 			// OK cases
 			int monitorCount = capture->GetMonitorCount();

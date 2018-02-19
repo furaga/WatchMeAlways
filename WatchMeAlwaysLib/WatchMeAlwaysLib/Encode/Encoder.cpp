@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include "Recorder.h"
+#include "Encoder.h"
 #include "Frame.h"
 
 extern "C" {
@@ -40,7 +40,7 @@ void deleteAVFrameFree(AVFrame* ptr) { av_frame_free(&ptr); }
 void deleteAVPacket(AVPacket* ptr) { av_packet_free(&ptr); }
 void deleteSwsContext(SwsContext* ptr) { sws_freeContext(ptr); }
 
-Recorder::Recorder() :
+Encoder::Encoder() :
 	ctx_(nullptr, deleteAVCodecContext),
 	workingFrame_(nullptr, deleteAVFrameFree),
 	pkt_(nullptr, deleteAVPacket),
@@ -52,12 +52,12 @@ Recorder::Recorder() :
 {
 }
 
-Recorder::~Recorder()
+Encoder::~Encoder()
 {
 	clear();
 }
 
-bool Recorder::StartRecording(const RecordingParameters& params) {
+bool Encoder::StartEncoding(const RecordingParameters& params) {
 	clear();
 
 	// Find H264 codec (libx264)
@@ -155,7 +155,7 @@ void FlipFrameJ420(AVFrame* pFrame) {
 	}
 }
 
-bool Recorder::AddFrame(const uint8_t* const pixels, int width, int height, float timeStamp)
+bool Encoder::EncodeFrame(const uint8_t* const pixels, int width, int height, float timeStamp)
 {
 	if (pixels == nullptr || width <= 0 || height <= 0) {
 		UnityDebugCpp::Error("AddFrame: Frame is empty (pixels=%p, width=%d, height=%d)", pixels, width, height);
@@ -194,7 +194,7 @@ bool Recorder::AddFrame(const uint8_t* const pixels, int width, int height, floa
 	return true;
 }
 
-bool Recorder::FinishRecording(const std::string& filename)
+bool Encoder::FinishEncoding(const std::string& filename)
 {
 	if (ctx_ == nullptr || pkt_ == nullptr) {
 		UnityDebugCpp::Error("FinishRecording: Recorder is not started. Please call StartRecording().");
@@ -229,7 +229,7 @@ bool Recorder::FinishRecording(const std::string& filename)
 	return true;
 }
 
-void Recorder::clear() {
+void Encoder::clear() {
 	// clear ffmpeg internal memories
 	ctx_.reset(nullptr);
 	workingFrame_.reset(nullptr);
@@ -243,7 +243,7 @@ void Recorder::clear() {
 	recordCount_ = 0;
 }
 
-bool Recorder::encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt)
+bool Encoder::encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt)
 {
 	int ret;
 
