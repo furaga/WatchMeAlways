@@ -179,7 +179,9 @@ bool Encoder::EncodeFrame(const uint8_t* const pixels, int width, int height, fl
 	FlipFrameJ420(workingFrame_.get());
 
 	//TODO: time base?
-	workingFrame_->pts = (int)(elapsedSeconds * codecCtx_->time_base.den / codecCtx_->time_base.num);
+	workingFrame_->pts = (int)(1000 * elapsedSeconds * codecCtx_->time_base.den / codecCtx_->time_base.num);
+
+	//printf("workingFrame_->pts %d \n", workingFrame_->pts);
 
 	bool succeeded = encode(codecCtx_.get(), workingFrame_.get(), packet_.get(), elapsedSeconds);
 	if (!succeeded) {
@@ -263,15 +265,22 @@ bool Encoder::encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt, flo
 		}
 
 		// is here slow?
-		frameQueue_.push_back(FramePtr(new Frame(pkt->data, pkt->size, elapsedSeconds)));
-		while (elapsedSeconds - frameQueue_[0]->GetTimestamp() >= replayLength_) {
-			frameQueue_.pop_front();
+	//	printf("pkt->pts = %d, t = %f\n", pkt->pts, elapsedSeconds);
+		frameQueue_.push_back(FramePtr(new Frame(pkt->data, pkt->size, pkt->pts* 0.001f * codecCtx_->time_base.num / codecCtx_->time_base.den)));
+
+		// sort? use priority_queue?
+		for (int i = frameQueue_.size() - 1; i >= 0; i--) {
+			if (elapsedSeconds - frameQueue_[i]->GetTimestamp() >= replayLength_) {
+				frameQueue_.erase(frameQueue_.begin() + i);
+			}
 		}
+
+		//while (elapsedSeconds - frameQueue_[0]->GetTimestamp() >= replayLength_) {
+		//	frameQueue_.pop_front();
+		//}
 
 		av_packet_unref(pkt);
 	}
-
-	// ここが切れ目？
 
 	return true;
 }
