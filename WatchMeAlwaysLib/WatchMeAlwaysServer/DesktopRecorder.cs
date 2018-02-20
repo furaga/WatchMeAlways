@@ -218,11 +218,9 @@ namespace WatchMeAlwaysServer
                 captureThread_.Abort();
             }
         }
-        
 
         float controlAndMeasureFPS()
         {
-
             long prevMs = msList.Last();
 
             // record current time
@@ -256,7 +254,7 @@ namespace WatchMeAlwaysServer
             }
             if (msList.Last() / 1000 != prevMs / 1000)
             {
-                // print every time +10 seconds
+                // print every 10 seconds
                 Console.WriteLine((msList.Last() / 1000) + ": FPS = " + currentFPS);
             }
 
