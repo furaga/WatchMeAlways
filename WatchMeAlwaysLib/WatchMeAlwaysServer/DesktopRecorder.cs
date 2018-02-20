@@ -12,10 +12,12 @@ namespace WatchMeAlwaysServer
     {
         internal static void Log(string msg)
         {
+            // TODO
             // Console.WriteLine(msg);
         }
         internal static void LogErrorFormat(string msg, params object[] args)
         {
+            // TODO
             // Console.WriteLine(string.Format(msg, args));
         }
     }
@@ -143,10 +145,13 @@ namespace WatchMeAlwaysServer
         State state_ = State.NotStarted;
         int frameCount_ = 0;
         int monitorNumber_ = 0;
+        float fps_ = 0.0f;
         System.Threading.Thread captureThread_ = null;
         System.Threading.Thread encodeThread_ = null;
         bool quitEncodeFramesIfQueueIsEmpty_ = false;
         System.Diagnostics.Stopwatch recordingTimer_ = new System.Diagnostics.Stopwatch();
+
+        Queue<long> msList = new Queue<long>();
 
         void Initialize()
         {
@@ -176,6 +181,9 @@ namespace WatchMeAlwaysServer
 
                 recordingTimer_.Reset(); // need?
                 recordingTimer_.Start();
+
+                fps_ = param.Fps;
+                msList.Enqueue(recordingTimer_.ElapsedMilliseconds);
 
                 startFrameCaptureThread();
                 startFrameEncodeThread();
@@ -210,13 +218,56 @@ namespace WatchMeAlwaysServer
                 captureThread_.Abort();
             }
         }
+        
+
+        float controlAndMeasureFPS()
+        {
+
+            long prevMs = msList.Last();
+
+            // record current time
+            msList.Enqueue(recordingTimer_.ElapsedMilliseconds);
+            while (msList.Count >= 30)
+            {
+                msList.Dequeue();
+            }
+
+            // wait
+            float totalMs = msList.Last() - msList.First();
+            if (fps_ <= 0)
+            {
+                System.Threading.Thread.Sleep(1);
+            }
+            else
+            {
+                float totalTargetMs = 1000.0f / fps_ * (msList.Count - 1);
+                if (totalTargetMs - totalMs > 0)
+                {
+                    System.Threading.Thread.Sleep((int)(totalTargetMs - totalMs));
+                }
+            }
+
+            // measure fps
+            float currentFPS = 0.0f;
+            float dt = totalMs / (msList.Count - 1);
+            if (dt > 0)
+            {
+                currentFPS = 1000.0f / dt;
+            }
+            if (msList.Last() / 1000 != prevMs / 1000)
+            {
+                // print every time +10 seconds
+                Console.WriteLine((msList.Last() / 1000) + ": FPS = " + currentFPS);
+            }
+
+            return currentFPS;
+        }
 
         void capturing()
         {
             while (true)
             {
-                // TODO: FPS control
-                System.Threading.Thread.Sleep(10);
+                controlAndMeasureFPS();
 
                 var monitor = CppRecorder.GetMonitor(monitorNumber_); // todo:
                 if (monitor == null)
@@ -233,7 +284,8 @@ namespace WatchMeAlwaysServer
                     continue;
                 }
 
-                framesToEncode_.Enqueue(new Frame(frame.Data, frame.Width, frame.Height, recordingTimer_.ElapsedMilliseconds));
+                long ms = recordingTimer_.ElapsedMilliseconds;
+                framesToEncode_.Enqueue(new Frame(frame.Data, frame.Width, frame.Height, ms));
             }
         }
 

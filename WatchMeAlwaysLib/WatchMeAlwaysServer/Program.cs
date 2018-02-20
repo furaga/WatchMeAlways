@@ -41,7 +41,7 @@ namespace WatchMeAlwaysServer
                 RecordingParameters = new DesktopRecorder.RecordingParameters()
                 {
                     Monitor = 0,
-                    Fps = 30,
+                    Fps = 30.0f,
                     Quality = DesktopRecorder.CppRecorder.RecordingQuality.MEDIUM,
                     RecordLength = 120,
                 },
