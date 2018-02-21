@@ -183,6 +183,7 @@ namespace WatchMeAlwaysServer
                 recordingTimer_.Start();
 
                 fps_ = param.Fps;
+                msList.Clear();
                 msList.Enqueue(recordingTimer_.ElapsedMilliseconds);
 
                 startFrameCaptureThread();
