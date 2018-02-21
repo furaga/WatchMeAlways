@@ -34,7 +34,7 @@ extern "C" {
 	DllExport int GetMonitorCount();
 	DllExport int GetMonitor(int n, Monitor* monitor);
 	DllExport int CaptureDesktopFrame(Rect* rect, Frame* frame);
-	DllExport int EncodeDesktopFrame(int key, float timeStamp);
+	DllExport int EncodeDesktopFrame(int key, float elapsedSeconds);
 }
 
 enum APIResult {
@@ -133,7 +133,7 @@ int CaptureDesktopFrame(Rect* rect, Frame* frame)
 	return API_RESULT_OK;
 }
 
-int EncodeDesktopFrame(int key, float timeStamp)
+int EncodeDesktopFrame(int key, float elapsedSeconds)
 {
 	if (capture == nullptr) {
 		UnityDebugCpp::Error("capture is not initialized\n");
@@ -151,7 +151,7 @@ int EncodeDesktopFrame(int key, float timeStamp)
 		return API_RESULT_NG;
 	}
 
-	bool succeeded = recorder->EncodeFrame(capturedFrame->GetPixels(), capturedFrame->GetWidth(), capturedFrame->GetHeight(), timeStamp);
+	bool succeeded = recorder->EncodeFrame(capturedFrame->GetPixels(), capturedFrame->GetWidth(), capturedFrame->GetHeight(), elapsedSeconds);
 	if (!succeeded) {
 		UnityDebugCpp::Error("failed: recorder->EncodeFrame()\n");
 		return API_RESULT_NG;

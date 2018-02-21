@@ -8,7 +8,7 @@ struct AVPacket;
 struct SwsContext;
 class Frame;
 
-#include <vector>
+#include <queue>
 #include <memory>
 
 typedef std::unique_ptr<Frame> FramePtr;
@@ -50,27 +50,27 @@ class Encoder {
 	typedef std::unique_ptr<AVFrame, void(*)(AVFrame*)> AVFramePtr;
 	typedef std::unique_ptr<AVPacket, void(*)(AVPacket*)> AVPacketPtr;
 	typedef std::unique_ptr<SwsContext, void(*)(SwsContext*)> SwsContextPtr;
-	AVCodecContextPtr ctx_;
+	AVCodecContextPtr codecCtx_;
 	AVFramePtr workingFrame_;
-	AVPacketPtr pkt_;
+	AVPacketPtr packet_;
 	SwsContextPtr swsCtx_;
-	std::vector<FramePtr> frames_;
-	int currentFrame_;
-	int recordCount_;
+	std::deque<FramePtr> frameQueue_;
+	// int currentFrame_;
+	// int recordCount_;
 	RecordingQuality quality_;
-	int recordFrameLength_;
+	float replayLength_;
 
 public:
 	Encoder();
 	~Encoder();
 	bool StartEncoding(const RecordingParameters& parameters);
 	// width * height * 3 must be size of pixels.
-	bool EncodeFrame(const uint8_t* const pixels, int width, int height, float timeStamp);
+	bool EncodeFrame(const uint8_t* const pixels, int width, int height, float elapsedSeconds);
 	bool FinishEncoding(const std::string& filename);
 
 private:
 	void clear();
-	bool encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt);
+	bool encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt, float elapsedSeconds);
 };
 
 typedef std::unique_ptr<Encoder> RecorderPtr;

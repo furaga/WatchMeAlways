@@ -49,6 +49,12 @@ int DesktopCapturer::registerCapturedFrame(std::unique_ptr<CapturedFrame>&& capt
 	capturedFrame->key_ = key;
 	capturedFrameMap_[key] = std::move(capturedFrame);
 	capturedFrameMapCounter_++;
+
+	static int cnt = 0;
+	if ((cnt++) % 100 == 0) {
+		printf("capturedFrameMap_.size() = %d\n", capturedFrameMap_.size());
+	}
+
 	return key;
 }
 

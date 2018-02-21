@@ -28,16 +28,20 @@ namespace WatchMeAlwaysServer
 
             while (!finishedWatching_)
             {
-                System.Threading.Thread.Sleep(500);
+                //                System.Threading.Thread.Sleep(500);
+                Console.ReadKey();
+                System.IO.File.Delete("video.h264");
+                save("video.h264");
             }
 
             Console.WriteLine("Quit");
         }
-        
+
         static Parameter parseArguments(string[] args)
         {
             // set default
-            var param = new Parameter() {
+            var param = new Parameter()
+            {
                 RecordingParameters = new DesktopRecorder.RecordingParameters()
                 {
                     Monitor = 0,
@@ -79,7 +83,7 @@ namespace WatchMeAlwaysServer
         static void startWatching(System.IO.FileSystemWatcher watcher)
         {
             if (watcher != null) return;
-            if (string.IsNullOrWhiteSpace(param.MessagePath)) return; 
+            if (string.IsNullOrWhiteSpace(param.MessagePath)) return;
 
             watcher = new System.IO.FileSystemWatcher();
             watcher.Path = System.IO.Path.GetDirectoryName(param.MessagePath);
@@ -114,12 +118,10 @@ namespace WatchMeAlwaysServer
                                 case "@save":
                                     if (tokens.Length >= 3)
                                     {
-                                        if (System.IO.File.Exists(tokens[1]))
+                                        if (false == save(tokens[1]))
                                         {
                                             break;
                                         }
-                                        DesktopRecorder.Instance.FinishRecording(tokens[1]);
-                                        DesktopRecorder.Instance.StartRecording(param.RecordingParameters);
                                         Console.Error.WriteLine("Saved in " + tokens[1]);
                                         Console.Error.WriteLine();
                                         System.IO.File.WriteAllText(tokens[2], "");
@@ -137,6 +139,17 @@ namespace WatchMeAlwaysServer
             {
                 Console.Error.WriteLine(ex.ToString() + "\n" + ex.StackTrace);
             }
+        }
+
+        static bool save(string videopath)
+        {
+            if (System.IO.File.Exists(videopath))
+            {
+                return false;
+            }
+            DesktopRecorder.Instance.FinishRecording(videopath);
+            DesktopRecorder.Instance.StartRecording(param.RecordingParameters);
+            return true;
         }
     }
 }

@@ -183,6 +183,7 @@ namespace WatchMeAlwaysServer
                 recordingTimer_.Start();
 
                 fps_ = param.Fps;
+                msList.Clear();
                 msList.Enqueue(recordingTimer_.ElapsedMilliseconds);
 
                 startFrameCaptureThread();
@@ -255,7 +256,7 @@ namespace WatchMeAlwaysServer
             if (msList.Last() / 1000 != prevMs / 1000)
             {
                 // print every 10 seconds
-                Console.WriteLine((msList.Last() / 1000) + ": FPS = " + currentFPS);
+ //               Console.WriteLine((msList.Last() / 1000) + ": FPS = " + currentFPS);
             }
 
             return currentFPS;
@@ -312,7 +313,7 @@ namespace WatchMeAlwaysServer
                 if (framesToEncode_.Count >= 1)
                 {
                     var frame = framesToEncode_.Dequeue();
-                    int res = CppRecorder.EncodeDesktopFrame(frame.Data, frame.TimeMilliSeconds);
+                    int res = CppRecorder.EncodeDesktopFrame(frame.Data, frame.TimeMilliSeconds * 0.001f);
                     frameCount_++;
                     Debug.Log("AddFrame: " + (res == 0 ? "OK" : "NG"));
                 }
