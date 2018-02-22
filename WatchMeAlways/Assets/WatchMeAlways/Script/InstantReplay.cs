@@ -105,13 +105,7 @@ namespace WatchMeAlways
             }
 
             var config = InstantReplayConfig.Create();
-            if (config_ != null)
-            {
-                config.Monitor= config_.Monitor;
-                config.ReplayLength = config_.ReplayLength;
-                config.Fps = config_.Fps;
-                config.Quality = config_.Quality;
-            }
+            config.CopyFrom(config_);
             return config;
         }
 
@@ -124,15 +118,15 @@ namespace WatchMeAlways
 
             if (newConfig != null)
             {
-                config_.Monitor = newConfig.Monitor;
-                config_.ReplayLength = newConfig.ReplayLength;
-                config_.Fps = newConfig.Fps;
-                config_.Quality = newConfig.Quality;
+                config_.CopyFrom(newConfig);
                 config_.Save();
 
-                // restart
-                Stop();
-                Start();
+                if (IsRecording())
+                {
+                    // restart
+                    Stop();
+                    Start();
+                }
             }
         }
 

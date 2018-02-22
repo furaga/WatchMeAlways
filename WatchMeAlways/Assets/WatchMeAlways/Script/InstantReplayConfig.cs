@@ -12,6 +12,7 @@ namespace WatchMeAlways
     {
         const string assetPath = "Assets/WatchMeAlways/InstantReplayConfig.asset";
 
+        public bool AutoStart = false;
         public int Monitor = 0;
         public float ReplayLength = 120;
         public float Fps = 30.0f;
@@ -31,6 +32,18 @@ namespace WatchMeAlways
         {
             var config = UnityEditor.AssetDatabase.LoadAssetAtPath<InstantReplayConfig>(assetPath);
             return config;
+        }
+
+        public void CopyFrom(InstantReplayConfig newConfig)
+        {
+            if (newConfig != null)
+            {
+                AutoStart = newConfig.AutoStart;
+                Monitor = newConfig.Monitor;
+                ReplayLength = newConfig.ReplayLength;
+                Fps = newConfig.Fps;
+                Quality = newConfig.Quality;
+            }
         }
 
         public InstantReplayConfig Save()

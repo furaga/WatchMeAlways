@@ -44,18 +44,21 @@ namespace WatchMeAlways
 
             // draw GUI
             GUILayout.Label("Recording Settings", EditorStyles.boldLabel);
+            bool autoStart = EditorGUILayout.Toggle("Auto start on loaded", config_.AutoStart);
             int monitor = EditorGUILayout.Popup("Monitor", config_.Monitor, monitorLabels());
             float replayLength = EditorGUILayout.IntSlider("ReplayLength (seconds)", (int)config_.ReplayLength, 5, 300);
             float fps = EditorGUILayout.IntSlider("FPS", (int)config_.Fps, 1, 60);
             var quality = idx2qty(EditorGUILayout.Popup("Quality", qty2idx(config_.Quality), qtxTexts()));
 
             if (
+                autoStart != config_.AutoStart ||
                 monitor != config_.Monitor ||
                 fps != config_.Fps ||
                 replayLength != config_.ReplayLength ||
                 quality != config_.Quality)
             {
                 // apply button
+                config_.AutoStart = autoStart;
                 config_.Monitor = monitor;
                 config_.Fps = fps;
                 config_.Quality = quality;

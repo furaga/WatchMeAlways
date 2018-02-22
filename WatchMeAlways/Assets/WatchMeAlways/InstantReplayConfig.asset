@@ -11,6 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfc2266d2f74fbc4396e7dd09c1263a5, type: 3}
   m_Name: InstantReplayConfig
   m_EditorClassIdentifier: 
+  AutoStart: 1
   Monitor: 0
   ReplayLength: 120
   Fps: 30
