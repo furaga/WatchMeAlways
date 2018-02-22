@@ -105,32 +105,39 @@ namespace WatchMeAlwaysServer
                 switch (e.ChangeType)
                 {
                     case System.IO.WatcherChangeTypes.Changed:
-                        string line = System.IO.File.ReadAllText(param.MessagePath);
-                        if (line == null)
+                        try
                         {
-                            break;
-                        }
-                        var tokens = line.Split(' ').Where(t => string.IsNullOrWhiteSpace(t) == false).ToArray();
-                        if (tokens.Length >= 0 && tokens[0].Contains('@'))
-                        {
-                            switch (tokens[0].Substring(tokens[0].IndexOf('@')))
+                            string line = System.IO.File.ReadAllText(param.MessagePath);
+                            if (line == null)
                             {
-                                case "@save":
-                                    if (tokens.Length >= 3)
-                                    {
-                                        if (false == save(tokens[1]))
-                                        {
-                                            break;
-                                        }
-                                        Console.Error.WriteLine("Saved in " + tokens[1]);
-                                        Console.Error.WriteLine();
-                                        System.IO.File.WriteAllText(tokens[2], "");
-                                    }
-                                    break;
-                                case "@quit":
-                                    finishedWatching_ = true;
-                                    break;
+                                break;
                             }
+                            var tokens = line.Split(' ').Where(t => string.IsNullOrWhiteSpace(t) == false).ToArray();
+                            if (tokens.Length >= 0 && tokens[0].Contains('@'))
+                            {
+                                switch (tokens[0].Substring(tokens[0].IndexOf('@')))
+                                {
+                                    case "@save":
+                                        if (tokens.Length >= 3)
+                                        {
+                                            if (false == save(tokens[1]))
+                                            {
+                                                break;
+                                            }
+                                            Console.Error.WriteLine("Saved in " + tokens[1]);
+                                            Console.Error.WriteLine();
+                                            System.IO.File.WriteAllText(tokens[2], "");
+                                        }
+                                        break;
+                                    case "@quit":
+                                        finishedWatching_ = true;
+                                        break;
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.Error.WriteLine(ex.ToString() + "\n" + ex.StackTrace);
                         }
                         break;
                 }

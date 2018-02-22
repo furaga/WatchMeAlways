@@ -255,14 +255,6 @@ bool Encoder::encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt, flo
 	}
 
 	while (ret >= 0) {
-
-		static int cnt0 = 0;
-		if (cnt0 % 100 == 0) {
-			printf("frameQueue_.size() == %d\n", frameQueue_.size());
-		}
-		cnt0++;
-
-
 		ret = avcodec_receive_packet(enc_ctx, pkt);
 		if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
 			return true;
@@ -273,7 +265,7 @@ bool Encoder::encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt, flo
 		}
 
 		frameQueue_.push_back(FramePtr(new Frame(pkt->data, pkt->size, pkt->pts* 0.001f * codecCtx_->time_base.num / codecCtx_->time_base.den)));
-		for (int i = frameQueue_.size() - 1; i >= 0; i--) {
+		for (int i = (int)frameQueue_.size() - 1; i >= 0; i--) {
 			if (elapsedSeconds - frameQueue_[i]->GetTimestamp() >= replayLength_) {
 				frameQueue_.erase(frameQueue_.begin() + i);
 			}

@@ -74,14 +74,6 @@ namespace WatchMeAlways
             System.IO.Directory.CreateDirectory(path);
             return true;
         }
-
-        //
-        // Config
-        // 
-        [MenuItem("WatchMeAlways/Settings", false, 110)]
-        private static void Settings()
-        {
-            EditorWindow.GetWindow(typeof(WatchMeAlwaysSettingsWindow));
-        }
+        
     }
 }

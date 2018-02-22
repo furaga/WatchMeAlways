@@ -44,7 +44,7 @@ namespace WatchMeAlways
             }
         }
 
-        Config config { get; set; }
+        InstantReplayConfig config_ { get; set; }
 
         public void Start()
         {
@@ -57,12 +57,12 @@ namespace WatchMeAlways
             killAll(serverPath);
 
             string arg = "";
-            if (config != null)
+            if (config_ != null)
             {
-                arg += " --monitor " + config.Monitor;
-                arg += " --length " + config.ReplayLength;
-                arg += " --fps " + config.Fps;
-                arg += " --quality " + config.Quality.ToString();
+                arg += " --monitor " + config_.Monitor;
+                arg += " --length " + config_.ReplayLength;
+                arg += " --fps " + config_.Fps;
+                arg += " --quality " + config_.Quality.ToString();
             }
             arg += " --msgpath " + MessageFile;
 
@@ -97,23 +97,43 @@ namespace WatchMeAlways
             return true;
         }
 
-        public Config GetSetting()
+        public InstantReplayConfig GetConfig()
         {
-            if (config == null)
+            if (config_ == null)
             {
-                config = Config.Load();
+                config_ = InstantReplayConfig.Load();
+            }
+
+            var config = InstantReplayConfig.Create();
+            if (config_ != null)
+            {
+                config.Monitor= config_.Monitor;
+                config.ReplayLength = config_.ReplayLength;
+                config.Fps = config_.Fps;
+                config.Quality = config_.Quality;
             }
             return config;
         }
 
-        public void ApplySetting(Config newConfig)
+        public void ApplyConfig(InstantReplayConfig newConfig)
         {
-            config = newConfig;
-            config.Save();
+            if (config_ == null)
+            {
+                config_ = InstantReplayConfig.Create();
+            }
 
-            // restart
-            Stop();
-            Start();
+            if (newConfig != null)
+            {
+                config_.Monitor = newConfig.Monitor;
+                config_.ReplayLength = newConfig.ReplayLength;
+                config_.Fps = newConfig.Fps;
+                config_.Quality = newConfig.Quality;
+                config_.Save();
+
+                // restart
+                Stop();
+                Start();
+            }
         }
 
 
@@ -273,38 +293,5 @@ namespace WatchMeAlways
             SLOWER,
             VERYSLOW,
         };
-
-        public class Config : ScriptableObject
-        {
-            const string assetPath = "Assets/Editor/WatchMeAlways/Config.asset";
-
-            public int Monitor;
-            public float ReplayLength;
-            public float Fps;
-            public RecordingQuality Quality;
-
-            protected Config()
-            {
-
-            }
-
-            public static Config Create()
-            {
-                return CreateInstance<Config>();
-            }
-
-            public static Config Load()
-            {
-                var config = UnityEditor.AssetDatabase.LoadAssetAtPath<Config>(assetPath);
-                return config;
-            }
-
-            public void Save()
-            {
-                UnityEditor.AssetDatabase.CreateAsset(this, assetPath);
-                UnityEditor.AssetDatabase.Refresh();
-            }
-        }
-
     }
 }
