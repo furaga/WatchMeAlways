@@ -14,7 +14,7 @@ namespace WatchMeAlways
         static bool modified = false;
         static InstantReplayConfig config_ = null;
 
-        [MenuItem("WatchMeAlways/Config", false, 110)]
+        [MenuItem("WatchMeAlways/Settings", false, 110)]
         static void Open()
         {
             modified = false;
