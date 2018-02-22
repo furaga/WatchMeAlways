@@ -27,7 +27,6 @@ namespace WatchMeAlways
         private static void EnableVideoRecorder()
         {
             InstantReplay.Instance.Start();
-            Debug.Log("Instant Replay: ON");
         }
 
         [MenuItem("WatchMeAlways/Enable Instant Replay", true)]
@@ -40,7 +39,6 @@ namespace WatchMeAlways
         private static void DisableVideoRecorder(MenuCommand menuCommand)
         {
             InstantReplay.Instance.Stop();
-            Debug.Log("Instant Replay: OFF");
         }
 
         [MenuItem("WatchMeAlways/Disable Instant Replay", true)]
@@ -53,7 +51,6 @@ namespace WatchMeAlways
         private static void SaveVideoRecorder(MenuCommand menuCommand)
         {
             InstantReplay.Instance.Save();
-            Debug.Log("Instant Replay: OFF");
         }
 
         [MenuItem("WatchMeAlways/Save Instant Replay %F10", true, 10)]
@@ -68,20 +65,9 @@ namespace WatchMeAlways
         [MenuItem("WatchMeAlways/Open Gallery in Explorer", false, 90)]
         private static void OpenGalleryInExplorer()
         {
-            createDirectoryIfNotExists(InstantReplay.GalleryDicrectory);
+            Utils.CreateDirectoryIfNotExists(InstantReplay.GalleryDicrectory);
             System.Diagnostics.Process.Start(InstantReplay.GalleryDicrectory);
-            Debug.Log("Open gallery folder " + InstantReplay.GalleryDicrectory + " in Explorer");
+            Logger.Info("Open gallery folder " + InstantReplay.GalleryDicrectory + " in Explorer");
         }
-
-        static bool createDirectoryIfNotExists(string path)
-        {
-            if (System.IO.Directory.Exists(path))
-            {
-                return false;
-            }
-            System.IO.Directory.CreateDirectory(path);
-            return true;
-        }
-
     }
 }
