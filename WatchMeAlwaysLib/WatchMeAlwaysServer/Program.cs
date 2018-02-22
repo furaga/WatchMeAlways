@@ -55,7 +55,7 @@ namespace WatchMeAlwaysServer
                 {
                     Monitor = 0,
                     Fps = 30.0f,
-                    Quality = DesktopRecorder.CppRecorder.RecordingQuality.MEDIUM,
+                    Quality = DesktopRecorder.NativeRecorder.RecordingQuality.MEDIUM,
                     RecordLength = 120,
                 },
                 OutputPath = "movie.h264",
@@ -77,8 +77,8 @@ namespace WatchMeAlwaysServer
                         param.RecordingParameters.Fps = float.Parse(args[i + 1]);
                         break;
                     case "--quality":
-                        var t = typeof(DesktopRecorder.CppRecorder.RecordingQuality);
-                        param.RecordingParameters.Quality = (DesktopRecorder.CppRecorder.RecordingQuality)Enum.Parse(t, args[i + 1]);
+                        var t = typeof(DesktopRecorder.NativeRecorder.RecordingQuality);
+                        param.RecordingParameters.Quality = (DesktopRecorder.NativeRecorder.RecordingQuality)Enum.Parse(t, args[i + 1]);
                         break;
                     case "--msgpath":
                         param.MessagePath = args[i + 1];
@@ -108,7 +108,7 @@ namespace WatchMeAlwaysServer
 
             watcher.EnableRaisingEvents = true;
             finishedWatching_ = false;
-            Console.Error.WriteLine("Start watching: " + param.MessagePath);
+            Logger.Error("Start watching: " + param.MessagePath);
         }
 
         static void watcher_Changed(System.Object source, System.IO.FileSystemEventArgs e)
@@ -137,8 +137,7 @@ namespace WatchMeAlwaysServer
                                             {
                                                 break;
                                             }
-                                            Console.Error.WriteLine("Saved in " + tokens[1]);
-                                            Console.Error.WriteLine();
+                                            Logger.Error("Saved in " + tokens[1]);
                                             System.IO.File.WriteAllText(tokens[2], "");
                                         }
                                         break;
@@ -150,14 +149,14 @@ namespace WatchMeAlwaysServer
                         }
                         catch (Exception ex)
                         {
-                            Console.Error.WriteLine(ex.ToString() + "\n" + ex.StackTrace);
+                            Logger.Error(ex.ToString() + "\n" + ex.StackTrace);
                         }
                         break;
                 }
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine(ex.ToString() + "\n" + ex.StackTrace);
+                Logger.Error(ex.ToString() + "\n" + ex.StackTrace);
             }
         }
 
