@@ -36,7 +36,7 @@ namespace WatchMeAlways
         }
 
         [MenuItem("WatchMeAlways/Disable Instant Replay", false, 10)]
-        private static void DisableVideoRecorder(MenuCommand menuCommand)
+        private static void DisableVideoRecorder()
         {
             InstantReplay.Instance.Stop();
         }
@@ -48,7 +48,7 @@ namespace WatchMeAlways
         }
 
         [MenuItem("WatchMeAlways/Save Instant Replay %F10", false, 10)]
-        private static void SaveVideoRecorder(MenuCommand menuCommand)
+        private static void SaveVideoRecorder()
         {
             InstantReplay.Instance.Save();
         }
