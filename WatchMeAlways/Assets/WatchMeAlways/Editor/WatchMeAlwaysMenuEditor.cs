@@ -10,13 +10,21 @@ using System.Text;
 
 namespace WatchMeAlways
 {
+    [InitializeOnLoad]
     public class WatchMeAlwaysMenuEditor : MonoBehaviour
     {
-        //
-        // Instant Replay
-        //
+        static WatchMeAlwaysMenuEditor()
+        {
+            // auto start on load
+            var config = InstantReplay.Instance.GetConfig();
+            if (config.AutoStart)
+            {
+                EnableVideoRecorder();
+            }
+        }
+
         [MenuItem("WatchMeAlways/Enable Instant Replay", false, 10)]
-        private static void EnableVideoRecorder(MenuCommand menuCommand)
+        private static void EnableVideoRecorder()
         {
             InstantReplay.Instance.Start();
             Debug.Log("Instant Replay: ON");
@@ -75,13 +83,5 @@ namespace WatchMeAlways
             return true;
         }
 
-        //
-        // Config
-        // 
-        [MenuItem("WatchMeAlways/Settings", false, 110)]
-        private static void Settings()
-        {
-            EditorWindow.GetWindow(typeof(WatchMeAlwaysSettingsWindow));
-        }
     }
 }
