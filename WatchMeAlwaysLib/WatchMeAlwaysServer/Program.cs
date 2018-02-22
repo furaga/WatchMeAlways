@@ -13,6 +13,7 @@ namespace WatchMeAlwaysServer
             public DesktopRecorder.RecordingParameters RecordingParameters = new DesktopRecorder.RecordingParameters();
             public string MessagePath = "msg.txt";
             public string OutputPath = "";
+            public int ParentProcessId = -1;
         }
 
         static bool finishedWatching_ = true;
@@ -26,12 +27,23 @@ namespace WatchMeAlwaysServer
             System.IO.FileSystemWatcher watcher = null;
             startWatching(watcher);
 
+            System.Diagnostics.Process parent = null;
+            if (param.ParentProcessId > 0)
+            {
+                parent = System.Diagnostics.Process.GetProcessById(param.ParentProcessId);
+            }
+            
             while (!finishedWatching_)
             {
                 System.Threading.Thread.Sleep(500);
-            }
 
-            Console.WriteLine("Quit");
+                // if parent process is dead, this process will die.
+                if (parent != null && parent.HasExited)
+                {
+                    DesktopRecorder.Instance.FinishRecording("");
+                    break;
+                }
+            }
         }
 
         static Parameter parseArguments(string[] args)
@@ -47,6 +59,7 @@ namespace WatchMeAlwaysServer
                     RecordLength = 120,
                 },
                 OutputPath = "movie.h264",
+                ParentProcessId = -1,
             };
 
             // parse
@@ -69,6 +82,9 @@ namespace WatchMeAlwaysServer
                         break;
                     case "--msgpath":
                         param.MessagePath = args[i + 1];
+                        break;
+                    case "--parentpid":
+                        param.ParentProcessId = int.Parse(args[i + 1]);
                         break;
                 }
             }

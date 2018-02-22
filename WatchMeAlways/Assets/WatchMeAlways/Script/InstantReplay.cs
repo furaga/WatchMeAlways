@@ -79,6 +79,9 @@ namespace WatchMeAlways
             }
             arg += " --msgpath " + MessageFile;
 
+            int pid = System.Diagnostics.Process.GetCurrentProcess().Id;
+            arg += " --parentpid " + pid;
+
             runServer(arg);
 
             Logger.Info(
@@ -87,12 +90,14 @@ namespace WatchMeAlways
                 "ReplayLength: {1}, " +
                 "Fps: {2}, " +
                 "Quality: {3}\n" +
-                "MessageFile: {4}",
+                "MessageFile: {4}, " + 
+                "ThisProcessId: {5}",
                 config_.Monitor,
                 config_.ReplayLength,
                 config_.Fps,
                 config_.Quality,
-                MessageFile
+                MessageFile,
+                pid
             );
         }
 

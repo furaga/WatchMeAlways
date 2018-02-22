@@ -143,12 +143,14 @@ namespace WatchMeAlwaysServer
 
         Queue<Frame> framesToEncode_ = new Queue<Frame>();
         State state_ = State.NotStarted;
-        int frameCount_ = 0;
         int monitorNumber_ = 0;
         float fps_ = 0.0f;
         System.Threading.Thread captureThread_ = null;
         System.Threading.Thread encodeThread_ = null;
-        bool quitEncodeFramesIfQueueIsEmpty_ = false;
+
+        bool quitCaptureThread_ = false;
+        bool quitEncodeThread_ = false;
+
         System.Diagnostics.Stopwatch recordingTimer_ = new System.Diagnostics.Stopwatch();
 
         Queue<long> msList = new Queue<long>();
@@ -157,9 +159,9 @@ namespace WatchMeAlwaysServer
         {
             framesToEncode_ = new Queue<Frame>();
             state_ = State.NotStarted;
-            frameCount_ = 0;
             encodeThread_ = null;
-            quitEncodeFramesIfQueueIsEmpty_ = false;
+            quitCaptureThread_ = false;
+            quitEncodeThread_ = false;
         }
 
         public void StartRecording(RecordingParameters parameters)
@@ -188,7 +190,6 @@ namespace WatchMeAlwaysServer
 
                 startFrameCaptureThread();
                 startFrameEncodeThread();
-                frameCount_ = 0;
                 Debug.Log("StartRecording: " + res);
             }
         }
@@ -208,6 +209,7 @@ namespace WatchMeAlwaysServer
         // thread for recording
         void startFrameCaptureThread()
         {
+            quitCaptureThread_ = false;
             captureThread_ = new System.Threading.Thread(new System.Threading.ThreadStart(capturing));
             captureThread_.Start();
         }
@@ -216,7 +218,26 @@ namespace WatchMeAlwaysServer
         {
             if (captureThread_ != null)
             {
-                captureThread_.Abort();
+                quitCaptureThread_ = true;
+                captureThread_.Join();
+            }
+        }
+
+        // thread for encoding
+        void startFrameEncodeThread()
+        {
+            quitEncodeThread_ = false;
+            encodeThread_ = new System.Threading.Thread(new System.Threading.ThreadStart(encoding));
+            encodeThread_.Start();
+        }
+
+        void stopFrameEncodeThread()
+        {
+            if (encodeThread_ != null)
+            {
+                // finish after flushing
+                quitEncodeThread_ = true;
+                encodeThread_.Join();
             }
         }
 
@@ -256,7 +277,7 @@ namespace WatchMeAlwaysServer
             if (msList.Last() / 1000 != prevMs / 1000)
             {
                 // print every 10 seconds
- //               Console.WriteLine((msList.Last() / 1000) + ": FPS = " + currentFPS);
+                //               Console.WriteLine((msList.Last() / 1000) + ": FPS = " + currentFPS);
             }
 
             return currentFPS;
@@ -264,7 +285,7 @@ namespace WatchMeAlwaysServer
 
         void capturing()
         {
-            while (true)
+            while (!quitCaptureThread_)
             {
                 controlAndMeasureFPS();
 
@@ -288,43 +309,28 @@ namespace WatchMeAlwaysServer
             }
         }
 
-        // thread for encoding
-        void startFrameEncodeThread()
-        {
-            quitEncodeFramesIfQueueIsEmpty_ = false;
-            encodeThread_ = new System.Threading.Thread(new System.Threading.ThreadStart(encoding));
-            encodeThread_.Start();
-        }
-
-        void stopFrameEncodeThread()
-        {
-            if (encodeThread_ != null)
-            {
-                // finish after flushing
-                quitEncodeFramesIfQueueIsEmpty_ = true;
-                encodeThread_.Join();
-            }
-        }
-
         void encoding()
         {
-            while (true)
+            while (!quitEncodeThread_)
             {
                 if (framesToEncode_.Count >= 1)
                 {
                     var frame = framesToEncode_.Dequeue();
                     int res = CppRecorder.EncodeDesktopFrame(frame.Data, frame.TimeMilliSeconds * 0.001f);
-                    frameCount_++;
                     Debug.Log("AddFrame: " + (res == 0 ? "OK" : "NG"));
                 }
                 else
                 {
-                    if (quitEncodeFramesIfQueueIsEmpty_)
-                    {
-                        break;
-                    }
                     System.Threading.Thread.Sleep(100); // sleep 100ms if there is no frame to encode.
                 }
+            }
+
+            // flush
+            while (framesToEncode_.Count >= 1)
+            {
+                var frame = framesToEncode_.Dequeue();
+                int res = CppRecorder.EncodeDesktopFrame(frame.Data, frame.TimeMilliSeconds * 0.001f);
+                Debug.Log("AddFrame (flush): " + (res == 0 ? "OK" : "NG"));
             }
         }
     }
