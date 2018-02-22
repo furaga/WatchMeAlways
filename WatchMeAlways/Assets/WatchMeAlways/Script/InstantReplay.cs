@@ -165,6 +165,7 @@ namespace WatchMeAlways
             foreach (var p in processes)
             {
                 kill(p);
+                p.WaitForExit();
             }
         }
 
@@ -257,10 +258,18 @@ namespace WatchMeAlways
         {
             string tokenPath = System.IO.Path.Combine(TmpDicrectory, Guid.NewGuid().ToString());
             System.IO.File.WriteAllText(MessageFile, msg + " " + tokenPath);
+            int cnt = 0;
             while (true)
             {
                 bool ok = System.IO.File.Exists(tokenPath);
                 if (ok) break;
+
+                // timeout: 5000ms
+                cnt++;
+                if (cnt > 5000)
+                {
+                    break;
+                }
                 System.Threading.Thread.Sleep(1);
             }
         }

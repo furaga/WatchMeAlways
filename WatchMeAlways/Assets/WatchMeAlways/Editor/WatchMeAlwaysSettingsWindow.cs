@@ -11,17 +11,20 @@ namespace WatchMeAlways
 {
     public class WatchMeAlwaysSettingsWindow : EditorWindow
     {
+        static bool modified = false;
         static InstantReplayConfig config_ = null;
 
         [MenuItem("WatchMeAlways/Config", false, 110)]
         static void Open()
         {
+            modified = false;
             config_ = InstantReplay.Instance.GetConfig();
             GetWindow<WatchMeAlwaysSettingsWindow>();
         }
 
         void OnEnable()
         {
+            modified = false;
             config_ = InstantReplay.Instance.GetConfig();
         }
 
@@ -36,6 +39,7 @@ namespace WatchMeAlways
             if (GUILayout.Button("Reset"))
             {
                 config_ = InstantReplayConfig.Create();
+                modified = true;
             }
 
             // draw GUI
@@ -44,7 +48,7 @@ namespace WatchMeAlways
             float replayLength = EditorGUILayout.IntSlider("ReplayLength (seconds)", (int)config_.ReplayLength, 5, 300);
             float fps = EditorGUILayout.IntSlider("FPS", (int)config_.Fps, 1, 60);
             var quality = idx2qty(EditorGUILayout.Popup("Quality", qty2idx(config_.Quality), qtxTexts()));
-            
+
             if (
                 monitor != config_.Monitor ||
                 fps != config_.Fps ||
@@ -56,13 +60,17 @@ namespace WatchMeAlways
                 config_.Fps = fps;
                 config_.Quality = quality;
                 config_.ReplayLength = replayLength;
+                modified = true;
             }
 
             // apply button
+            GUI.enabled = modified;
             if (GUILayout.Button("Apply"))
             {
                 InstantReplay.Instance.ApplyConfig(config_);
+                modified = false;
             }
+            GUI.enabled = true;
         }
 
         string[] monitorLabels()

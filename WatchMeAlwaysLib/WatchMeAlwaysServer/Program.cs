@@ -28,10 +28,7 @@ namespace WatchMeAlwaysServer
 
             while (!finishedWatching_)
             {
-                //                System.Threading.Thread.Sleep(500);
-                Console.ReadKey();
-                System.IO.File.Delete("video.h264");
-                save("video.h264");
+                System.Threading.Thread.Sleep(500);
             }
 
             Console.WriteLine("Quit");
