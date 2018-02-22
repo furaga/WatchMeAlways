@@ -35,6 +35,17 @@ namespace WatchMeAlways
             }
         }
 
+        public static string LogDicrectory
+        {
+            get
+            {
+                string documentRoot = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                string path = System.IO.Path.Combine(documentRoot, "WatchMeAlways");
+                path = System.IO.Path.Combine(path, "log");
+                return path;
+            }
+        }
+
         public static string MessageFile
         {
             get
@@ -48,10 +59,12 @@ namespace WatchMeAlways
 
         public void Start()
         {
-            createDirectoryIfNotExists(TmpDicrectory);
-            foreach (var f in System.IO.Directory.GetFiles(TmpDicrectory))
+            if (System.IO.Directory.Exists(TmpDicrectory))
             {
-                System.IO.File.Delete(f);
+                foreach (var f in System.IO.Directory.GetFiles(TmpDicrectory))
+                {
+                    System.IO.File.Delete(f);
+                }
             }
 
             killAll(serverPath);
@@ -67,34 +80,64 @@ namespace WatchMeAlways
             arg += " --msgpath " + MessageFile;
 
             runServer(arg);
+
+            Logger.Info(
+                "Start InstantReplay\n" +
+                "Monitor: MONITOR{0}, " +
+                "ReplayLength: {1}, " +
+                "Fps: {2}, " +
+                "Quality: {3}\n" +
+                "MessageFile: {4}",
+                config_.Monitor,
+                config_.ReplayLength,
+                config_.Fps,
+                config_.Quality,
+                MessageFile
+            );
         }
 
         public void Stop()
         {
             killAll(serverPath);
+            Logger.Info("Stop InstantReplay");
         }
+
+        System.Diagnostics.Process ffmpegProcess = null;
 
         public void Save()
         {
-            createDirectoryIfNotExists(GalleryDicrectory);
-            createDirectoryIfNotExists(TmpDicrectory);
+            Utils.CreateDirectoryIfNotExists(GalleryDicrectory);
+            Utils.CreateDirectoryIfNotExists(TmpDicrectory);
 
             string basepath = System.IO.Path.Combine(GalleryDicrectory, DateTime.Now.ToString("yyyyMMdd-HHmmss"));
             string h264path = basepath + ".h264";
-            sendMessage("@save " + h264path);
+            bool ok = sendMessage("@save " + h264path);
+            if (!ok)
+            {
+                Logger.Error("Failed to encode video");
+                return;
+            }
 
             string mp4path = basepath + ".mp4";
-            runFFmpeg(string.Format("-i {0} -c:v copy -f mp4 -y {1}", h264path, mp4path));
-        }
-
-        bool createDirectoryIfNotExists(string path)
-        {
-            if (System.IO.Directory.Exists(path))
+            if (ffmpegProcess != null && ffmpegProcess.HasExited == false)
             {
-                return false;
+                kill(ffmpegProcess);
             }
-            System.IO.Directory.CreateDirectory(path);
-            return true;
+
+            ffmpegProcess = runFFmpeg(string.Format("-i {0} -c:v copy -f mp4 -y {1}", h264path, mp4path));
+            if (ffmpegProcess == null)
+            {
+                Logger.Error("Failed to covert h264 to mp4");
+                return;
+            }
+            ffmpegProcess.WaitForExit(10 * 1000);
+
+            // Delete
+            System.IO.File.Delete(h264path);
+
+            // TODO: progress bar?
+            
+            Logger.Info("Saved last {0} minutes {1} secs\nSaved in {2}\n\n{3}\n{4}", ffmpegVideoTime.Minutes, ffmpegVideoTime.Seconds, mp4path, ffmpegError, ffmpegLog);
         }
 
         public InstantReplayConfig GetConfig()
@@ -146,7 +189,7 @@ namespace WatchMeAlways
                 int err = GetMonitor(i, m);
                 if (err != 0)
                 {
-                    Debug.LogWarning("Failed to get information of monitor " + i);
+                    Logger.Warn("Failed to get information of monitor " + i);
                     continue;
                 }
                 monitors.Add(m);
@@ -159,7 +202,6 @@ namespace WatchMeAlways
             foreach (var p in processes)
             {
                 kill(p);
-                p.WaitForExit();
             }
         }
 
@@ -177,7 +219,7 @@ namespace WatchMeAlways
             }
             catch (Exception ex)
             {
-                Debug.LogError("search: " + ex.ToString() + "\n" + ex.StackTrace);
+                Logger.Error("search: " + ex.ToString() + "\n" + ex.StackTrace);
             }
             return new List<System.Diagnostics.Process>();
         }
@@ -186,16 +228,19 @@ namespace WatchMeAlways
         {
             try
             {
-                Debug.Log(arguments);
                 var process = System.Diagnostics.Process.Start(serverPath, arguments);
                 return process;
             }
             catch (Exception ex)
             {
-                Debug.LogError("run: " + ex.ToString() + "\n" + ex.StackTrace);
+                Logger.Error("run: " + ex.ToString() + "\n" + ex.StackTrace);
             }
             return null;
         }
+
+        string ffmpegLog = "";
+        string ffmpegError = "";
+        TimeSpan ffmpegVideoTime = TimeSpan.Zero;
 
         System.Diagnostics.Process runFFmpeg(string arguments)
         {
@@ -214,23 +259,53 @@ namespace WatchMeAlways
                 var process = new System.Diagnostics.Process();
                 process.StartInfo = startInfo;
                 process.Start();
-                hookProcessOutput(process);
+
+                // hook output
+                ffmpegLog = "";
+                ffmpegError = "";
+                ffmpegVideoTime = TimeSpan.Zero;
+                process.OutputDataReceived += (obj, args) => ffmpegLog += args.Data + "\n";
+                process.ErrorDataReceived += (obj, args) =>
+                {
+                    parseFFmpegStdError(args.Data);
+                    ffmpegError += args.Data + "\n";
+                };
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+
                 return process;
             }
             catch (Exception ex)
             {
-                Debug.LogError("run: " + ex.ToString() + "\n" + ex.StackTrace);
+                Logger.Error("run: " + ex.ToString() + "\n" + ex.StackTrace);
             }
 
             return null;
         }
 
-        void hookProcessOutput(System.Diagnostics.Process process)
+        readonly System.Text.RegularExpressions.Regex ffmepgTimeRegex = new System.Text.RegularExpressions.Regex(@"(?<hour>\d\d):(?<min>\d\d):(?<sec>\d\d).\d\d");
+        void parseFFmpegStdError(string text)
         {
-            process.OutputDataReceived += (obj, args) => Debug.Log(args.Data);
-            process.ErrorDataReceived += (obj, args) => Debug.LogWarning(args.Data);
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
+            var tokens = text.Split(' ');
+            foreach (string tkn in tokens)
+            {
+                const string prefix = "time=";
+                if (tkn.StartsWith(prefix))
+                {
+                    var mc = ffmepgTimeRegex.Match(tkn);
+                    if (mc.Success)
+                    {
+                        int h, m, s;
+                        if (
+                            int.TryParse(mc.Groups["hour"].Value, out h) &&
+                            int.TryParse(mc.Groups["min"].Value, out m) &&
+                            int.TryParse(mc.Groups["sec"].Value, out s))
+                        {
+                            ffmpegVideoTime = new TimeSpan(h, m, s);
+                        }
+                    }
+                }
+            }
         }
 
         void kill(System.Diagnostics.Process process)
@@ -240,15 +315,16 @@ namespace WatchMeAlways
                 if (process != null && process.HasExited == false)
                 {
                     process.Kill();
+                    process.WaitForExit(1000);
                 }
             }
             catch (Exception ex)
             {
-                Debug.LogError("kill: " + ex.ToString() + "\n" + ex.StackTrace);
+                Logger.Error("kill: " + ex.ToString() + "\n" + ex.StackTrace);
             }
         }
 
-        void sendMessage(string msg)
+        bool sendMessage(string msg)
         {
             string tokenPath = System.IO.Path.Combine(TmpDicrectory, Guid.NewGuid().ToString());
             System.IO.File.WriteAllText(MessageFile, msg + " " + tokenPath);
@@ -258,14 +334,14 @@ namespace WatchMeAlways
                 bool ok = System.IO.File.Exists(tokenPath);
                 if (ok) break;
 
-                // timeout: 5000ms
-                cnt++;
-                if (cnt > 5000)
+                if (cnt++ > 3000)
                 {
-                    break;
+                    return false; // timeout (3000ms)
                 }
+
                 System.Threading.Thread.Sleep(1);
             }
+            return true;
         }
 
         [StructLayout(LayoutKind.Sequential)]
