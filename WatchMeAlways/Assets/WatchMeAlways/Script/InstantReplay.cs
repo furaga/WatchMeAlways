@@ -169,7 +169,7 @@ namespace WatchMeAlways
                 config_.CopyFrom(newConfig);
                 config_.Save();
 
-                if (IsRecording())
+                // if (IsRecording())
                 {
                     // restart
                     Stop();
