@@ -22,9 +22,9 @@ WatchMeAlways Video Recorder is a great tool for every Unity developers:
 ## How to use
 
 1. Import WatchMeAlway.unitypackage
-2. Check "WatchMeAlways > setting > Start on load."
+2. Check "WatchMeAlways > setting > Start on load." and press "Apply" button.
 3. Edit the settings if you want.
-4. Press `Ctrl+F10` (or click "WatchMeAlways > Save Instant Replay") in your Unity Editor.
+4. When you want to capture, press `Ctrl+F10` (or click "WatchMeAlways > Save Instant Replay") on your Unity Editor.
 5. You can find the captured video (mp4) from "WatchMeAlways > Open Gallery Folder."
 
 Note: WatchMeAlways Video Recorder only supports Windows (x64) for now. It will work only in Editor.
