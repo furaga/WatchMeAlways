@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Name: InstantReplayConfig
   m_EditorClassIdentifier: 
   AutoStart: 1
-  Monitor: 1
+  Monitor: 0
   ReplayLength: 120
   Fps: 30
   Quality: 5
