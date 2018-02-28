@@ -1,12 +1,13 @@
 # WatchMeAlways Video Recorder for Windows
 
-Have your ever encounted something amazing (unexpedted bugs, miracle plays ...)when you are editing or playing your game in Unity editor, 
-and realize you forgot to start your screen capture software?
-You just press Ctrl+F10, then WatchMeAlways Video Recorder save the last few seconds!
+Have your ever encounted something amazing (unexpedted bugs, miracle plays, ...) 
+when you are in Unity editor, and realize you forgot to run your screen capture software?
+WatchMeAlways Video Recorder is for you!
+Just press Ctrl+F10, then WatchMeAlways Video Recorder will save the last few seconds! 
 
-WatchMeAlways Video Recorder is a desktop recorder.
-If your unity editor is running, the WatchMeAlways Video Recorder is running.
-Therefore you can always capture the change on your desktop screen!
+WatchMeAlways Video Recorder is a desktop recorder. 
+If your unity editor is running, the WatchMeAlways Video Recorder is running. 
+Therefore you can always capture the change on your desktop screen! 
 
 WatchMeAlways Video Recorder is a great tool for every Unity developers: 
 - Capture and save anything memorable in your desktop.
