@@ -37,6 +37,15 @@ namespace WatchMeAlwaysServer
             {
                 System.Threading.Thread.Sleep(500);
 
+                bool isRunning = DesktopRecorder.Instance.RecordingState == DesktopRecorder.State.Running;
+                bool allThreadWorking = DesktopRecorder.Instance.IsEncodeThreadWorking && DesktopRecorder.Instance.IsCaptureThreadWorking;
+                if (isRunning && !allThreadWorking)
+                {
+                    Console.Error.WriteLine("Fatal error occurred in a thread of recorder. Try to restart");
+                    DesktopRecorder.Instance.FinishRecording("");
+                    DesktopRecorder.Instance.StartRecording(param.RecordingParameters);
+                }
+
                 // if parent process is dead, this process will die.
                 if (parent != null && parent.HasExited)
                 {

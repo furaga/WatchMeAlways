@@ -126,7 +126,7 @@ namespace WatchMeAlwaysServer
             }
         }
 
-        enum State
+        public enum State
         {
             NotStarted,
             Running,
@@ -147,6 +147,29 @@ namespace WatchMeAlwaysServer
         float fps_ = 0.0f;
         System.Threading.Thread captureThread_ = null;
         System.Threading.Thread encodeThread_ = null;
+
+        public State RecordingState
+        {
+            get
+            {
+                return state_;
+            }
+        }
+        public bool IsCaptureThreadWorking
+        {
+            get
+            {
+                return captureThread_.IsAlive;
+            }
+        }
+
+        public bool IsEncodeThreadWorking
+        {
+            get
+            {
+                return captureThread_.IsAlive;
+            }
+        }
 
         bool quitCaptureThread_ = false;
         bool quitEncodeThread_ = false;
@@ -283,6 +306,13 @@ namespace WatchMeAlwaysServer
             return currentFPS;
         }
 
+        enum APIResult: int
+        {
+            OK = 0,
+            NG = 1,
+            Fatal = 2,
+        }
+
         void capturing()
         {
             while (!quitCaptureThread_)
@@ -298,7 +328,11 @@ namespace WatchMeAlwaysServer
 
                 var frame = new CppRecorder.Frame();
                 int err = CppRecorder.CaptureDesktopFrame(monitor.Rect, frame);
-                if (err != 0)
+                if (err == (int)APIResult.Fatal)
+                {
+                    Debug.LogErrorFormat("Fatal error occured when capturing desktop frame");
+                    break;
+                } else if (err != 0)
                 {
                     Debug.LogErrorFormat("Failed to capture desktop frame");
                     continue;

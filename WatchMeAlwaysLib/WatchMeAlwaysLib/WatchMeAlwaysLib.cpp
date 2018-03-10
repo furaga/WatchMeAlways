@@ -40,18 +40,19 @@ extern "C" {
 enum APIResult {
 	API_RESULT_OK = 0,
 	API_RESULT_NG = 1,
+	API_RESULT_FATAL = 2,
 };
 
 std::unique_ptr<DesktopCapturer> capture = nullptr;
-std::unique_ptr<Encoder> recorder = nullptr;
+std::unique_ptr<Encoder> encoder = nullptr;
 
 int StartRecording(int width, int height, float maxSeconds, float fps, RecordingQuality quality)
 {
-	if (recorder == nullptr) {
-		recorder.reset(new Encoder());
+	if (encoder == nullptr) {
+		encoder.reset(new Encoder());
 	}
 	auto params = RecordingParameters(width, height, maxSeconds, fps, quality);
-	bool succeeded = recorder->StartEncoding(params);
+	bool succeeded = encoder->StartEncoding(params);
 	if (!succeeded) {
 		UnityDebugCpp::Error("failed: recorder->StartRecording()\n");
 		return API_RESULT_NG;
@@ -61,11 +62,11 @@ int StartRecording(int width, int height, float maxSeconds, float fps, Recording
 
 int RecordFrame(uint8_t* pixels, int width, int height, float timeStamp)
 {
-	if (recorder == nullptr) {
+	if (encoder == nullptr) {
 		UnityDebugCpp::Error("recorder is not initialized\n");
 		return API_RESULT_NG;
 	}
-	bool succeeded = recorder->EncodeFrame(pixels, width, height, timeStamp);
+	bool succeeded = encoder->EncodeFrame(pixels, width, height, timeStamp);
 	if (!succeeded) {
 		UnityDebugCpp::Error("failed: recorder->EncodeFrame()\n");
 		return API_RESULT_NG;
@@ -75,13 +76,13 @@ int RecordFrame(uint8_t* pixels, int width, int height, float timeStamp)
 
 int FinishRecording(char* saveFilePath)
 {
-	if (recorder == nullptr) {
+	if (encoder == nullptr) {
 		UnityDebugCpp::Error("recorder is not initialized\n");
 		return API_RESULT_NG;
 	}
 	std::string filename(saveFilePath);
 	UnityDebugCpp::Info(filename.c_str());
-	bool succeeded = recorder->FinishEncoding(filename);
+	bool succeeded = encoder->FinishEncoding(filename);
 	if (!succeeded) {
 		UnityDebugCpp::Error("failed: recorder->FinishRecording()\n");
 		return API_RESULT_NG;
@@ -122,7 +123,7 @@ int CaptureDesktopFrame(Rect* rect, Frame* frame)
 		UnityDebugCpp::Error("rect is null\n");
 		return API_RESULT_NG;
 	}
-	frame->Data = capture->CaptureDesktopFrame(
+	int data = capture->CaptureDesktopFrame(
 		CaptureRect(
 			rect->Left,
 			rect->Top,
@@ -130,6 +131,11 @@ int CaptureDesktopFrame(Rect* rect, Frame* frame)
 			rect->Height
 		)
 	);
+	if (data == 0) {
+		UnityDebugCpp::Error("CaptureDesktopFrame failed\n");
+		return API_RESULT_FATAL;
+	}
+	frame->Data = data;
 	return API_RESULT_OK;
 }
 
@@ -140,7 +146,7 @@ int EncodeDesktopFrame(int key, float elapsedSeconds)
 		return API_RESULT_NG;
 	}
 
-	if (recorder == nullptr) {
+	if (encoder == nullptr) {
 		UnityDebugCpp::Error("recorder is not initialized\n");
 		return API_RESULT_NG;
 	}
@@ -151,7 +157,7 @@ int EncodeDesktopFrame(int key, float elapsedSeconds)
 		return API_RESULT_NG;
 	}
 
-	bool succeeded = recorder->EncodeFrame(capturedFrame->GetPixels(), capturedFrame->GetWidth(), capturedFrame->GetHeight(), elapsedSeconds);
+	bool succeeded = encoder->EncodeFrame(capturedFrame->GetPixels(), capturedFrame->GetWidth(), capturedFrame->GetHeight(), elapsedSeconds);
 	if (!succeeded) {
 		UnityDebugCpp::Error("failed: recorder->EncodeFrame()\n");
 		return API_RESULT_NG;
