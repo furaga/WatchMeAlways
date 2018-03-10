@@ -106,8 +106,8 @@ namespace WatchMeAlways
             {
                 Logger.Info(
                     "Start InstantReplay\n" +
-                    "MessageFile: {1}, " +
-                    "ThisProcessId: {2}",
+                    "MessageFile: {0}, " +
+                    "ThisProcessId: {1}",
                     MessageFile,
                     pid
                 );
