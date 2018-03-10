@@ -72,8 +72,17 @@ int DesktopCapturer::CaptureDesktopFrame(const CaptureRect& capRect)
 	rect.bottom = y + h;
 
 	auto hdc = GetDC(NULL);
+	if (!hdc) {
+		return 0;
+	}
 	HDC hmdc = CreateCompatibleDC(hdc);
+	if (!hmdc) {
+		return 0;
+	}
 	HBITMAP hbmp = CreateCompatibleBitmap(hdc, w, h);
+	if (!hbmp) {
+		return 0;
+	}
 
 	HBITMAP hbmpOld = (HBITMAP)SelectObject(hmdc, hbmp);
 	BitBlt(hmdc, 0, 0, w, h, hdc, x, y, SRCCOPY);
@@ -100,6 +109,7 @@ int DesktopCapturer::CaptureDesktopFrame(const CaptureRect& capRect)
 
 	DeleteObject(hbmp);
 	DeleteDC(hmdc);
+	ReleaseDC(NULL, hdc);
 
 	int key = registerCapturedFrame(std::move(capturedFrame));
 	return key;
