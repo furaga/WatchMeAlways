@@ -84,21 +84,34 @@ namespace WatchMeAlways
 
             runServer(arg);
 
-            Logger.Info(
-                "Start InstantReplay\n" +
-                "Monitor: MONITOR{0}, " +
-                "ReplayLength: {1}, " +
-                "Fps: {2}, " +
-                "Quality: {3}\n" +
-                "MessageFile: {4}, " + 
-                "ThisProcessId: {5}",
-                config_.Monitor,
-                config_.ReplayLength,
-                config_.Fps,
-                config_.Quality,
-                MessageFile,
-                pid
-            );
+            if (config_ != null)
+            {
+                Logger.Info(
+                    "Start InstantReplay\n" +
+                    "Monitor: MONITOR{0}, " +
+                    "ReplayLength: {1}, " +
+                    "Fps: {2}, " +
+                    "Quality: {3}\n" +
+                    "MessageFile: {4}, " +
+                    "ThisProcessId: {5}",
+                    config_.Monitor,
+                    config_.ReplayLength,
+                    config_.Fps,
+                    config_.Quality,
+                    MessageFile,
+                    pid
+                );
+            }
+            else
+            {
+                Logger.Info(
+                    "Start InstantReplay\n" +
+                    "MessageFile: {1}, " +
+                    "ThisProcessId: {2}",
+                    MessageFile,
+                    pid
+                );
+            }
         }
 
         public void Stop()
