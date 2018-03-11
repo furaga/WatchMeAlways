@@ -61,7 +61,7 @@ namespace WatchMeAlwaysServer
                     bool allThreadWorking = DesktopRecorder.Instance.IsEncodeThreadWorking && DesktopRecorder.Instance.IsCaptureThreadWorking;
                     if (isRunning && !allThreadWorking)
                     {
-                        Console.Error.WriteLine("Fatal error occurred in a thread of recorder. Try to restart");
+                        Debug.LogErrorFormat("Fatal error occurred in a thread of recorder. Try to restart");
                         DesktopRecorder.Instance.FinishRecording("");
                         DesktopRecorder.Instance.StartRecording(param.RecordingParameters);
                     }
@@ -77,7 +77,7 @@ namespace WatchMeAlwaysServer
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine(ex.ToString() + ex.StackTrace);
+                Debug.LogErrorFormat(ex.ToString() + ex.StackTrace);
             }
         }
 
@@ -122,7 +122,7 @@ namespace WatchMeAlwaysServer
                         param.ParentProcessId = int.Parse(args[i + 1]);
                         break;
                     case "--logpath":
-                        param.LogPath= args[i + 1];
+                        param.LogPath = args[i + 1];
                         break;
                 }
             }
@@ -146,7 +146,7 @@ namespace WatchMeAlwaysServer
 
             watcher.EnableRaisingEvents = true;
             finishedWatching_ = false;
-            Console.Error.WriteLine("Start watching: " + param.MessagePath);
+            Debug.LogErrorFormat("Start watching: " + param.MessagePath);
         }
 
         static void watcher_Changed(System.Object source, System.IO.FileSystemEventArgs e)
@@ -158,7 +158,16 @@ namespace WatchMeAlwaysServer
                     case System.IO.WatcherChangeTypes.Changed:
                         try
                         {
-                            string line = System.IO.File.ReadAllText(param.MessagePath);
+                            string line = null;
+
+                            try
+                            {
+                                line = System.IO.File.ReadAllText(param.MessagePath);
+                            }
+                            catch (System.IO.IOException)
+                            {
+                                // "別のプロセスで使用されているため、プロセスはファイル 'msg.txt' にアクセスできません。"
+                            }
                             if (line == null)
                             {
                                 break;
@@ -175,9 +184,9 @@ namespace WatchMeAlwaysServer
                                             {
                                                 break;
                                             }
-                                            Console.Error.WriteLine("Saved in " + tokens[1]);
-                                            Console.Error.WriteLine();
+                                            Debug.LogErrorFormat("@save: save video in " + tokens[1]);
                                             System.IO.File.WriteAllText(tokens[2], "");
+                                            Debug.LogErrorFormat("@save: write response file: " + tokens[2]);
                                         }
                                         break;
                                     case "@quit":
@@ -188,14 +197,14 @@ namespace WatchMeAlwaysServer
                         }
                         catch (Exception ex)
                         {
-                            Console.Error.WriteLine(ex.ToString() + "\n" + ex.StackTrace);
+                            Debug.LogErrorFormat(ex.ToString() + "\n" + ex.StackTrace);
                         }
                         break;
                 }
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine(ex.ToString() + "\n" + ex.StackTrace);
+                Debug.LogErrorFormat(ex.ToString() + "\n" + ex.StackTrace);
             }
         }
 

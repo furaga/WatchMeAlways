@@ -312,11 +312,6 @@ namespace WatchMeAlwaysServer
             {
                 currentFPS = 1000.0f / dt;
             }
-            if (msList.Last() / 1000 != prevMs / 1000)
-            {
-                // print every 10 seconds
-                //               Console.WriteLine((msList.Last() / 1000) + ": FPS = " + currentFPS);
-            }
 
             return currentFPS;
         }
