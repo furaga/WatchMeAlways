@@ -7,12 +7,17 @@
 class Debug {
 public:
 	static std::mutex mutexDebugLog_;
+	static std::string logFilePath_;
+
+	static void SetLogPath(const std::string& filepath) {
+		logFilePath_ = filepath;
+	}
 
 	template <typename ... Args>
 	static void Printf(const char* format, Args const & ... args) {
 		std::lock_guard<std::mutex> lock(mutexDebugLog_);
 		FILE* f;
-		auto err = fopen_s(&f, "log_server.txt", "a");
+		auto err = fopen_s(&f, logFilePath_.c_str(), "a");
 		if (err) {
 			f = nullptr;
 			return;
@@ -26,7 +31,7 @@ public:
 	{
 		std::lock_guard<std::mutex> lock(mutexDebugLog_);
 		FILE* f;
-		auto err = fopen_s(&f, "log_server.txt", "a");
+		auto err = fopen_s(&f, logFilePath_.c_str(), "a");
 		if (err) {
 			f = nullptr;
 			return;

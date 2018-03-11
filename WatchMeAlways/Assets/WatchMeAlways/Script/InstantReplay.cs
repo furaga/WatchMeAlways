@@ -11,6 +11,7 @@ namespace WatchMeAlways
     {
         readonly string serverPath = System.IO.Path.GetFullPath("./Assets/WatchMeAlways/Plugins/x86_64/WatchMeAlwaysServer.exe");
         readonly string ffmpegPath = System.IO.Path.GetFullPath("./Assets/WatchMeAlways/Plugins/x86_64/ffmpeg.exe");
+        public static string logFilePath = "./Assets/WatchMeAlways/Log/server.log";
 
         public static string GalleryDicrectory
         {
@@ -78,6 +79,7 @@ namespace WatchMeAlways
                 arg += " --quality " + config_.Quality.ToString();
             }
             arg += " --msgpath " + MessageFile;
+            arg += " --logpath " + logFilePath;
 
             int pid = System.Diagnostics.Process.GetCurrentProcess().Id;
             arg += " --parentpid " + pid;
@@ -94,12 +96,14 @@ namespace WatchMeAlways
                     "Quality: {3}\n" +
                     "MessageFile: {4}, " +
                     "ThisProcessId: {5}",
+                    "LogFilePath: {6}",
                     config_.Monitor,
                     config_.ReplayLength,
                     config_.Fps,
                     config_.Quality,
                     MessageFile,
-                    pid
+                    pid,
+                    logFilePath
                 );
             }
             else
@@ -108,8 +112,10 @@ namespace WatchMeAlways
                     "Start InstantReplay\n" +
                     "MessageFile: {0}, " +
                     "ThisProcessId: {1}",
+                    "LogFilePath: {2}",
                     MessageFile,
-                    pid
+                    pid,
+                    logFilePath
                 );
             }
         }

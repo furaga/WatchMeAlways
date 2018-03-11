@@ -14,19 +14,32 @@ namespace WatchMeAlwaysServer
             public string MessagePath = "msg.txt";
             public string OutputPath = "";
             public int ParentProcessId = -1;
+            public string LogPath = "watchmealways_server.log";
         }
 
         static bool finishedWatching_ = true;
         static Parameter param = new Parameter();
 
+        static void setupLogging(string logFilePath)
+        {
+            if (System.IO.File.Exists(logFilePath))
+            {
+                System.IO.File.Delete(logFilePath);
+            }
+            string logDir = System.IO.Path.GetDirectoryName(logFilePath);
+            if (System.IO.Directory.Exists(logDir) == false)
+            {
+                System.IO.Directory.CreateDirectory(logDir);
+            }
+            DesktopRecorder.Instance.SetLogPath(logFilePath);
+
+        }
+
         static void Main(string[] args)
         {
-            if (System.IO.File.Exists("log_server.txt"))
-            {
-                System.IO.File.Delete("log_server.txt");
-            }
-
             param = parseArguments(args);
+            setupLogging(param.LogPath);
+
             DesktopRecorder.Instance.StartRecording(param.RecordingParameters);
 
             System.IO.FileSystemWatcher watcher = null;
@@ -77,7 +90,7 @@ namespace WatchMeAlwaysServer
                 {
                     Monitor = 0,
                     Fps = 30.0f,
-                    Quality = DesktopRecorder.CppRecorder.RecordingQuality.MEDIUM,
+                    Quality = DesktopRecorder.NativeRecorder.RecordingQuality.MEDIUM,
                     RecordLength = 120,
                 },
                 OutputPath = "movie.h264",
@@ -99,14 +112,17 @@ namespace WatchMeAlwaysServer
                         param.RecordingParameters.Fps = float.Parse(args[i + 1]);
                         break;
                     case "--quality":
-                        var t = typeof(DesktopRecorder.CppRecorder.RecordingQuality);
-                        param.RecordingParameters.Quality = (DesktopRecorder.CppRecorder.RecordingQuality)Enum.Parse(t, args[i + 1]);
+                        var t = typeof(DesktopRecorder.NativeRecorder.RecordingQuality);
+                        param.RecordingParameters.Quality = (DesktopRecorder.NativeRecorder.RecordingQuality)Enum.Parse(t, args[i + 1]);
                         break;
                     case "--msgpath":
                         param.MessagePath = args[i + 1];
                         break;
                     case "--parentpid":
                         param.ParentProcessId = int.Parse(args[i + 1]);
+                        break;
+                    case "--logpath":
+                        param.LogPath= args[i + 1];
                         break;
                 }
             }

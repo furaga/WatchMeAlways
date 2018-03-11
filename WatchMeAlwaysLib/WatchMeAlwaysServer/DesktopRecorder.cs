@@ -10,21 +10,26 @@ namespace WatchMeAlwaysServer
 {
     class Debug
     {
+        internal static string LogFilePath { get; set; } = "watchmealways_server.log";
         internal static void Log(string msg)
         {
-            // TODO
-            // Console.WriteLine(msg);
+            if (!string.IsNullOrWhiteSpace(LogFilePath))
+            {
+                System.IO.File.AppendAllText(LogFilePath, msg + "\n");
+            }
         }
         internal static void LogErrorFormat(string msg, params object[] args)
         {
-            // TODO
-            // Console.WriteLine(string.Format(msg, args));
+            if (!string.IsNullOrWhiteSpace(LogFilePath))
+            {
+                System.IO.File.AppendAllText(LogFilePath, string.Format(msg + "\n", args));
+            }
         }
     }
 
     class DesktopRecorder : Singleton<DesktopRecorder>
     {
-        public class CppRecorder
+        public class NativeRecorder
         {
             public enum RecordingQuality
             {
@@ -79,6 +84,9 @@ namespace WatchMeAlwaysServer
                 public int Height = 0;
                 public int Data = 0;
             }
+
+            [DllImport("WatchMeAlwaysLib", CharSet = CharSet.Ansi)]
+            public static extern int SetLogPath(string filepath);
 
             [DllImport("WatchMeAlwaysLib")]
             public static extern int StartRecording(int width, int height, float maxSeconds, float fps, RecordingQuality quality);
@@ -138,7 +146,7 @@ namespace WatchMeAlwaysServer
             public int Monitor { get; set; }
             public float RecordLength { get; set; }
             public float Fps { get; set; }
-            public CppRecorder.RecordingQuality Quality { get; set; }
+            public NativeRecorder.RecordingQuality Quality { get; set; }
         }
 
         Queue<Frame> framesToEncode_ = new Queue<Frame>();
@@ -187,12 +195,19 @@ namespace WatchMeAlwaysServer
             quitEncodeThread_ = false;
         }
 
+        public void SetLogPath(string filepath)
+        {
+            Debug.LogFilePath = filepath;
+            NativeRecorder.SetLogPath(filepath);
+            return;
+        }
+
         public void StartRecording(RecordingParameters parameters)
         {
             if (state_ != State.Running)
             {
                 var param = parameters as RecordingParameters;
-                var monitor = CppRecorder.GetMonitor(param.Monitor);
+                var monitor = NativeRecorder.GetMonitor(param.Monitor);
                 if (monitor == null || monitor.Width <= 0 || monitor.Height <= 0)
                 {
                     Debug.LogErrorFormat("Failed to get monitor ({0}) informaiton", param.Monitor);
@@ -201,7 +216,7 @@ namespace WatchMeAlwaysServer
 
                 monitorNumber_ = param.Monitor;
 
-                int res = CppRecorder.StartRecording(monitor.Width, monitor.Height, param.RecordLength, param.Fps, param.Quality);
+                int res = NativeRecorder.StartRecording(monitor.Width, monitor.Height, param.RecordLength, param.Fps, param.Quality);
                 state_ = State.Running;
 
                 recordingTimer_.Reset(); // need?
@@ -224,7 +239,7 @@ namespace WatchMeAlwaysServer
                 state_ = State.Stopped;
                 stopFrameCaptureThread();
                 stopFrameEncodeThread();
-                int res = CppRecorder.FinishRecording(saveVideoPath);
+                int res = NativeRecorder.FinishRecording(saveVideoPath);
                 Debug.Log("FinishRecording: " + res);
             }
         }
@@ -306,7 +321,7 @@ namespace WatchMeAlwaysServer
             return currentFPS;
         }
 
-        enum APIResult: int
+        enum APIResult : int
         {
             OK = 0,
             NG = 1,
@@ -319,20 +334,21 @@ namespace WatchMeAlwaysServer
             {
                 controlAndMeasureFPS();
 
-                var monitor = CppRecorder.GetMonitor(monitorNumber_); // todo:
+                var monitor = NativeRecorder.GetMonitor(monitorNumber_); // todo:
                 if (monitor == null)
                 {
                     Debug.LogErrorFormat("Failed to get monitor ({0}) informaiton", monitorNumber_);
                     continue;
                 }
 
-                var frame = new CppRecorder.Frame();
-                int err = CppRecorder.CaptureDesktopFrame(monitor.Rect, frame);
-                if (err == (int)APIResult.Fatal)
+                var frame = new NativeRecorder.Frame();
+                int res = NativeRecorder.CaptureDesktopFrame(monitor.Rect, frame);
+                if (res == (int)APIResult.Fatal)
                 {
-                    Debug.LogErrorFormat("Fatal error occured when capturing desktop frame");
+                    Debug.LogErrorFormat("Fatal error occurred when capturing desktop frame");
                     break;
-                } else if (err != 0)
+                }
+                else if (res != 0)
                 {
                     Debug.LogErrorFormat("Failed to capture desktop frame");
                     continue;
@@ -350,8 +366,17 @@ namespace WatchMeAlwaysServer
                 if (framesToEncode_.Count >= 1)
                 {
                     var frame = framesToEncode_.Dequeue();
-                    int res = CppRecorder.EncodeDesktopFrame(frame.Data, frame.TimeMilliSeconds * 0.001f);
-                    Debug.Log("AddFrame: " + (res == 0 ? "OK" : "NG"));
+                    int res = NativeRecorder.EncodeDesktopFrame(frame.Data, frame.TimeMilliSeconds * 0.001f);
+                    if (res == (int)APIResult.Fatal)
+                    {
+                        Debug.LogErrorFormat("Fatal error occurred when encoding");
+                        break;
+                    }
+                    else if (res != 0)
+                    {
+                        Debug.LogErrorFormat("Failed to encode");
+                        continue;
+                    }
                 }
                 else
                 {
@@ -363,7 +388,7 @@ namespace WatchMeAlwaysServer
             while (framesToEncode_.Count >= 1)
             {
                 var frame = framesToEncode_.Dequeue();
-                int res = CppRecorder.EncodeDesktopFrame(frame.Data, frame.TimeMilliSeconds * 0.001f);
+                int res = NativeRecorder.EncodeDesktopFrame(frame.Data, frame.TimeMilliSeconds * 0.001f);
                 Debug.Log("AddFrame (flush): " + (res == 0 ? "OK" : "NG"));
             }
         }

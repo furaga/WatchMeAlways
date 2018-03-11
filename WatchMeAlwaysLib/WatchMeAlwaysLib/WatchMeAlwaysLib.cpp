@@ -28,6 +28,7 @@ extern "C" {
 		int Data;
 	};
 
+	DllExport int SetLogPath(char* filepath);
 	DllExport int StartRecording(int width, int height, float maxSeconds, float fps, RecordingQuality quality);
 	// DllExport int RecordFrame(uint8_t* pixels, int width, int height, float timeStamp);
 	DllExport int FinishRecording(char* saveFilePath);
@@ -46,6 +47,12 @@ enum APIResult {
 std::unique_ptr<DesktopCapturer> capture = nullptr;
 std::unique_ptr<Encoder> encoder = nullptr;
 
+int SetLogPath(char* filepath)
+{
+	std::string filename(filepath);
+	Debug::SetLogPath(filename);
+	return API_RESULT_OK;
+}
 int StartRecording(int width, int height, float maxSeconds, float fps, RecordingQuality quality)
 {
 	if (encoder == nullptr) {
