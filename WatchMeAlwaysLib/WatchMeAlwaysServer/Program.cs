@@ -21,6 +21,11 @@ namespace WatchMeAlwaysServer
 
         static void Main(string[] args)
         {
+            if (System.IO.File.Exists("log_server.txt"))
+            {
+                System.IO.File.Delete("log_server.txt");
+            }
+
             param = parseArguments(args);
             DesktopRecorder.Instance.StartRecording(param.RecordingParameters);
 
@@ -32,26 +37,34 @@ namespace WatchMeAlwaysServer
             {
                 parent = System.Diagnostics.Process.GetProcessById(param.ParentProcessId);
             }
-            
-            while (!finishedWatching_)
+
+            try
             {
-                System.Threading.Thread.Sleep(500);
-
-                bool isRunning = DesktopRecorder.Instance.RecordingState == DesktopRecorder.State.Running;
-                bool allThreadWorking = DesktopRecorder.Instance.IsEncodeThreadWorking && DesktopRecorder.Instance.IsCaptureThreadWorking;
-                if (isRunning && !allThreadWorking)
+                while (!finishedWatching_)
                 {
-                    Console.Error.WriteLine("Fatal error occurred in a thread of recorder. Try to restart");
-                    DesktopRecorder.Instance.FinishRecording("");
-                    DesktopRecorder.Instance.StartRecording(param.RecordingParameters);
+                    System.Threading.Thread.Sleep(500);
+
+                    bool isRunning = DesktopRecorder.Instance.RecordingState == DesktopRecorder.State.Running;
+                    bool allThreadWorking = DesktopRecorder.Instance.IsEncodeThreadWorking && DesktopRecorder.Instance.IsCaptureThreadWorking;
+                    if (isRunning && !allThreadWorking)
+                    {
+                        Console.Error.WriteLine("Fatal error occurred in a thread of recorder. Try to restart");
+                        DesktopRecorder.Instance.FinishRecording("");
+                        DesktopRecorder.Instance.StartRecording(param.RecordingParameters);
+                    }
+
+                    // if parent process is dead, this process will die.
+                    if (parent != null && parent.HasExited)
+                    {
+                        DesktopRecorder.Instance.FinishRecording("");
+                        break;
+                    }
                 }
 
-                // if parent process is dead, this process will die.
-                if (parent != null && parent.HasExited)
-                {
-                    DesktopRecorder.Instance.FinishRecording("");
-                    break;
-                }
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex.ToString() + ex.StackTrace);
             }
         }
 

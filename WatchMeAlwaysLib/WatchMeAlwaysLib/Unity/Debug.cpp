@@ -1,12 +1,5 @@
 #include "stdafx.h"
 #include "Debug.h"
+#include <mutex>
 
-
-void deleteFile(FILE* ptr) {
-	if (ptr) {
-		fclose(ptr);
-	}
-}
-
-Debug::FilePtr Debug::file = Debug::FilePtr(nullptr, deleteFile);
-
+std::mutex Debug::mutexDebugLog_;

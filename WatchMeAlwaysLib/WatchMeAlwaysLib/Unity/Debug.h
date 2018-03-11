@@ -2,43 +2,38 @@
 
 #include <stdio.h>
 #include <memory>
+#include <mutex>
 
-// TODO: not work in Unity (NOTHING will be printed in output.txt)
 class Debug {
 public:
-	typedef std::unique_ptr<FILE, void(*)(FILE*)> FilePtr;
-	static FilePtr file;
+	static std::mutex mutexDebugLog_;
 
-	static void Initialize() {
-		Dispose();
-		FILE* f;
-		auto err = fopen_s(&f, "output.txt", "w");
-		file.reset(f);
-		if (err) {
-			file = nullptr;
-		}
-	}
-	static void Dispose() {
-		if (file != nullptr) {
-			fclose(file.get());
-		}
-	}
-	
 	template <typename ... Args>
 	static void Printf(const char* format, Args const & ... args) {
-		if (file == nullptr) {
-			Initialize();
+		std::lock_guard<std::mutex> lock(mutexDebugLog_);
+		FILE* f;
+		auto err = fopen_s(&f, "log_server.txt", "a");
+		if (err) {
+			f = nullptr;
+			return;
 		}
-		fprintf_s(file.get(), format, args ...);
+		fprintf_s(f, format, args ...);
+		fclose(f);
 	}
 
 	template <typename ... Args>
-	static void Println(const char* format, Args const & ... args) {
-		if (file == nullptr) {
-			Initialize();
+	static void Println(const char* format, Args const & ... args)
+	{
+		std::lock_guard<std::mutex> lock(mutexDebugLog_);
+		FILE* f;
+		auto err = fopen_s(&f, "log_server.txt", "a");
+		if (err) {
+			f = nullptr;
+			return;
 		}
-		Printf(format, args ...);
-		fprintf_s(file.get(), "\n");
+		fprintf_s(f, format, args ...);
+		fprintf_s(f, "\n");
+		fclose(f);
 	}
 };
 
