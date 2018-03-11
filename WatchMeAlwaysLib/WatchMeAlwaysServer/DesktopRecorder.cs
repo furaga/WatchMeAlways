@@ -15,14 +15,14 @@ namespace WatchMeAlwaysServer
         {
             if (!string.IsNullOrWhiteSpace(LogFilePath))
             {
-                System.IO.File.AppendAllText(LogFilePath, msg + "\n");
+                System.IO.File.AppendAllText(LogFilePath, "[" + DateTime.Now.ToString() + "]" + msg + "\n");
             }
         }
         internal static void LogErrorFormat(string msg, params object[] args)
         {
             if (!string.IsNullOrWhiteSpace(LogFilePath))
             {
-                System.IO.File.AppendAllText(LogFilePath, string.Format(msg + "\n", args));
+                System.IO.File.AppendAllText(LogFilePath, "[" + DateTime.Now.ToString() + "]" + string.Format(msg + "\n", args));
             }
         }
     }
@@ -389,7 +389,16 @@ namespace WatchMeAlwaysServer
             {
                 var frame = framesToEncode_.Dequeue();
                 int res = NativeRecorder.EncodeDesktopFrame(frame.Data, frame.TimeMilliSeconds * 0.001f);
-                Debug.Log("AddFrame (flush): " + (res == 0 ? "OK" : "NG"));
+                if (res == (int)APIResult.Fatal)
+                {
+                    Debug.LogErrorFormat("Fatal error occurred when encoding (Flush)");
+                    break;
+                }
+                else if (res != (int)APIResult.OK)
+                {
+                    Debug.LogErrorFormat("Failed to encode (Flush)");
+                    continue;
+                }
             }
         }
     }

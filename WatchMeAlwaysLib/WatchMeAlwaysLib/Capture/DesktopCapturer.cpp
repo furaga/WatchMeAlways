@@ -52,7 +52,7 @@ int DesktopCapturer::registerCapturedFrame(std::unique_ptr<CapturedFrame>&& capt
 
 	static int cnt = 0;
 	if ((cnt++) % 100 == 0) {
-		printf("capturedFrameMap_.size() = %d\n", capturedFrameMap_.size());
+		printf("capturedFrameMap_.size() = %zd\n", capturedFrameMap_.size());
 	}
 
 	return key;

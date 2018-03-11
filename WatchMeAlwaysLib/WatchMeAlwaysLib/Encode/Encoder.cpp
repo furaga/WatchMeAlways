@@ -45,10 +45,8 @@ Encoder::Encoder() :
 	workingFrame_(nullptr, deleteAVFrameFree),
 	packet_(nullptr, deleteAVPacket),
 	swsCtx_(nullptr, deleteSwsContext),
-	//currentFrame_(0),
-	//recordCount_(0),
 	quality_(RECORDING_QUALITY_MEDIUM),
-	replayLength_(MaxFrameNum)
+	replayLength_((float)MaxFrameNum)
 {
 }
 
@@ -196,6 +194,7 @@ bool Encoder::FinishEncoding(const std::string& filename)
 {
 	if (codecCtx_ == nullptr || packet_ == nullptr) {
 		UnityDebugCpp::Error("FinishRecording: Recorder is not started. Please call StartRecording().");
+		clear();
 		return false;
 	}
 
@@ -206,13 +205,15 @@ bool Encoder::FinishEncoding(const std::string& filename)
 	}
 	bool succeeded = encode(codecCtx_.get(), nullptr, packet_.get(), timestamp);
 	if (!succeeded) {
+		clear();
 		return false;
 	}
 
 	FILE *f;
 	errno_t err = fopen_s(&f, filename.c_str(), "wb");
 	if (err) {
-		UnityDebugCpp::Error("FinishRecording: Could not open " + filename + "\n");
+		UnityDebugCpp::Error("FinishRecording: Could not open \"" + filename + "\"\n");
+		clear();
 		return false;
 	}
 
@@ -238,10 +239,6 @@ void Encoder::clear() {
 
 	// clear frames
 	frameQueue_.clear();
-
-	//// clear counters
-	//currentFrame_ = 0;
-	//recordCount_ = 0;
 }
 
 bool Encoder::encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt, float elapsedSeconds)

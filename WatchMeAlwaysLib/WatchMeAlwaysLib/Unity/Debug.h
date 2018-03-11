@@ -22,6 +22,9 @@ public:
 			f = nullptr;
 			return;
 		}
+
+		time_t t = time(NULL);
+		fprintf_s(f, "[%lld]", t);
 		fprintf_s(f, format, args ...);
 		fclose(f);
 	}
@@ -36,6 +39,8 @@ public:
 			f = nullptr;
 			return;
 		}
+		time_t t = time(NULL);
+		fprintf_s(f, "[%lld]", t);
 		fprintf_s(f, format, args ...);
 		fprintf_s(f, "\n");
 		fclose(f);
