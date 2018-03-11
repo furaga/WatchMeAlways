@@ -228,7 +228,7 @@ namespace WatchMeAlwaysServer
 
                 startFrameCaptureThread();
                 startFrameEncodeThread();
-                Debug.Log("StartRecording: " + res);
+                Debug.Log("StartRecording: result=" + (APIResult)res);
             }
         }
 
@@ -240,7 +240,7 @@ namespace WatchMeAlwaysServer
                 stopFrameCaptureThread();
                 stopFrameEncodeThread();
                 int res = NativeRecorder.FinishRecording(saveVideoPath);
-                Debug.Log("FinishRecording: " + res);
+                Debug.Log("FinishRecording: path=" + saveVideoPath + ", result=" + (APIResult)res);
             }
         }
 

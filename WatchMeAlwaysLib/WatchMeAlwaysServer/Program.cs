@@ -27,7 +27,7 @@ namespace WatchMeAlwaysServer
                 System.IO.File.Delete(logFilePath);
             }
             string logDir = System.IO.Path.GetDirectoryName(logFilePath);
-            if (System.IO.Directory.Exists(logDir) == false)
+            if (string.IsNullOrWhiteSpace(logDir) == false && System.IO.Directory.Exists(logDir) == false)
             {
                 System.IO.Directory.CreateDirectory(logDir);
             }
